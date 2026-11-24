@@ -24,3 +24,64 @@ url("assets/sunset.svg") center center/cover no-repeat;display:flex;flex-directi
 .character-disclaimer .fiction h2{font-size:17px;margin:0 0 8px}
 .character-disclaimer .fiction p{font-size:13px;line-height:1.5;margin:0}
 @media(max-width:600px){.characters-intro.character-feature-banner{padding:110px 12px 26px;min-height:640px}.character-feature-banner h1{font-size:43px;letter-spacing:.07em}.character-feature-banner .portrait{height:240px}.character-disclaimer{padding:15px}.character-feature-banner .roster-grid#roster-main{width:min(290px,88vw)}}
+
+/* Character hero: one continuous cinematic banner, no isolated top card or blank column. */
+.characters-intro.character-feature-banner{
+  position:relative;overflow:hidden;isolation:isolate;
+  min-height:clamp(620px,67vw,850px);
+  display:flex;flex-direction:column;justify-content:flex-start;align-items:center;
+  padding:116px clamp(18px,5vw,75px) 45px;
+  background:linear-gradient(180deg,rgba(8,8,12,.30) 0%,rgba(10,8,11,.12) 40%,rgba(12,8,10,.93) 100%),url("assets/sunset.svg") center/cover no-repeat;
+}
+.characters-intro.character-feature-banner::before{
+ content:"";position:absolute;inset:0;z-index:-1;pointer-events:none;
+ background:radial-gradient(ellipse 48% 52% at 52% 64%,rgba(191,103,52,.12),transparent),linear-gradient(90deg,rgba(0,0,0,.17),transparent 40%,rgba(0,0,0,.2));
+}
+.character-feature-banner h1{margin:12px auto 28px;text-align:center;font-size:clamp(52px,5.5vw,92px);line-height:1.15;letter-spacing:.13em}
+.character-feature-banner .feature-center{width:min(100%,1050px);min-height:380px;display:flex;flex-direction:column;align-items:center;gap:4px}
+.character-feature-banner .roster-grid#roster-main{width:100%;max-width:none;margin:0;display:flex;justify-content:center}
+.character-feature-banner .roster-grid#roster-main .character-card{
+ position:relative;display:grid;grid-template-columns:minmax(240px,46%) minmax(270px,1fr);
+ align-items:center;overflow:visible;width:min(100%,960px);min-height:355px;
+ background:transparent;border:none;box-shadow:none;text-align:left;
+ transform:none;
+}
+.character-feature-banner .roster-grid#roster-main .character-card:hover{box-shadow:none;transform:none}
+.character-feature-banner .roster-grid#roster-main .portrait{
+ width:100%;height:350px;aspect-ratio:auto;border:none;
+ background-color:transparent;background-repeat:no-repeat;
+ background-size:contain;background-position:center 30%;
+ overflow:hidden;
+ mask-image:linear-gradient(to bottom,#000 72%,transparent 100%);
+ -webkit-mask-image:linear-gradient(to bottom,#000 72%,transparent 100%)
+}
+.character-feature-banner .roster-grid#roster-main .portrait img{
+ width:100%;height:100%;object-fit:contain;object-position:center bottom;
+ filter:drop-shadow(0 14px 27px rgba(0,0,0,.65))
+}
+.character-feature-banner .roster-grid#roster-main .character-summary{
+ display:flex;flex-direction:column;align-items:flex-start;justify-content:center;
+ padding:25px 14px 20px clamp(15px,3vw,56px);
+ text-align:left;
+}
+.character-feature-banner .roster-grid#roster-main .character-summary h3{font-size:clamp(35px,3.8vw,64px);font-weight:400;margin-bottom:8px;text-shadow:0 3px 20px #130809}
+.character-feature-banner .roster-grid#roster-main .character-summary p{font-size:clamp(19px,1.7vw,28px);color:#f4bd71;margin:0 0 18px}
+.character-feature-banner .roster-grid#roster-main .view-profile{
+ max-width:none;margin:0;padding:14px 24px;
+ color:var(--gold2);font:600 11px Inter,sans-serif;
+ border:1px solid var(--gold);letter-spacing:.16em;
+ background:rgba(30,11,13,.76);transition:background .2s
+}
+.character-feature-banner .roster-grid#roster-main .character-card:hover .view-profile{background:rgba(97,40,23,.93)}
+.character-disclaimer{position:relative;z-index:1}
+@media(max-width:700px){
+ .characters-intro.character-feature-banner{min-height:630px;padding:100px 14px 20px}
+ .character-feature-banner h1{font-size:clamp(43px,9vw,70px);letter-spacing:.055em;margin-bottom:15px}
+ .character-feature-banner .feature-center{min-height:440px}
+ .character-feature-banner .roster-grid#roster-main .character-card{grid-template-columns:1fr;min-height:0;max-width:375px}
+ .character-feature-banner .roster-grid#roster-main .portrait{height:280px}
+ .character-feature-banner .roster-grid#roster-main .character-summary{padding:5px 10px 20px;align-items:center;text-align:center}
+ .character-feature-banner .roster-grid#roster-main .character-summary h3{font-size:34px}
+ .character-feature-banner .roster-grid#roster-main .character-summary p{font-size:20px;margin-bottom:12px}
+ .character-feature-banner .roster-grid#roster-main .view-profile{margin:0 auto}
+}
