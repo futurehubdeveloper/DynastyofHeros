@@ -1,0 +1,37 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 780 1080" preserveAspectRatio="xMidYMid slice"><defs>
+<linearGradient id="sky" x1="0" x2=".4" y2="1"><stop stop-color="#131a21"/><stop offset=".54" stop-color="#4a4234"/><stop offset="1" stop-color="#9a6f44"/></linearGradient>
+<radialGradient id="light"><stop stop-color="#e8b969" stop-opacity=".55"/><stop offset="1" stop-color="#e8b969" stop-opacity="0"/></radialGradient>
+<linearGradient id="skin"><stop stop-color="#d9985b"/><stop offset=".45" stop-color="#e4a36b"/><stop offset="1" stop-color="#82553f"/></linearGradient>
+<linearGradient id="cloth" x2="1" y2="1"><stop stop-color="#59677c"/><stop offset=".5" stop-color="#263241"/><stop offset="1" stop-color="#141a25"/></linearGradient>
+<linearGradient id="armor" x2="1" y2="1"><stop stop-color="#806247"/><stop offset=".5" stop-color="#2e2726"/><stop offset="1" stop-color="#151a1c"/></linearGradient><filter id="blur"><feGaussianBlur stdDeviation="11"/></filter></defs>
+<rect width="780" height="1080" fill="url(#sky)"/><circle cx="546" cy="306" r="396" fill="url(#light)"/>
+<g opacity=".35" fill="#151e20"><path d="M0 580L100 510V280L124 225L143 280V510L270 580V900H0Z"/><path d="M520 620h220V484h-40v-60h-20v-82h-15v-72h-13v72h-15v82h-20v60h-97z"/></g>
+<g transform="translate(0 180)">
+<!-- muscular but lean warrior shoulders and torso -->
+<path d="M70 930Q102 680 220 570L310 520L435 517Q591 543 669 660L760 930Z" fill="url(#armor)" stroke="#17181d" stroke-width="15"/>
+<path d="M245 530Q340 628 505 551L665 830L548 930H115L145 745Z" fill="#4d3d34" stroke="#c09357" stroke-width="8"/>
+<path d="M210 670Q390 727 570 680" fill="none" stroke="#c29256" stroke-width="14"/><path d="M350 561L405 930" stroke="#a77846" stroke-width="20"/>
+<!-- hair flowing back behind ears -->
+<path d="M245 275Q135 329 162 525Q85 602 140 675Q243 601 264 546Q358 564 438 503Q530 534 555 450Q605 318 500 234Z" fill="#161a1b" stroke="#41352d" stroke-width="17"/>
+<path d="M174 304Q134 210 216 160Q287 110 340 145Q391 75 478 145Q557 163 540 269L507 352 332 320Z" fill="#15181a" stroke="#826343" stroke-width="10"/>
+<!-- headwrap MUST be slate blue-gray, not orange / maroon -->
+<path d="M171 255Q313 137 531 234L531 310Q375 246 178 321Z" fill="url(#cloth)" stroke="#abb3bc" stroke-width="10"/>
+<path d="M192 283Q352 211 525 280" fill="none" stroke="#8f9eb0" stroke-width="9"/>
+<path d="M505 301Q569 315 581 407L639 501Q548 462 492 378Z" fill="url(#cloth)" stroke="#8296a6" stroke-width="8"/>
+<!-- face, strong distinct angled Asian features, young adult -->
+<path d="M228 276Q297 221 403 236Q472 245 512 310Q521 353 493 420L470 485Q417 549 337 540Q274 495 246 452Q217 408 211 356Z" fill="url(#skin)" stroke="#3c2d2b" stroke-width="9"/>
+<path d="M244 331Q307 303 356 328M402 319Q460 298 499 326" stroke="#272525" stroke-width="17" stroke-linecap="round"/>
+<path d="M254 352Q299 339 351 354Q304 382 257 362Z" fill="#f0d1a7" stroke="#352524" stroke-width="7"/>
+<path d="M399 345Q449 328 496 339Q461 373 403 357Z" fill="#f0d1a7" stroke="#352524" stroke-width="7"/>
+<circle cx="308" cy="357" r="11" fill="#1a2223"/><circle cx="451" cy="348" r="10" fill="#1a2223"/>
+<path d="M382 352L360 437Q383 446 410 429" fill="none" stroke="#985c41" stroke-width="8"/>
+<path d="M341 481Q391 500 451 467" fill="none" stroke="#442722" stroke-width="8"/>
+<path d="M354 512Q399 539 456 509" fill="none" stroke="#53392c" stroke-width="5" opacity=".75"/>
+<!-- hairline darkens forehead, tied back -->
+<path d="M216 322Q199 231 290 196Q392 151 494 230L516 290Q453 259 395 246Q301 267 241 338Z" fill="#17191b" stroke="#44322b" stroke-width="9"/>
+<!-- blue-gray fabric sash -->
+<path d="M232 557Q305 620 562 602L622 728Q473 683 369 684L250 930L144 930Z" fill="url(#cloth)" stroke="#af955e" stroke-width="8"/>
+<path d="M210 628Q410 674 575 633" fill="none" stroke="#8595a7" stroke-width="9" opacity=".8"/>
+<!-- single gold shoulder clasp -->
+<circle cx="246" cy="595" r="31" fill="#ba8e46" stroke="#f3d493" stroke-width="8"/><circle cx="246" cy="595" r="14" fill="#704d2c"/><path d="M120 820L680 820" stroke="#8a6b45" stroke-width="16" opacity=".45"/>
+</g><path d="M0 0H780V1080H0Z" fill="none" stroke="#caa063" stroke-width="10" opacity=".58"/></svg>
