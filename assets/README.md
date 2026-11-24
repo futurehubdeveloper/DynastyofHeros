@@ -34,3 +34,19 @@ mg-kan.webp, mg-kyan.webp, min-sithu.webp, nga-tint.webp, nga-pyae-wa.webp, a-ma
 Until these are uploaded, the site automatically shows neutral silhouette placeholders. Do not substitute another character's face.
 
 **Continuity reminders:** Nga Than is stout, A May Mya is the mature caretaker, the Royal Guard Commander has the golden helmet, royal search soldiers wear purple cloth headwraps and no helmet. Do not disclose unpublished Shadow Unit or post-game secrets on public character pages.
+
+## Characters page layered artwork (November 2026 revision)
+
+The current Characters page has independent layers:
+
+1. `characters-top-banner`: sunset Bagan header with editable CHARACTERS heading.
+2. `characters-page-backdrop`: the scrolling `assets/characters-forest.svg` (no words or people).
+3. `featured-hero__portrait`: independent Mg Kan foreground. Replace the optional `assets/mg-kan-cutout.png` with an approved transparent cutout when available. Before that, the already-uploaded GoldenWarrior MP4 serves as a *temporary masked visual fallback*.
+4. `featured-hero__copy`: HTML heading, description, button; never baked into background.
+5. Portrait cards: `characters.js` creates HTML `h3` for each name, `p` for each title, and a clickable button. They are editable text, not pixels.
+
+To change the forest, replace `assets/characters-forest.svg`, or update just `--characters-world-image` in `style.css`. The background responds to scroll in `main.js` and honors reduced-motion settings.
+
+Nga Htwe Yu has his own `assets/nga-htwe-yu-blue.svg` fallback portrait with a **slate blue-gray** headwrap. He is not Nga Pyae Wa; their character identities and positions remain separate.
+
+The hero is rendered **only once**, in his feature section. Do not place Mg Kan as an additional card in the Royal Family grid. His popup profile opens via the button carrying `data-open-character="mg-kan"`.
