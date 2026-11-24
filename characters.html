@@ -1,6 +1,28 @@
-<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#11100f"><title>Characters — Dynasty of Heroes</title><link rel="stylesheet" href="style.css"></head><body><div id="progress"></div>
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#11100f"><title>Characters — Dynasty of Heroes</title><link rel="stylesheet" href="style.css"></head><body class="characters-page"><div class="characters-page-backdrop" aria-hidden="true"><div class="characters-page-backdrop__art"></div></div><div id="progress"></div>
 <header class="site-header"><a class="brand" href="index.html"><span class="temple">♜</span><span>DYNASTY <small>OF HEROES</small></span></a><button class="menu-toggle" aria-expanded="false" aria-label="Toggle menu">☰</button><nav class="site-menu"><a href="index.html">HOME</a><a href="index.html#story">STORY</a><a class="active" href="characters.html">CHARACTERS</a><a href="index.html#experiences">COMICS</a><a href="index.html#experiences">ANIMATION</a><a href="index.html#experiences">GAME</a><a href="index.html#mission">MEDIA</a></nav><span class="language">EN ▾</span></header>
-<main><section class="characters-intro character-feature-banner"><span class="section-label">A CHRONICLE OF PAGAN</span><h1>CHARACTERS</h1><div class="feature-center"><div class="feature-index">01 &nbsp; MAIN HERO</div><div class="roster-grid" id="roster-main"></div></div></section>
+<main>
+<section class="characters-intro character-top-banner" aria-label="Characters page introduction">
+  <span class="section-label">A CHRONICLE OF PAGAN</span>
+  <h1>CHARACTERS</h1>
+  <p class="characters-tagline">The heroes, family, and forces that shape the fate of a kingdom.</p>
+</section>
+<section class="featured-hero" id="main-hero" aria-labelledby="mgkan-title">
+  <div class="featured-hero__scene" aria-hidden="true"></div>
+  <div class="featured-hero__content">
+    <div class="featured-hero__portrait">
+      <!-- Independent foreground asset. The video is a temporary visual fallback until the transparent cutout is uploaded. -->
+      <video class="featured-hero__video-fallback" autoplay muted playsinline loop preload="metadata" aria-hidden="true"><source src="assets/GoldenWarrior_FutureWind_Banner_CalmDark.mp4" type="video/mp4"></video>
+      <img class="featured-hero__cutout" src="assets/mg-kan-cutout.png" alt="Mg Kan wearing his black-and-red warrior outfit" loading="eager">
+    </div>
+    <div class="featured-hero__copy">
+      <span class="section-label">THE MAIN HERO</span>
+      <h2 id="mgkan-title">MG KAN</h2>
+      <p class="featured-hero__subtitle">The Sword</p>
+      <p class="featured-hero__description">A courageous and kind-hearted young warrior who protects those closest to him.</p>
+      <button type="button" class="button outline featured-hero__details" data-open-character="mg-kan">VIEW DETAILS ↗</button>
+    </div>
+  </div>
+</section>
 <section class="character-disclaimer"><div class="fiction"><h2>WHERE HISTORY MEETS LEGEND</h2><p>Dynasty of Heroes is a work of historical fiction inspired by the people, events and legends of ancient Myanmar's Pagan era. Some characters are based on historical figures; others are fictional or creatively reimagined. Their personalities, relationships and adventures may differ from historical accounts.</p></div></section>
 <section class="roster-section" id="family"><div class="roster-heading"><span>02</span><h2>THE ROYAL FAMILY</h2></div><div class="roster-grid" id="roster-family"></div></section>
 <section class="roster-section" id="allies"><div class="roster-heading"><span>03</span><h2>CLOSEST ALLIES <small>COMPANIONS & SPIRITUAL MENTORS</small></h2></div><div class="roster-grid" id="roster-allies"></div></section>
