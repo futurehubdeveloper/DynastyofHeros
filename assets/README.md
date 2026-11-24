@@ -1,3 +1,11 @@
+# Portrait artwork — one-file upload
+
+The 22-portrait cinematic artwork sheet is prepared as **DOH_22_Character_Portraits_Sprite.jpg**. The website already supports this exact filename and automatically replaces the silhouette placeholders in all 22 cards and detail views when the file is uploaded to this `assets/` folder.
+
+From the GitHub `assets` directory, choose **Add file → Upload files**, select the single JPG image, and **Commit changes**. No individual cropping or renaming is needed.
+
+The character order and original references remain documented in `characters.js`. Keep the approved age and costume continuity, including stout Nga Than and the masked royal commander with a golden helmet.
+
 # Dynasty of Heroes media assets
 
 This repository intentionally keeps visual assets separate from HTML so headings, buttons, and descriptions remain editable.
