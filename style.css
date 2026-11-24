@@ -85,3 +85,109 @@ url("assets/sunset.svg") center center/cover no-repeat;display:flex;flex-directi
  .character-feature-banner .roster-grid#roster-main .character-summary p{font-size:20px;margin-bottom:12px}
  .character-feature-banner .roster-grid#roster-main .view-profile{margin:0 auto}
 }
+
+/* ==========================================================================
+   DYNASTY OF HEROES | Characters page V4
+   Layer contract:
+   1. Full-page forest parallax: assets/characters-forest.svg
+   2. Featured Mg Kan scene: assets/characters-forest.svg (replace separately)
+   3. Independent hero foreground: assets/mg-kan-cutout.png
+      (original cinematic video is shown until transparent PNG is provided)
+   4. Every title, caption, and Details control is real HTML.
+   ========================================================================== */
+body.characters-page{background:#0d1011;isolation:isolate}
+.characters-page-backdrop{position:fixed;inset:0;overflow:hidden;z-index:0;pointer-events:none}
+.characters-page-backdrop__art{position:absolute;inset:-16%;background:
+  linear-gradient(180deg,rgba(9,12,13,.22),rgba(10,10,13,.58) 47%,rgba(7,7,11,.88)),
+  url("assets/characters-forest.svg") center center/cover no-repeat;
+  transform:translate3d(0,var(--character-parallax,0px),0);
+  will-change:transform;}
+.characters-page main{position:relative;z-index:1}
+.characters-page footer{position:relative;z-index:2;background:#100d0d}
+.characters-page .site-header{position:fixed;background:linear-gradient(180deg,rgba(12,12,16,.80),rgba(15,11,14,.28));backdrop-filter:blur(9px);-webkit-backdrop-filter:blur(9px);border-bottom:1px solid rgba(226,187,113,.27)}
+/* Header banner retains its own Pagan vista, not the forest scene. */
+.characters-page .characters-intro.character-top-banner{
+  min-height:270px;display:flex;flex-direction:column;justify-content:center;align-items:center;
+  padding:94px 22px 31px;position:relative;text-align:center;
+  background:
+    linear-gradient(180deg,rgba(14,11,15,.52),rgba(14,9,11,.30) 60%,rgba(12,9,10,.79)),
+    url("assets/sunset.svg") center center/cover no-repeat;
+  border-bottom:1px solid #b17d39;
+}
+.characters-page .character-top-banner h1{
+  font-size:clamp(50px,6vw,94px);font-weight:500;letter-spacing:.11em;
+  margin:8px 0 6px;line-height:1.05;color:#f2d294;
+  text-shadow:0 4px 26px rgba(0,0,0,.72)
+}
+.characters-page .characters-tagline{font-size:clamp(14px,1.22vw,18px);line-height:1.4;color:#f5e4c8;text-shadow:0 2px 13px #000;margin:8px 0 0}
+.featured-hero{
+  position:relative;isolation:isolate;overflow:hidden;
+  min-height:clamp(340px,31vw,525px);display:flex;align-items:stretch;
+  border-bottom:1px solid rgba(218,168,84,.55);
+  background:#18211d;
+}
+.featured-hero__scene{
+  position:absolute;inset:-16%;z-index:-2;
+  background:
+    linear-gradient(90deg,rgba(13,16,14,.06) 0%,rgba(13,16,14,.14) 41%,rgba(8,10,12,.62) 67%,rgba(7,8,9,.77)),
+    url("assets/characters-forest.svg") center center/cover no-repeat;
+  transform:translate3d(0,var(--feature-parallax,0px),0);
+  will-change:transform;
+}
+.featured-hero:after{content:"";position:absolute;inset:0;pointer-events:none;z-index:-1;
+  background:linear-gradient(0deg,rgba(9,8,10,.8) 0%,transparent 21%,transparent 72%,rgba(11,10,14,.17)),
+  radial-gradient(ellipse at 29% 41%,rgba(225,173,93,.16),transparent 45%);
+}
+.featured-hero__content{
+ width:min(100%,1430px);margin:auto;min-height:inherit;
+ display:grid;grid-template-columns:54% 46%;align-items:stretch;
+ padding:0 clamp(15px,3vw,40px);
+}
+.featured-hero__portrait{position:relative;min-height:inherit;overflow:hidden;pointer-events:none}
+.featured-hero__video-fallback{
+ position:absolute;inset:-5% auto -5% -16%;width:126%;height:110%;max-width:none;
+ display:block;object-fit:cover;object-position:12% center;
+ filter:contrast(1.07) saturate(.83) brightness(.79);
+ mask-image:linear-gradient(90deg,transparent,#000 20%,#000 68%,transparent 98%),linear-gradient(180deg,#000 76%,transparent);
+ -webkit-mask-image:linear-gradient(90deg,transparent,#000 20%,#000 68%,transparent 98%);
+}
+.featured-hero__cutout{
+ position:absolute;bottom:-1%;left:0;width:100%;height:106%;object-fit:contain;object-position:center bottom;
+ opacity:0;transition:opacity .35s ease;filter:drop-shadow(0 13px 35px rgba(0,0,0,.4));}
+.featured-hero.has-cutout .featured-hero__cutout{opacity:1}
+.featured-hero.has-cutout .featured-hero__video-fallback{opacity:0;visibility:hidden}
+.featured-hero__copy{position:relative;padding:clamp(28px,4vw,65px) 12px;display:flex;flex-direction:column;justify-content:center;align-items:flex-start}
+.featured-hero__copy h2{font-size:clamp(41px,5vw,82px);line-height:1;letter-spacing:.08em;font-weight:500;color:var(--gold2);margin:13px 0 2px;text-shadow:0 3px 20px #0d0b0e}
+.featured-hero__subtitle{font-size:clamp(21px,2vw,28px);font-style:italic;color:#f2c880;margin:5px 0 16px}
+.featured-hero__description{font-size:clamp(15px,1.37vw,20px);line-height:1.65;color:#f6ead6;width:min(445px,100%);margin:0 0 25px;text-shadow:0 2px 10px #0a0808}
+.featured-hero__details{background:rgba(54,21,21,.59);color:#f7dc9e;min-height:48px}
+.characters-page .character-disclaimer{background:rgba(16,13,14,.86);border-bottom:1px solid rgba(223,165,87,.28)}
+.characters-page .roster-section{background:linear-gradient(180deg,rgba(12,10,12,.91),rgba(21,13,17,.87))!important;position:relative;backdrop-filter:blur(3px);border-bottom:1px solid rgba(199,143,75,.12)}
+.characters-page .roster-section:nth-of-type(odd){background:linear-gradient(100deg,rgba(13,10,13,.89),rgba(26,14,18,.88))!important}
+.characters-page #roster-family{grid-template-columns:repeat(7,minmax(0,1fr));gap:clamp(9px,1vw,16px)}
+.characters-page .character-card{background:linear-gradient(160deg,#322025,#130d10);border-color:rgba(219,160,77,.65)}
+.characters-page .character-card .portrait{overflow:hidden}
+.characters-page .character-card[data-character-id="nga-htwe-yu"] .portrait{background-image:none!important}
+.characters-page .character-card[data-character-id="nga-htwe-yu"] .portrait img{opacity:1!important;object-fit:cover;object-position:50% 16%}
+.characters-page .character-summary h3,.characters-page .character-summary p,.characters-page .view-profile{position:relative;z-index:1}
+/* labels are actual elements generated in characters.js, never burned into portrait pixels */
+@media(max-width:1400px){.characters-page #roster-family{grid-template-columns:repeat(4,minmax(0,1fr));}}
+@media(max-width:800px){.characters-page #roster-family{grid-template-columns:repeat(3,minmax(0,1fr));}}
+@media(max-width:600px){
+ .characters-page .characters-intro.character-top-banner{min-height:220px;padding:83px 12px 23px}
+ .characters-page .character-top-banner h1{font-size:42px;letter-spacing:.04em}
+ .featured-hero{min-height:620px}
+ .featured-hero__content{grid-template-columns:1fr;grid-template-rows:340px auto;padding:0 16px}
+ .featured-hero__portrait{min-height:340px}
+ .featured-hero__video-fallback{inset:0 auto 0 -10%;width:120%;height:100%}
+ .featured-hero__copy{padding:16px 12px 32px;align-items:center;text-align:center}
+ .featured-hero__copy h2{font-size:44px}
+ .featured-hero__subtitle{font-size:23px;margin:5px 0 12px}
+ .featured-hero__description{margin:0 0 18px;font-size:15px}
+ .characters-page #roster-family{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+ .characters-page-backdrop__art,.featured-hero__scene{will-change:auto}
+}
+@media(prefers-reduced-motion:reduce){
+ .characters-page-backdrop__art,.featured-hero__scene{transform:none!important;will-change:auto}
+ .featured-hero__video-fallback{display:none}
+}
