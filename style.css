@@ -3,3 +3,24 @@
 /* Approved DOH portraits: one 6-column × 4-row sprite sheet; replaces placeholders on upload. */
 .has-character-sprite .portrait,.has-character-sprite .modal-image{background-image:url('assets/DOH_22_Character_Portraits_Sprite.jpg');background-size:600% 400%;background-position:var(--sprite-x,0%) var(--sprite-y,0%);background-repeat:no-repeat}
 .has-character-sprite .portrait img,.has-character-sprite .modal-image img{opacity:0}
+
+/* Character page approved hero composition — wide Pagan panorama, centered main hero. */
+.characters-intro.character-feature-banner{min-height:730px;padding:116px 24px 56px;text-align:center;background:
+linear-gradient(180deg,rgba(11,8,12,.38) 0%,rgba(14,10,11,.12) 30%,rgba(14,9,11,.78) 100%),
+url("assets/sunset.svg") center center/cover no-repeat;display:flex;flex-direction:column;align-items:center;}
+.character-feature-banner h1{font-weight:500;letter-spacing:.13em;font-size:clamp(54px,6vw,105px);line-height:1.1;margin:12px 0 32px;text-shadow:0 4px 30px rgba(0,0,0,.9)}
+.feature-center{width:100%;display:flex;flex-direction:column;align-items:center;gap:15px}
+.feature-index{font:600 11px Inter,sans-serif;color:#f4d394;letter-spacing:.27em;text-shadow:0 2px 13px #000}
+.character-feature-banner .roster-grid#roster-main{display:block;width:min(360px,84vw);margin:auto}
+.character-feature-banner .character-card{width:100%;text-align:center;background:linear-gradient(180deg,rgba(23,16,17,.36),rgba(20,13,15,.95));border:1px solid #d1a25d;box-shadow:0 14px 50px rgba(0,0,0,.52)}
+.character-feature-banner .portrait{height:260px;aspect-ratio:auto;background-color:#281b20}
+.character-feature-banner .portrait img{object-position:center 26%}
+.character-feature-banner .character-summary{padding:13px 18px 17px}
+.character-feature-banner .character-summary h3{font-size:25px}
+.character-feature-banner .character-summary p{font-size:16px;margin-bottom:7px}
+.character-feature-banner .view-profile{margin:10px auto 0;max-width:210px;padding:12px;border:1px solid rgba(227,181,109,.65);background:rgba(61,24,24,.48)}
+.character-disclaimer{background:#1b1011;text-align:center;padding:20px 24px 28px;border-bottom:1px solid rgba(225,177,99,.3)}
+.character-disclaimer .fiction{padding-top:15px}
+.character-disclaimer .fiction h2{font-size:17px;margin:0 0 8px}
+.character-disclaimer .fiction p{font-size:13px;line-height:1.5;margin:0}
+@media(max-width:600px){.characters-intro.character-feature-banner{padding:110px 12px 26px;min-height:640px}.character-feature-banner h1{font-size:43px;letter-spacing:.07em}.character-feature-banner .portrait{height:240px}.character-disclaimer{padding:15px}.character-feature-banner .roster-grid#roster-main{width:min(290px,88vw)}}
