@@ -229,7 +229,7 @@ body.characters-page{--characters-world-image:url("assets/characters-forest.svg"
  [data-character-id="nga-nyo"],
  [data-character-id="mae-pan"]
 ) .modal-image{
- background-image:url("assets/DOH_First10_Illustrated_Sprite.webp")!important;
+ background-image:url("assets/DOH_First10_Illustrated_Sprite.svg")!important;
  background-size:500% auto!important;
  background-position:var(--batch1-x,0%) var(--batch1-y,0%)!important;
  background-repeat:no-repeat!important;
@@ -272,4 +272,106 @@ body.characters-page{--characters-world-image:url("assets/characters-forest.svg"
   background-position:center,center,center;
   background-size:cover,cover,cover;
   background-repeat:no-repeat;
+}
+
+/* === Characters cinematic world background: final asset wiring ===
+   Background image fills the viewport, remains independent of cards and Mg Kan.
+   Every heading, subtitle, name, description and button remains editable HTML.
+   To change backgrounds, swap the files below. */
+body.characters-page{
+  --characters-world-image:url("assets/characters-world-cinematic.svg");
+  background:#0e1011;
+}
+.characters-page .characters-page-backdrop{
+  position:fixed;inset:0;width:100vw;height:100dvh;
+  overflow:hidden;z-index:0;pointer-events:none;
+}
+.characters-page .characters-page-backdrop__art{
+  position:absolute;inset:-12%;
+  background-image:
+    linear-gradient(180deg,rgba(9,11,13,.16) 0%,rgba(9,11,13,.28) 55%,rgba(7,7,9,.52) 100%),
+    var(--characters-world-image);
+  background-repeat:no-repeat;
+  background-size:cover;
+  background-position:center center;
+  transform:translate3d(0,var(--character-parallax,0px),0);
+}
+.characters-page .characters-intro.character-top-banner{
+  min-height:clamp(255px,22vw,355px);
+  background-image:
+    linear-gradient(180deg,rgba(12,11,15,.19),rgba(12,10,14,.24) 56%,rgba(9,8,10,.67)),
+    url("assets/characters-top-cinematic.svg");
+  background-size:cover;
+  background-position:center center;
+  background-repeat:no-repeat;
+  border-bottom:1px solid rgba(219,174,96,.57);
+}
+.characters-page .featured-hero{
+  position:relative;
+  background:transparent;
+  border-bottom:1px solid #b58c4f;
+}
+.characters-page .featured-hero__scene{
+  background-image:
+    linear-gradient(90deg,rgba(10,13,13,.10),rgba(10,11,12,.11) 43%,rgba(8,10,12,.38) 66%,rgba(8,10,12,.69) 100%),
+    var(--characters-world-image);
+  background-repeat:no-repeat;
+  background-size:cover;
+  background-position:center center;
+}
+.characters-page .featured-hero__portrait{
+  position:relative;
+  overflow:visible;
+}
+.characters-page .featured-hero__cutout{
+  display:block;
+  position:absolute;
+  bottom:-1%;left:0;
+  width:100%;height:107%;
+  object-fit:contain;
+  object-position:center bottom;
+  filter:drop-shadow(0 8px 28px rgba(5,7,6,.55));
+}
+.characters-page .featured-hero.has-cutout .featured-hero__cutout{opacity:1}
+.characters-page .featured-hero__video-fallback{display:none!important}
+/* The world remains visible behind dark translucent roster and disclaimer sections. */
+.characters-page .roster-section{
+  background:linear-gradient(180deg,rgba(11,10,13,.75),rgba(18,12,15,.77))!important;
+  backdrop-filter:blur(1.5px);
+  -webkit-backdrop-filter:blur(1.5px);
+}
+.characters-page .roster-section:nth-of-type(odd){
+  background:linear-gradient(110deg,rgba(10,9,12,.72),rgba(25,14,18,.76))!important;
+}
+.characters-page .character-disclaimer{
+  background:linear-gradient(90deg,rgba(11,9,11,.75),rgba(19,13,16,.72));
+  backdrop-filter:blur(2px);
+}
+.characters-page .site-header{
+  background:linear-gradient(180deg,rgba(12,11,15,.68),rgba(13,11,13,.18));
+  backdrop-filter:blur(8px);
+}
+/* 10 approved portraits are image assets; their labels stay real HTML. */
+.has-first-ten-sprite .characters-page .portrait{
+  background-repeat:no-repeat;
+}
+.has-first-ten-sprite .characters-page .modal-image{
+  background-repeat:no-repeat;
+}
+/* On mobile, avoid excessive scroll-based work but keep a full-screen background. */
+@media(max-width:600px){
+  .characters-page .characters-page-backdrop__art{
+    background-position:36% center;
+  }
+  .characters-page .featured-hero__scene{
+    background-position:34% center;
+  }
+  .characters-page .featured-hero__cutout{height:100%}
+}
+@media(prefers-reduced-motion:reduce){
+  .characters-page .characters-page-backdrop__art,
+  .characters-page .featured-hero__scene{
+    transform:none!important;
+    will-change:auto!important;
+  }
 }
