@@ -1,6 +1,6 @@
 # Dynasty of Heroes — Official Website
 
-A cinematic two-page website featuring the Pagan-era-inspired *Dynasty of Heroes* universe.
+A cinematic website featuring the Pagan-era-inspired *Dynasty of Heroes* universe.
 
 ## ✅ OPEN THE WEBSITE ON WINDOWS — IMPORTANT
 
@@ -32,6 +32,7 @@ Then visit `http://localhost:8000/`. This is optional; extracting and double-cli
 ## Pages
 
 - **`index.html`** — cinematic home page: video hero, goals & objectives, story, comics, animation and tactics.
+- **`story.html`** — darkened sunset banner, the world of Bagan, prophecy, and the hero’s journey over one subtle parallax map.
 - **`characters.html`** — new cinematic full-screen character showcase. Select all 22 cast members from the bottom navigation and switch between groups; biographies are editable text, not part of images.
 - **`characters-classic.html`** — the previous approved card-based gallery, kept intact and accessible.
 - **`characters-showcase.html`** — independent preview copy of the cinematic showcase.
@@ -39,6 +40,8 @@ Then visit `http://localhost:8000/`. This is optional; extracting and double-cli
 ## Asset organization
 
 - `style.css` — shared dark gold cinematic design.
+- `home-brand.css` — homepage-only Factory of Future symbol and editable brush-style wordmark.
+- `story.css` / `story.js` — Story layout, accessible world-map dialog, navigation, and reduced-motion-aware parallax.
 - `main.js` — navigation, video and parallax scrolling.
 - `characters-data.js` — editable profile names, titles, roles, descriptions and traits for the new cinematic showcase.
 - `characters-cinematic.css` / `characters-cinematic.js` — full-screen storytelling design and keyboard-accessible character selector.
