@@ -240,36 +240,68 @@ async function closeReader() {
   closingReader = false;
 }
 
+const comicMotion = matchMedia('(prefers-reduced-motion: reduce)');
+const sample = document.querySelector('.comic-sample');
+sample.addEventListener('pointermove', event => {
+  if (comicMotion.matches || event.pointerType !== 'mouse') return;
+  const bounds = sample.getBoundingClientRect();
+  sample.style.setProperty('--comic-tilt-x', (3 - 6 * (event.clientY - bounds.top) / bounds.height) + 'deg');
+  sample.style.setProperty('--comic-tilt-y', (6 * (event.clientX - bounds.left) / bounds.width - 3) + 'deg');
+});
+sample.addEventListener('pointerleave', () => {
+  sample.style.removeProperty('--comic-tilt-x');
+  sample.style.removeProperty('--comic-tilt-y');
+});
+
 $('comicOpen').onclick = () => {
+  const skip = $('comicSkip');
   if (!entrance.hidden || reader.classList.contains('open')) return;
   const opener = $('comicOpen');
-  if (matchMedia('(prefers-reduced-motion: reduce)').matches) {
+  if (comicMotion.matches || typeof entrance.animate !== 'function') {
     openReader(0, opener);
     return;
   }
+
   $('comicEntrancePage').src = comicSrc(1);
   entrance.hidden = false;
   activateModal(entrance, opener);
-  $('comicSkip').focus({ preventScroll: true });
-  const book = entrance.querySelector('.comic-entrance-book');
-  let finished = false;
+  skip.focus({ preventScroll: true });
+  const duration = 3400;
+  const options = { duration, fill: 'both', easing: 'cubic-bezier(.35,0,.27,1)' };
+  const room = entrance.querySelector('.comic-entrance-room').animate([
+    { transform: 'scale(1)', offset: 0 },
+    { transform: 'scale(1)', offset: .14 },
+    { transform: 'scale(1.38)', offset: .58 },
+    { transform: 'scale(2.1)', opacity: 0, offset: 1 }
+  ], options);
+  const book = entrance.querySelector('.comic-entrance-book').animate([
+    { transform: 'translateY(24vh) scale(.66) rotateX(60deg) rotateZ(-9deg)', offset: 0 },
+    { transform: 'translateY(24vh) scale(.66) rotateX(60deg) rotateZ(-9deg)', offset: .14 },
+    { transform: 'translateY(12vh) scale(1) rotateX(45deg)', offset: .48 },
+    { transform: 'translateY(2vh) scale(1.16) rotateX(13deg)', offset: .76 },
+    { opacity: 1, offset: .94 },
+    { transform: 'scale(5.5) rotateX(0deg)', opacity: 0, offset: 1 }
+  ], options);
+  const cover = entrance.querySelector('.comic-entrance-cover').animate([
+    { transform: 'rotateY(0deg)', offset: 0 },
+    { transform: 'rotateY(0deg)', offset: .48 },
+    { transform: 'rotateY(-165deg)', offset: .76 },
+    { transform: 'rotateY(-165deg)', offset: 1 }
+  ], options);
+  const fallback = setTimeout(finish, duration + 250);
+
   function finish() {
-    if (finished) return;
-    finished = true;
+    if (entrance.hidden) return;
     clearTimeout(fallback);
-    $('comicSkip').onclick = null;
-    book.removeEventListener('animationend', onFinish);
-    finishEntrance = null;
     entrance.hidden = true;
-    openReader(0);
+    for (const animation of [room, book, cover]) animation.cancel();
+    skip.onclick = null;
+    finishEntrance = null;
+    openReader(0, opener);
   }
-  function onFinish(event) {
-    if (event.animationName === 'comic-enter') finish();
-  }
-  const fallback = setTimeout(finish, 3200);
   finishEntrance = finish;
-  book.addEventListener('animationend', onFinish);
-  $('comicSkip').onclick = finish;
+  book.onfinish = finish;
+  skip.onclick = finish;
 };
 document.querySelectorAll('[data-reader]').forEach(button => { button.onclick = () => openReader(null, button); });
 document.querySelectorAll('[data-episode]').forEach(button => { button.onclick = () => openReader(button.dataset.episode, button); });

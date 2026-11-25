@@ -47,22 +47,16 @@
 
 .comic-entrance[hidden]{display:none}
 .comic-entrance{position:fixed;inset:0;z-index:2147483647;display:grid;place-items:center;overflow:hidden;background:radial-gradient(ellipse,#5e3723,#110c09 70%);perspective:1500px}
-.comic-entrance-book{position:relative;width:min(48vw,310px,46vh);transform-origin:50% 50%;animation:comic-enter 3s cubic-bezier(.55,0,.35,1) both;transform-style:preserve-3d}
+.comic-entrance-book{position:relative;width:min(48vw,310px,46vh);transform-origin:50% 50%;transform-style:preserve-3d}
 .comic-entrance-book>img{display:block;width:100%;height:auto;box-shadow:0 15px 60px #000}
-.comic-entrance-cover{position:absolute;inset:0;display:grid;place-items:center;padding:12%;border:2px solid #a56d39;border-radius:3px 9px 9px 3px;background:radial-gradient(ellipse at 50% 35%,#773936,#290f12 80%);transform-origin:left center;backface-visibility:hidden;animation:comic-cover 3s ease-in-out both}
+.comic-entrance-cover{position:absolute;inset:0;display:grid;place-items:center;padding:12%;border:2px solid #a56d39;border-radius:3px 9px 9px 3px;background:radial-gradient(ellipse at 50% 35%,#773936,#290f12 80%);transform-origin:left center;backface-visibility:hidden;}
 .comic-entrance-cover img{width:100%;height:auto}
- .comic-entrance::before{content:"";position:absolute;inset:0;background:linear-gradient(#150b041a,#14080436),url("assets/scenes/comic-monastery.webp") center/cover;transform-origin:50% 72%;animation:comic-room 3s ease-in-out both}
+ .comic-entrance-room{position:absolute;inset:0;background:linear-gradient(#150b041a,#14080436),url("assets/scenes/comic-monastery.webp") center/cover;transform-origin:50% 72%}
 .comic-entrance-skip{position:absolute;z-index:1;right:1rem;bottom:1rem;color:#fff5e2;background:#21150f;border:1px solid #8d6747;padding:.55rem .85rem;font:inherit;cursor:pointer}
-@keyframes comic-room{0%{transform:scale(1)}55%{transform:scale(1.28)}100%{transform:scale(2.25);opacity:0}}
-@keyframes comic-cover{0%,43%{transform:rotateY(0deg)}73%,100%{transform:rotateY(-165deg)}}
-@keyframes comic-enter{0%{transform:translateY(23vh) scale(.65) rotateX(61deg) rotateZ(-10deg)}43%{transform:translateY(13vh) scale(1) rotateX(48deg) rotateZ(-6deg)}73%{transform:translateY(2vh) scale(1.15) rotateX(16deg)}88%{opacity:1}100%{transform:scale(5.5) rotateX(0);opacity:0}}
-@media(prefers-reduced-motion:reduce){.comic-entrance-book,.comic-entrance-cover{animation:none}}
 
 
 .comic-site{--cream:#f6e9d5;--gold:#e8bc77;--muted:#c7af95;background:#1a120e;color:var(--cream)}
 #comics{background:radial-gradient(ellipse at 65% 16%,#412b1d,#1a120e 64%);padding:clamp(3rem,8vw,7rem) clamp(1rem,6vw,5rem)}
-/* Clear the 84px fixed header; the feature adds its existing 24–48px breathing room. */
-.comic-site #comics{padding-top:max(84px,clamp(3rem,8vw,7rem))}
 .comic-edition{margin:auto}
 .comic-intro .eyebrow{color:var(--gold);text-transform:uppercase;font-size:.8rem;letter-spacing:.17em}
 .comic-intro>p{line-height:1.65}
@@ -76,3 +70,7 @@
 .reader-toolbar button{font:inherit;color:#f6e9d5;background:#38271e;border:1px solid #936c44;padding:.4rem .55rem;cursor:pointer}
 .reader-toolbar .selected,.reader-bottom button{background:#533622}
 .comic-site .reader-modal{z-index:2000}
+
+.comic-sample{transform:perspective(950px) rotateX(var(--comic-tilt-x,0deg)) rotateY(var(--comic-tilt-y,0deg));transition:transform .25s ease-out}
+
+.comic-site #comics{padding-top:max(84px,clamp(3rem,8vw,7rem))}

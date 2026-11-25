@@ -7,7 +7,7 @@
 <meta name="description" content="Explore the characters of Dynasty of Heroes, a historical fantasy inspired by Myanmar's ancient Pagan era.">
 <title>Characters — Dynasty of Heroes</title>
 <link rel="stylesheet" href="style.css?v=20261126-comics">
-<link rel="stylesheet" href="characters-cinematic.css?v=restore-paladin-head-20261125">
+<link rel="stylesheet" href="characters-cinematic.css?v=video-banner-1">
 </head>
 <body class="cs-page">
 <div id="progress"></div>
@@ -21,12 +21,16 @@
 </header>
 <main>
 <section class="cs-title-banner" aria-label="Characters introduction">
+  <video class="cs-title-banner__video" muted loop playsinline preload="none" poster="assets/characters-banner-poster.webp" aria-hidden="true" tabindex="-1">
+    <source src="assets/characters-banner-motion.mp4" type="video/mp4">
+  </video>
   <div class="cs-title-banner__content">
     <span class="cs-title-banner__eyebrow">A CHRONICLE OF PAGAN</span>
     <h1>CHARACTERS</h1>
     <div class="cs-title-banner__ornament" aria-hidden="true"><span></span>✧<span></span></div>
     <p>The heroes, family, and forces that shape the fate of a kingdom.</p>
   </div>
+  <button class="cs-title-banner__toggle" type="button" hidden>Pause background</button>
 </section>
 <section class="cs-stage" aria-label="Explore Dynasty of Heroes characters">
   <div class="cs-scene" aria-hidden="true">
@@ -90,5 +94,6 @@
 <script src="main.js"></script>
 <script src="characters-data.js?v=20261125-king-saw"></script>
 <script src="characters-cinematic.js?v=20261125-dedicated-portraits"></script>
+<script src="characters-banner.js" defer></script>
 </body>
 </html>

@@ -165,8 +165,8 @@ background-size:340px 280px,510px 390px}
 /* Characters page title banner — maintained from approved classic design.
    The landscape and the HTML CHARACTERS title are separate and editable. */
 .cs-title-banner{
- position:relative;isolation:isolate;min-height:clamp(230px,20vw,330px);
- padding:105px 24px 37px;display:flex;align-items:center;justify-content:center;
+ position:relative;isolation:isolate;min-height:clamp(210px,19vw,280px);
+ padding:88px 24px 28px;display:flex;align-items:center;justify-content:center;
  text-align:center;overflow:hidden;
  background:
   linear-gradient(180deg,rgba(8,9,13,.50) 0%,rgba(10,10,15,.22) 42%,rgba(8,9,13,.79) 100%),
@@ -205,7 +205,7 @@ background-size:340px 280px,510px 390px}
  .cs-page .cs-figure{width:60%;right:-10%;top:72px;bottom:160px}
 }
 @media(max-width:700px){
- .cs-title-banner{min-height:205px;padding:95px 16px 27px}
+ .cs-title-banner{min-height:185px;padding:78px 16px 25px}
  .cs-title-banner h1{font-size:clamp(37px,9.7vw,62px);letter-spacing:.035em}
  .cs-title-banner__eyebrow{font-size:9px;letter-spacing:.22em}
  .cs-title-banner p{font-size:13px}
@@ -245,3 +245,8 @@ background-size:340px 280px,510px 390px}
   height:83%;width:86%;
  }
 }
+
+.cs-title-banner__video,.cs-title-banner::before{position:absolute;inset:0;width:100%;height:100%}
+.cs-title-banner__video{object-fit:cover;object-position:center;pointer-events:none}
+.cs-title-banner::before{content:"";z-index:1;background:linear-gradient(180deg,#09070979,#0d090963 45%,#090709cd);pointer-events:none}
+.cs-title-banner__toggle{position:absolute;z-index:3;bottom:.45rem;right:.75rem;background:#170f0dcc;border:1px solid #ae8a60;color:#fff0d5;padding:.3rem .5rem;font:inherit;font-size:.75rem;cursor:pointer}

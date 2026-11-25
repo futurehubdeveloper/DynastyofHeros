@@ -6,9 +6,9 @@
   <meta name="theme-color" content="#1a120e">
   <title>Comics | Dynasty of Heroes</title>
   <link rel="stylesheet" href="style.css?v=20261126-comics">
-  <link rel="stylesheet" href="comics.css?v=20261126-comics">
+  <link rel="stylesheet" href="comics.css?v=motion-3">
   <link rel="preload" as="image" href="assets/scenes/comic-monastery.webp">
-  <script src="comics.js?v=20261126-comics" defer></script>
+  <script src="comics.js?v=motion-3" defer></script>
 </head>
 <body class="comic-site">
 <header class="site-header"><a class="brand" href="index.html" aria-label="Dynasty of Heroes homepage"><img class="brand-logo" src="assets/avatar.png" alt="Dynasty of Heroes"></a><button class="menu-toggle" aria-expanded="false" aria-label="Toggle menu">☰</button><nav class="site-menu"><a  href="index.html">HOME</a><a href="story.html">STORY</a><a href="characters.html">CHARACTERS</a><a class="active" href="comics.html" aria-current="page">COMICS</a><a href="game.html">GAME</a></nav><span class="language">EN ▾</span></header>
@@ -79,6 +79,7 @@
 </main>
 <footer><a class="brand" href="index.html" aria-label="Dynasty of Heroes homepage"><img class="brand-logo" src="assets/avatar.png" alt="Dynasty of Heroes"></a><span>Historical fantasy inspired by Myanmar's Pagan era. Fictional portrayals may differ from historical accounts.</span><span class="site-credit">Developed by <strong>Factory of Future</strong><small>© 2026 Dynasty of Heroes</small></span></footer>
 <div id="comicEntrance" class="comic-entrance" role="dialog" aria-modal="true" aria-label="Opening the comic" hidden>
+  <div class="comic-entrance-room" aria-hidden="true"></div>
   <button id="comicSkip" class="comic-entrance-skip" type="button">Skip intro</button>
   <div class="comic-entrance-book" aria-hidden="true">
     <img id="comicEntrancePage" src="assets/comic/en/01.webp" alt="">
