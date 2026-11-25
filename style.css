@@ -447,3 +447,5 @@ body:not(.characters-page) .site-header{transition:background .25s,border-color 
 body:not(.characters-page) .site-header.is-scrolled{background:rgba(8,8,12,.9);border-bottom-color:rgba(255,208,120,.2);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px)}
 
 body:not(.characters-page) .site-header:not(.is-scrolled){background:transparent;border-bottom:0;box-shadow:none;backdrop-filter:none;-webkit-backdrop-filter:none}
+
+.site-header .brand-logo{display:block;width:100px;height:60px;object-fit:contain}
