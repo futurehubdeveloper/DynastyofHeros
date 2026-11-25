@@ -62,3 +62,15 @@ The entire website as it existed before the redesign is preserved on the GitHub 
 The old Characters page is also available at `characters-classic.html` on the main branch, so there is no need to roll back the entire website to access the old view.
 
 **Design direction:** Dark Pagan-era landscapes, large character artwork, descriptive text, thumbnail selector, no gold frames around portrait cards. The new design takes inspiration from cinematic game character pages but is original to Dynasty of Heroes. Existing portrait WebP files are reused; only Mg Kan currently has a separate cutout asset.
+
+## Latest Characters page — approved full-body workflow
+
+- The **CHARACTERS** landscape title banner is back at the top of `characters.html`. Its backdrop (`assets/characters-top-cinematic.webp`) and text (HTML) are separate.
+- The full-screen explorer beneath the banner remains interactive, with group filters, 22 characters, and editable captions/biographies.
+- **Nga Lone La Phae** uses the user-approved, bulkier full-body transparent character artwork in `assets/fullbody/nga-lone.webp`. Select `characters.html#nga-lone` to see him.
+- **Mg Kan** continues using his separate foreground artwork in `assets/mg-kan-cutout-art.webp`.
+- All other characters currently use their existing individual 3:4 portraits until full-body artwork is produced and approved.
+- The main displayed figure uses the `cs-figure__img` CSS class and `object-fit: contain` to prevent the oversized cropped appearance previously seen.
+- The original card-based design remains untouched at `characters-classic.html`. Complete backups: `backup/characters-gallery-2026-11-25` and `backup/cinematic-pre-fullbody-2026-11-25`.
+
+To add another full-body cutout later, upload a transparent WebP under `assets/fullbody/` and add that character's ID/path to `imageFor` in `characters-cinematic.js`. Do not change the thumbnail file or text labels.
