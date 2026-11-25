@@ -22,7 +22,7 @@ try {
     if (-not (Test-Path 'android/app/src/main/AndroidManifest.xml')) {
         Invoke-Flutter create --platforms=android --project-name dynasty_of_heroes --org com.dynastyofheroes --empty --no-pub .
         $wrapper = Join-Path $PSScriptRoot 'android/gradle/wrapper/gradle-wrapper.properties'
-        $wrapperText = [IO.File]::ReadAllText($wrapper).Replace('services.gradle.org/distributions/', 'downloads.gradle.org/distributions/').Replace('-all.zip', '-bin.zip')
+        $wrapperText = [IO.File]::ReadAllText($wrapper).Replace('-all.zip', '-bin.zip')
         [IO.File]::WriteAllText($wrapper, $wrapperText)
     }
 
