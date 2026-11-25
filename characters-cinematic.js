@@ -55,9 +55,9 @@
     'palace-guards': '20261125-individual-art',
     'nyaung-u-hpi': '20261125-individual-art',
     'nga-htwe-yu': '20261125-individual-art',
-    'mg-kyan': '20261125-bow-white-gold',
-    'nga-pyae-wa': '20261125-individual-art',
-    'nga-nyo': '20261125-bow-white-gold'
+    'mg-kyan': '20261125-bow-portrait-restore',
+    'nga-pyae-wa': '20261125-bow-portrait-restore',
+    'nga-nyo': '20261125-bow-portrait-restore'
   };
   const artworkVersion = id => artworkVersions[id] ? '?v=' + artworkVersions[id] : '';
   function imageFor(person) {
