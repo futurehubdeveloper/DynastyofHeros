@@ -45,13 +45,15 @@
     traits:$('#cs-traits'), count:$('#cs-count'), group:$('#cs-group-name')
   };
 
-  // Detail stage uses a separate, transparent full-body image for each of the 22 characters.
-  // The small selector continues using the original headshot/portrait assets.
+  // Use the individual full-body artwork and matching portrait exports.
+  // Version replaced assets so returning visitors receive the new artwork.
+  const updatedArtwork = new Set(['army-general','army-soldiers','royal-commander','royal-soldiers','palace-guards','nyaung-u-hpi','nga-htwe-yu','mg-kyan','nga-pyae-wa']);
+  const artworkVersion = id => updatedArtwork.has(id) ? '?v=20261125-individual-art' : '';
   function imageFor(person) {
-    return 'assets/fullbody/' + person.id + '.webp';
+    return 'assets/fullbody/' + person.id + '.webp' + artworkVersion(person.id);
   }
   function thumbnailFor(person) {
-    return 'assets/portraits/' + person.id + '.webp';
+    return 'assets/portraits/' + person.id + '.webp' + artworkVersion(person.id);
   }
   function currentChoices(){
     return group === 'all' ? sorted : sorted.filter(c=>c.group===group);
@@ -94,7 +96,7 @@
     image.src = thumbnailFor(c);
     image.alt = '';
     image.loading='lazy';
-    image.onerror=()=>{image.onerror=null;image.src='assets/portraits/'+c.id+'.webp'};
+    image.onerror=()=>{image.onerror=null;image.src=thumbnailFor(c)};
     imageBox.append(image);
     const label=document.createElement('span');
     label.className='cs-item__name';
@@ -143,7 +145,7 @@
     stage.dataset.person=c.id;
     img.onerror=()=>{
       img.onerror=null;
-      img.src='assets/portraits/'+c.id+'.webp';
+      img.src=thumbnailFor(c);
     };
     if(!matchMedia('(prefers-reduced-motion: reduce)').matches){
       void img.offsetWidth;
@@ -208,3 +210,4 @@
   drawRoster();
   select(selectedId,false);
 })();
+
