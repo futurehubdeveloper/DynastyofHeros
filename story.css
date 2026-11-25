@@ -131,6 +131,15 @@ body.story-page .site-header:not(.is-scrolled) {
 .st-map-dialog img { width: 100%; height: auto; max-height: calc(100dvh - 178px); object-fit: contain; }
 .st-map-dialog figcaption { padding-top: 14px; text-align: center; color: #b5c0bb; font: .875rem/1.5 Inter, sans-serif; }
 
+@media (min-width: 951px) {
+  .story-page .site-header {
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+  }
+  .story-page .site-header .brand { justify-self: start; }
+  .story-page .site-menu { grid-column: 2; }
+}
+
 @media (max-width: 1050px) {
   .st-hero-copy { width: 50%; padding-left: 15px; }
   .st-hero-copy h1 { font-size: 57px; }
