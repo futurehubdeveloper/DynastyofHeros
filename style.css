@@ -375,3 +375,15 @@ body.characters-page{
     will-change:auto!important;
   }
 }
+
+/* Final legibility balance: reveal the landscape through the roster instead
+   of hiding the full-screen world behind solid black section containers. */
+.characters-page .roster-section{
+  background:linear-gradient(180deg,rgba(9,9,12,.65),rgba(16,11,16,.71))!important;
+}
+.characters-page .roster-section:nth-of-type(odd){
+  background:linear-gradient(110deg,rgba(9,8,12,.63),rgba(24,13,18,.7))!important;
+}
+.characters-page .character-disclaimer{
+  background:linear-gradient(90deg,rgba(11,9,12,.67),rgba(20,13,16,.68));
+}
