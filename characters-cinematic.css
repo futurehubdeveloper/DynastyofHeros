@@ -230,3 +230,18 @@ background-size:340px 280px,510px 390px}
  mask-image:none!important;
  -webkit-mask-image:none!important;
 }
+
+/* Paladins: keep full-body detail at a balanced display scale; hide artwork's top rule. */
+.cs-page .cs-stage__main[data-person="nga-lone"] .cs-figure__img,
+.cs-page .cs-stage__main[data-person="nyaung-u-hpi"] .cs-figure__img,
+.cs-page .cs-stage__main[data-person="nga-htwe-yu"] .cs-figure__img{
+ height:80%;width:85%;object-fit:contain;
+ clip-path:inset(8% 0 0 0);
+}
+@media(max-width:700px){
+ .cs-page .cs-stage__main[data-person="nga-lone"] .cs-figure__img,
+ .cs-page .cs-stage__main[data-person="nyaung-u-hpi"] .cs-figure__img,
+ .cs-page .cs-stage__main[data-person="nga-htwe-yu"] .cs-figure__img{
+  height:83%;width:86%;
+ }
+}
