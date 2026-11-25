@@ -251,11 +251,11 @@ background-size:340px 280px,510px 390px}
 .cs-title-banner::before{content:"";z-index:1;background:linear-gradient(180deg,#09070979,#0d090963 45%,#090709cd);pointer-events:none}
 .cs-title-banner__toggle{position:absolute;z-index:3;bottom:.45rem;right:.75rem;background:#170f0dcc;border:1px solid #ae8a60;color:#fff0d5;padding:.3rem .5rem;font:inherit;font-size:.75rem;cursor:pointer}
 
-/* Give the lower half of the animated scene room to show. */
-.cs-title-banner{min-height:clamp(420px,37vw,680px);min-height:clamp(420px,37vw,min(680px,82svh));padding:96px 24px 56px}
-.cs-title-banner__video{object-position:70% 87%}
+/* Frame the temple skyline above the brothers on the forest lane. */
+.cs-title-banner{min-height:clamp(470px,43vw,800px);min-height:clamp(470px,43vw,min(800px,88svh));padding:96px 24px 56px}
+.cs-title-banner__video{object-position:70% 39%}
 .cs-title-banner::before{background:radial-gradient(ellipse at 50% 42%,#100b086b,transparent 76%),linear-gradient(180deg,#09070966,transparent 35%,#09070973)}
 @media(max-width:700px){
- .cs-title-banner{min-height:clamp(320px,65svh,470px);padding:86px 16px 44px}
- .cs-title-banner__video{object-position:78% 85%}
+ .cs-title-banner{min-height:clamp(340px,69svh,505px);padding:86px 16px 44px}
+ .cs-title-banner__video{object-position:85% 39%}
 }
