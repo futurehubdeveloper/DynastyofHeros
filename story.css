@@ -3,7 +3,7 @@ body.story-page {
   --st-ink: #0b1116;
   --st-gold: #cda96c;
   --st-cream: #f0e6d2;
-  --st-copy: #d0d6d4;
+  --st-copy: #ece9e0;
   position: relative;
   isolation: isolate;
   min-width: 320px;
@@ -35,11 +35,12 @@ body.story-page .site-header:not(.is-scrolled) {
 .story-page button:focus-visible, .story-page a:focus-visible { outline: 2px solid #f4d99b; outline-offset: 5px; }
 
 .story-backdrop { position: fixed; inset: 0; z-index: 0; overflow: hidden; pointer-events: none; background: #0b1116; }
+.story-backdrop::after { content: ''; position: absolute; inset: 0; z-index: 1; background: rgba(7, 12, 17, .28); }
 .story-backdrop__art {
   position: absolute; inset: -110px -5%;
   background: url("assets/story-world-map.webp") center center / cover no-repeat;
-  opacity: .28;
-  filter: saturate(.58) brightness(.8);
+  opacity: .14;
+  filter: saturate(.35) brightness(.65) blur(1px);
   transform: translate3d(0, var(--story-map-y, 0px), 0);
   will-change: transform;
 }
@@ -74,7 +75,7 @@ body.story-page .site-header:not(.is-scrolled) {
 .st-section h2 { margin: 0; color: var(--st-gold); font-size: clamp(30px, 3vw, 45px); line-height: 1.25; font-weight: 400; letter-spacing: .025em; }
 .st-lead, .st-prophecy-copy p { color: var(--st-copy); font: clamp(18px, 1.4vw, 21px)/1.85 Georgia, serif; text-shadow: 0 1px 9px #0b1116; }
 .st-lead { margin: 0 0 23px; }
-.st-places { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 10px; margin: 0 0 18px; color: #d0ba92; font: .875rem/1.6 Inter, sans-serif; }
+.st-places { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 10px; margin: 0 0 18px; color: #e0cda9; font: .875rem/1.6 Inter, sans-serif; }
 .st-places span { color: #cda96c; }
 .st-map-link { display: inline-flex; align-items: center; gap: 10px; min-height: 44px; padding: 8px 0; border: 0; border-bottom: 1px solid #cda96c7d; background: transparent; color: #e5cc9f; font: .875rem/1.5 Inter, sans-serif; }
 .st-map-link:hover { color: #fff0cf; border-bottom-color: #f1d69f; }
@@ -95,7 +96,7 @@ body.story-page .site-header:not(.is-scrolled) {
 .st-journey-node { display: grid; place-items: center; width: 46px; height: 46px; margin: 0 auto 23px; color: #dfbd7d; background: #111b21; border: 1px solid #cda96ca6; border-radius: 50%; box-shadow: 0 0 0 5px #0b111671; }
 .st-journey-node svg { width: 25px; height: 25px; fill: none; stroke: currentColor; stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; }
 .st-journey-list h3 { color: #e9d9b9; font-size: clamp(17px, 1.3vw, 21px); line-height: 1.4; font-weight: 500; margin: 0 0 12px; }
-.st-journey-list p { color: #c8d0cd; font: 1rem/1.6 Georgia, serif; margin: 0 auto; max-width: 190px; }
+.st-journey-list p { color: #dce0da; font: 1rem/1.6 Georgia, serif; margin: 0 auto; max-width: 190px; }
 
 .st-closing { padding-top: 64px; padding-bottom: 70px; text-align: center; }
 .st-closing blockquote { margin: 0 auto 30px; max-width: 880px; }
