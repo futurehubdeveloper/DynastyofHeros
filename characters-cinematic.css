@@ -220,3 +220,13 @@ background-size:340px 280px,510px 390px}
 @media(prefers-reduced-motion:reduce){
  .cs-page .cs-figure__img.cs-animate{animation:none!important}
 }
+
+/* Artwork-only cleanup: show the character cutout without shadow, duplicate or fading. */
+.cs-page .cs-scene__echo,
+.cs-page .cs-figure__aura,
+.cs-page .cs-figure__accent{display:none!important}
+.cs-page .cs-figure__img{
+ filter:none!important;
+ mask-image:none!important;
+ -webkit-mask-image:none!important;
+}
