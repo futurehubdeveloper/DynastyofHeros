@@ -45,9 +45,16 @@
   };
 
   function imageFor(person) {
-    return person.id === 'mg-kan'
-      ? 'assets/mg-kan-cutout-art.webp'
-      : 'assets/portraits/' + person.id + '.webp';
+    // Only approved full-body cutouts are mapped here.
+    // Leave all other character portraits as portraits until their full-body art is approved.
+    const fullBody = {
+      'mg-kan': 'assets/mg-kan-cutout-art.webp',
+      'nga-lone': 'assets/fullbody/nga-lone.webp'
+    };
+    return fullBody[person.id] || 'assets/portraits/' + person.id + '.webp';
+  }
+  function thumbnailFor(person) {
+    return 'assets/portraits/' + person.id + '.webp';
   }
   function currentChoices(){
     return group === 'all' ? sorted : sorted.filter(c=>c.group===group);
@@ -87,7 +94,7 @@
     const imageBox=document.createElement('span');
     imageBox.className='cs-item__image';
     const image=document.createElement('img');
-    image.src = imageFor(c);
+    image.src = thumbnailFor(c);
     image.alt = '';
     image.loading='lazy';
     image.onerror=()=>{image.onerror=null;image.src='assets/portraits/'+c.id+'.webp'};
