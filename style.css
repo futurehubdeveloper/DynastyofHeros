@@ -470,9 +470,9 @@ footer .brand-logo{display:block;width:100px;height:60px;object-fit:contain}
 .site-menu a[hidden] { display: none !important; }
 
 html:lang(en) .site-header .site-menu a:lang(en) {
-  font-family: 'Skranji', Inter, sans-serif;
+  font-family: Inter, Arial, sans-serif;
   font-size: 14px;
-  font-weight: 400;
+  font-weight: 600;
   letter-spacing: .04em;
   text-transform: capitalize;
 }

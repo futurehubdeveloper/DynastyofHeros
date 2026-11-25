@@ -118,7 +118,6 @@ html:lang(en) .home-page :is(h2, h3) {
   font-family: Cinzel, Georgia, serif;
 }
 
-html:lang(en) .home-page .site-header .site-menu a:lang(en),
 html:lang(en) .home-page :is(.button, .coming) {
   font-family: Inter, Arial, sans-serif;
   font-weight: 600;
