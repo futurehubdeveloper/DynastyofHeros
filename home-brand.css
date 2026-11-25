@@ -7,11 +7,16 @@
   font-display: swap;
 }
 
+.home-page .hero {
+  --home-copy-width: min(520px, 43vw);
+  --home-copy-inset: clamp(25px, 8vw, 150px);
+}
+
 .home-page .studio-credit {
   position: absolute;
   top: 104px;
-  right: clamp(24px, 4vw, 80px);
-  width: 280px;
+  right: var(--home-copy-inset);
+  width: var(--home-copy-width);
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -20,6 +25,14 @@
 }
 
 .home-page .hero-copy { padding-top: 220px; }
+
+/* The credit and title use the same column center on desktop and tablet. */
+@media (min-width: 601px) {
+  .home-page .hero-copy {
+    width: var(--home-copy-width);
+    margin-right: var(--home-copy-inset);
+  }
+}
 
 .home-page .studio-credit__mark {
   width: auto;
@@ -55,7 +68,10 @@
 }
 
 @media (min-width: 601px) and (max-width: 950px) {
-  .home-page .studio-credit { width: 280px; right: 24px; }
+  .home-page .hero {
+    --home-copy-width: 55%;
+    --home-copy-inset: 3vw;
+  }
 }
 
 @media (max-width: 600px) {
