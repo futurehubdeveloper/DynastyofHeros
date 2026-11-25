@@ -260,3 +260,16 @@ body.characters-page{--characters-world-image:url("assets/characters-forest.svg"
 ) .modal-image img{
  opacity:0!important;
 }
+
+/* The approved Characters header artwork is a swappable, independent image.
+   Upload the banner as assets/characters-top-banner.png.
+   Until uploaded, the existing sunset.svg remains the fallback. All text remains HTML. */
+.characters-page .characters-intro.character-top-banner {
+  background-image:
+    linear-gradient(180deg,rgba(12,10,14,.36),rgba(12,10,14,.24) 57%,rgba(10,8,11,.75)),
+    url("assets/characters-top-banner.png"),
+    url("assets/sunset.svg");
+  background-position:center,center,center;
+  background-size:cover,cover,cover;
+  background-repeat:no-repeat;
+}
