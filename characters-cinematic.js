@@ -45,9 +45,9 @@
     traits:$('#cs-traits'), count:$('#cs-count'), group:$('#cs-group-name')
   };
 
-  // Use the individual full-body artwork and matching portrait exports.
-  // Version replaced assets so returning visitors receive the new artwork.
-  const artworkVersions = {
+  // Dedicated closeups and full-body detail artwork have independent versions.
+  // Replacing a portrait must not change the approved full-body image URL.
+  const fullBodyVersions = {
     'army-general': '20261125-individual-art',
     'army-soldiers': '20261125-individual-art',
     'royal-commander': '20261125-individual-art',
@@ -57,14 +57,27 @@
     'nga-htwe-yu': '20261125-individual-art',
     'mg-kyan': '20261125-bow-portrait-restore',
     'nga-pyae-wa': '20261125-bow-portrait-restore',
-    'nga-nyo': '20261125-bow-portrait-restore'
+    'nga-nyo': '20261125-relaxed-bow'
   };
-  const artworkVersion = id => artworkVersions[id] ? '?v=' + artworkVersions[id] : '';
+  const portraitVersions = {
+    ...fullBodyVersions,
+    'mg-kyan': '20261125-dedicated-portraits',
+    'nga-nyo': '20261125-dedicated-portraits',
+    'old-sayadaw': '20261125-dedicated-portraits',
+    'nyaung-u-hpi': '20261125-dedicated-portraits',
+    'nga-htwe-yu': '20261125-dedicated-portraits',
+    'army-general': '20261125-dedicated-portraits',
+    'army-soldiers': '20261125-dedicated-portraits',
+    'royal-commander': '20261125-dedicated-portraits',
+    'royal-soldiers': '20261125-dedicated-portraits',
+    'palace-guards': '20261125-dedicated-portraits'
+  };
+  const artworkVersion = (versions, id) => versions[id] ? '?v=' + versions[id] : '';
   function imageFor(person) {
-    return 'assets/fullbody/' + person.id + '.webp' + artworkVersion(person.id);
+    return 'assets/fullbody/' + person.id + '.webp' + artworkVersion(fullBodyVersions, person.id);
   }
   function thumbnailFor(person) {
-    return 'assets/portraits/' + person.id + '.webp' + artworkVersion(person.id);
+    return 'assets/portraits/' + person.id + '.webp' + artworkVersion(portraitVersions, person.id);
   }
   function currentChoices(){
     return group === 'all' ? sorted : sorted.filter(c=>c.group===group);
