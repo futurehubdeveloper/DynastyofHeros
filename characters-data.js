@@ -22,7 +22,7 @@ window.DOH_CAST = [
     "title": "The Hidden Prince",
     "group": "family",
     "role": "Prince and emerging leader",
-    "identity": "Son of King Anawrahta and Princess Pyin Sa",
+    "identity": "Son of King Saw and Princess Pyin Sa",
     "personality": "Compassionate, intelligent, determined",
     "traits": [
       "Leadership",
@@ -114,7 +114,7 @@ window.DOH_CAST = [
   },
   {
     "id": "anawrahta",
-    "name": "King Anawrahta",
+    "name": "King Saw",
     "title": "King of Pagan",
     "group": "family",
     "role": "Ruler and warrior king",
