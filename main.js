@@ -19,3 +19,6 @@
  addEventListener("resize",queue,{passive:true});
  render();
 })();
+
+// Give the home navigation a readable background after scrolling.
+(()=>{const header=document.querySelector('body:not(.characters-page) .site-header');if(!header)return;const hero=document.querySelector('.hero');const update=()=>header.classList.toggle('is-scrolled',!!hero && window.scrollY >= hero.offsetHeight - header.offsetHeight);addEventListener('scroll',update,{passive:true});update()})();
