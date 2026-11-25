@@ -1,72 +1,347 @@
-const $=id=>document.getElementById(id);
-const menuToggle=document.querySelector('.menu-toggle');
-menuToggle.addEventListener('click',()=>{
-  const menu=document.querySelector('.site-menu');
-  menuToggle.setAttribute('aria-expanded',String(menu.classList.toggle('open')));
+const $ = id => document.getElementById(id);
+const reader = $('reader');
+const readerPage = $('readerPage');
+const entrance = $('comicEntrance');
+const menuToggle = document.querySelector('.menu-toggle');
+menuToggle.addEventListener('click', () => {
+  const menu = document.querySelector('.site-menu');
+  menuToggle.setAttribute('aria-expanded', String(menu.classList.toggle('open')));
 });
-const chapters=[{name:'Prologue',start:1,end:1},{name:'Episode 1 · The Prophecy',start:2,end:10},{name:'Episode 2 · The First Escape',start:11,end:18},{name:'Episode 3 · Shadows Over the Village',start:19,end:24},{name:'Episode 4 · The Price of Escape',start:25,end:34},{name:'Episode 5 · The Mountain Monastery',start:35,end:45}];
-let episode=0,page=1,lang='en',readerMode='single',readerZoom=1;
-try{const saved=JSON.parse(localStorage.getItem('doh_reader_v12')||'{}');if(saved.episode>=0&&saved.episode<chapters.length)episode=saved.episode;if(saved.lang==='mm')lang='mm';if(['single','double','scroll'].includes(saved.mode))readerMode=saved.mode;page=Math.min(chapters[episode].end,Math.max(chapters[episode].start,saved.page||chapters[episode].start))}catch(e){}
-function persistReader(){try{localStorage.setItem('doh_reader_v12',JSON.stringify({episode,page,lang,mode:readerMode}))}catch(e){}}
-function comicSrc(n){return 'assets/comic/'+lang+'/'+String(n).padStart(2,'0')+'.webp'}
-function refreshComicLanding(){
-  for(const [id,locale] of [['comicEN','en'],['comicMM','mm']]){
-    const button=$(id);
-    button.classList.toggle('active',lang===locale);
-    button.setAttribute('aria-pressed',String(lang===locale));
-  }
-  document.querySelectorAll('[data-comic-preview]').forEach(img=>{
-    const src=comicSrc(Number(img.dataset.comicPreview));
-    if(img.getAttribute('src')!==src)img.src=src;
-  });
-  document.querySelector('.comic-resume').hidden=page===1;
+
+const chapters = [
+  { name: 'Prologue', start: 1, end: 1 },
+  { name: 'Episode 1 · The Prophecy', start: 2, end: 10 },
+  { name: 'Episode 2 · The First Escape', start: 11, end: 18 },
+  { name: 'Episode 3 · Shadows Over the Village', start: 19, end: 24 },
+  { name: 'Episode 4 · The Price of Escape', start: 25, end: 34 },
+  { name: 'Episode 5 · The Mountain Monastery', start: 35, end: 45 }
+];
+let episode = 0, page = 1, lang = 'en', readerMode = 'single', readerZoom = 1;
+let scrollFrame = 0, modalSession = null, activeModal = null, closingReader = false;
+let finishEntrance = null;
+
+try {
+  const saved = JSON.parse(localStorage.getItem('doh_reader_v12') || '{}');
+  if (Number.isInteger(saved.episode) && saved.episode >= 0 && saved.episode < chapters.length) episode = saved.episode;
+  if (saved.lang === 'mm') lang = 'mm';
+  if (['single', 'double', 'scroll'].includes(saved.mode)) readerMode = saved.mode;
+  const savedPage = Number.isInteger(saved.page) ? saved.page : chapters[episode].start;
+  page = Math.min(chapters[episode].end, Math.max(chapters[episode].start, savedPage));
+} catch (error) {}
+
+function persistReader() {
+  try { localStorage.setItem('doh_reader_v12', JSON.stringify({ episode, page, lang, mode: readerMode })); } catch (error) {}
 }
-refreshComicLanding();
-function renderThumbs(){const c=chapters[episode],cont=$('readerThumbs');cont.replaceChildren();for(let n=c.start;n<=c.end;n++){const b=document.createElement('button');b.type='button';b.title=c.name+' page '+(n-c.start+1);b.setAttribute('aria-label',b.title);b.className=(n===page||(readerMode==='double'&&n===page+1))?'selected':'';const im=document.createElement('img');im.src=comicSrc(n);im.alt='';im.loading='lazy';const label=document.createElement('b');label.textContent=String(n-c.start+1);b.append(im,label);b.onclick=()=>{page=n;renderReader()};cont.append(b)}}
-function renderReader(){const c=chapters[episode];page=Math.min(c.end,Math.max(c.start,page));const view=$('readerPage');view.replaceChildren();view.className='reader-page mode-'+readerMode;view.style.setProperty('--reader-zoom',String(readerZoom));const pageList=readerMode==='scroll'?Array.from({length:c.end-c.start+1},(_,i)=>c.start+i):readerMode==='double'?[page,Math.min(page+1,c.end)].filter((n,i,a)=>a.indexOf(n)===i):[page];for(const n of pageList){const img=document.createElement('img');img.src=comicSrc(n);img.alt=c.name+' — page '+(n-c.start+1)+' of '+(c.end-c.start+1);img.loading=n===page?'eager':'lazy';if(readerMode==='double'){const slot=document.createElement('div');slot.className='page-slot';slot.append(img);view.append(slot)}else view.append(img)}$('readerCounter').textContent=(page-c.start+1)+' / '+(c.end-c.start+1)+' · '+lang.toUpperCase();$('readerBottomCounter').textContent='Episode page '+(page-c.start+1)+' · Volume page '+page+' / 45';$('readerLang').textContent=(lang==='en'?'EN':'MM')+' ⇄ '+(lang==='en'?'MM':'EN');$('readerEpisode').value=String(episode);$('readerChapterTitle').textContent=c.name;$('prevPage').disabled=page===c.start;$('nextPage').disabled=page===c.end;document.querySelectorAll('[data-reading-mode]').forEach(b=>b.classList.toggle('selected',b.dataset.readingMode===readerMode));refreshComicLanding();renderThumbs();persistReader();if(readerMode==='scroll')view.scrollTop=0}
-function openReader(e=null){if(e!==null){episode=+e;page=chapters[episode].start}$('reader').classList.add('open');renderReader();$('closeReader').focus()}
-$('comicOpen').onclick=()=>{
-  const entrance=$('comicEntrance');
-  if(!entrance.hidden)return;
-  if(matchMedia('(prefers-reduced-motion: reduce)').matches){
-    openReader(0);
-    $('closeReader').focus();
+function comicSrc(n) { return 'assets/comic/' + lang + '/' + String(n).padStart(2, '0') + '.webp'; }
+
+// Both languages have these same measured page dimensions.
+function pageDimensions(n) {
+  if (n <= 10) return [692, 1037];
+  if (n <= 18) return [768, 1152];
+  if (n <= 24) return [768, [1087, 1087, 914, 815, 742, 863][n - 19]];
+  return [713, 1008];
+}
+function pageImage(n, thumbnail = false) {
+  const image = document.createElement('img');
+  [image.width, image.height] = pageDimensions(n);
+  image.src = comicSrc(n);
+  image.loading = !thumbnail && n === page ? 'eager' : 'lazy';
+  image.alt = thumbnail ? '' : chapters[episode].name + ' — page ' + (n - chapters[episode].start + 1) + ' of ' + (chapters[episode].end - chapters[episode].start + 1);
+  if (!thumbnail) image.dataset.comicPage = String(n);
+  return image;
+}
+function refreshComicLanding() {
+  for (const [id, locale] of [['comicEN', 'en'], ['comicMM', 'mm']]) {
+    $(id).classList.toggle('active', lang === locale);
+    $(id).setAttribute('aria-pressed', String(lang === locale));
+  }
+  document.querySelectorAll('[data-comic-preview]').forEach(image => {
+    const src = comicSrc(Number(image.dataset.comicPreview));
+    if (image.getAttribute('src') !== src) image.src = src;
+  });
+  document.querySelector('.comic-resume').hidden = page === 1;
+}
+function lastDisplayedPage() {
+  return readerMode === 'double' ? Math.min(page + 1, chapters[episode].end) : page;
+}
+function updateReaderStatus() {
+  const chapter = chapters[episode];
+  $('readerCounter').textContent = (page - chapter.start + 1) + ' / ' + (chapter.end - chapter.start + 1) + ' · ' + lang.toUpperCase();
+  $('readerBottomCounter').textContent = 'Episode page ' + (page - chapter.start + 1) + ' · Volume page ' + page + ' / 45';
+  $('readerLang').textContent = (lang === 'en' ? 'EN' : 'MM') + ' ⇄ ' + (lang === 'en' ? 'MM' : 'EN');
+  $('readerEpisode').value = String(episode);
+  $('readerChapterTitle').textContent = chapter.name;
+  $('prevPage').disabled = page === 1;
+  $('nextPage').disabled = lastDisplayedPage() === 45;
+  document.querySelectorAll('[data-reading-mode]').forEach(button => {
+    button.classList.toggle('selected', button.dataset.readingMode === readerMode);
+  });
+  $('readerThumbs').querySelectorAll('[data-page]').forEach(button => {
+    const n = Number(button.dataset.page);
+    button.classList.toggle('selected', n === page || (readerMode === 'double' && n === page + 1));
+  });
+  refreshComicLanding();
+  persistReader();
+}
+function renderThumbs() {
+  const chapter = chapters[episode], container = $('readerThumbs');
+  const left = container.dataset.episode === String(episode) ? container.scrollLeft : 0;
+  container.replaceChildren();
+  container.dataset.episode = String(episode);
+  for (let n = chapter.start; n <= chapter.end; n++) {
+    const button = document.createElement('button');
+    button.type = 'button';
+    button.dataset.page = String(n);
+    button.title = chapter.name + ' page ' + (n - chapter.start + 1);
+    button.setAttribute('aria-label', button.title);
+    const label = document.createElement('b');
+    label.textContent = String(n - chapter.start + 1);
+    button.append(pageImage(n, true), label);
+    button.onclick = () => {
+      page = n;
+      renderReader();
+      container.querySelector('[data-page="' + n + '"]').focus({ preventScroll: true });
+    };
+    container.append(button);
+  }
+  container.scrollLeft = left;
+}
+
+function scrollPosition() {
+  if (readerMode !== 'scroll' || !reader.classList.contains('open')) return null;
+  const images = Array.from(readerPage.querySelectorAll('[data-comic-page]'));
+  const top = readerPage.getBoundingClientRect().top + readerPage.clientTop;
+  const atBottom = readerPage.scrollHeight - readerPage.clientHeight - readerPage.scrollTop <= 2;
+  const image = atBottom ? images[images.length - 1] : images.find(item => item.getBoundingClientRect().bottom > top + 1) || images[images.length - 1];
+  if (!image) return null;
+  const bounds = image.getBoundingClientRect();
+  return { page: Number(image.dataset.comicPage), fraction: (top - bounds.top) / Math.max(1, bounds.height) };
+}
+function alignScroll(position = null) {
+  const image = readerPage.querySelector('[data-comic-page="' + (position ? position.page : page) + '"]');
+  if (!image) return;
+  const bounds = image.getBoundingClientRect();
+  const top = readerPage.getBoundingClientRect().top + readerPage.clientTop;
+  readerPage.scrollTop += bounds.top - top + (position ? position.fraction * bounds.height : 0);
+}
+function trackScrollPage() {
+  scrollFrame = 0;
+  const position = scrollPosition();
+  if (position && position.page !== page) {
+    page = position.page;
+    updateReaderStatus();
+  }
+}
+readerPage.addEventListener('scroll', () => {
+  if (readerMode === 'scroll' && !scrollFrame) scrollFrame = requestAnimationFrame(trackScrollPage);
+}, { passive: true });
+
+function renderReader(position = null) {
+  if (scrollFrame) cancelAnimationFrame(scrollFrame);
+  scrollFrame = 0;
+  const chapter = chapters[episode];
+  if (position) page = position.page;
+  page = Math.min(chapter.end, Math.max(chapter.start, page));
+  readerPage.replaceChildren();
+  readerPage.className = 'reader-page mode-' + readerMode;
+  readerPage.style.setProperty('--reader-zoom', String(readerZoom));
+  const pages = readerMode === 'scroll'
+    ? Array.from({ length: chapter.end - chapter.start + 1 }, (_, i) => chapter.start + i)
+    : readerMode === 'double' && page < chapter.end ? [page, page + 1] : [page];
+  for (const n of pages) {
+    const image = pageImage(n);
+    if (readerMode === 'double') {
+      const slot = document.createElement('div');
+      slot.className = 'page-slot';
+      slot.append(image);
+      readerPage.append(slot);
+    } else readerPage.append(image);
+  }
+  renderThumbs();
+  updateReaderStatus();
+  if (readerMode === 'scroll') alignScroll(position);
+  else readerPage.scrollTop = readerPage.scrollLeft = 0;
+}
+function movePage(direction) {
+  const currentPosition = scrollPosition();
+  if (currentPosition) page = currentPosition.page;
+  const chapter = chapters[episode], step = readerMode === 'double' ? 2 : 1;
+  if (direction > 0 && lastDisplayedPage() === chapter.end && episode < chapters.length - 1) {
+    episode += 1;
+    page = chapters[episode].start;
+  } else if (direction < 0 && page === chapter.start && episode > 0) {
+    episode -= 1;
+    const previous = chapters[episode];
+    page = previous.start + Math.floor((previous.end - previous.start) / step) * step;
+  } else page = Math.min(chapter.end, Math.max(chapter.start, page + direction * step));
+  renderReader();
+}
+
+function beginModal(opener) {
+  if (modalSession) return;
+  const background = Array.from(document.body.children).filter(element => element !== reader && element !== entrance && !['SCRIPT', 'STYLE', 'LINK'].includes(element.tagName));
+  modalSession = {
+    opener, x: window.scrollX, y: window.scrollY, overflow: document.body.style.overflow,
+    background: background.map(element => ({ element, inert: element.hasAttribute('inert'), hidden: element.getAttribute('aria-hidden') }))
+  };
+  for (const { element } of modalSession.background) {
+    element.setAttribute('inert', '');
+    element.setAttribute('aria-hidden', 'true');
+  }
+  document.body.style.overflow = 'hidden';
+}
+function activateModal(modal, opener = document.activeElement) {
+  beginModal(opener);
+  activeModal = modal;
+  for (const element of [reader, entrance]) {
+    element.inert = element !== modal;
+    element.setAttribute('aria-hidden', String(element !== modal));
+  }
+}
+function openReader(selectedEpisode = null, opener = document.activeElement) {
+  if (closingReader) return;
+  if (selectedEpisode !== null) {
+    episode = Number(selectedEpisode);
+    page = chapters[episode].start;
+  }
+  reader.classList.add('open');
+  activateModal(reader, opener);
+  renderReader();
+  $('closeReader').focus({ preventScroll: true });
+}
+async function closeReader() {
+  if (closingReader || !reader.classList.contains('open')) return;
+  closingReader = true;
+  if (document.fullscreenElement && reader.contains(document.fullscreenElement)) {
+    try { await document.exitFullscreen?.(); } catch (error) {}
+  }
+  reader.classList.remove('open');
+  reader.inert = true;
+  reader.setAttribute('aria-hidden', 'true');
+  activeModal = null;
+  if (scrollFrame) cancelAnimationFrame(scrollFrame);
+  scrollFrame = 0;
+  const session = modalSession;
+  modalSession = null;
+  if (session) {
+    for (const { element, inert, hidden } of session.background) {
+      if (!inert) element.removeAttribute('inert');
+      if (hidden === null) element.removeAttribute('aria-hidden');
+      else element.setAttribute('aria-hidden', hidden);
+    }
+    document.body.style.overflow = session.overflow;
+    const opener = session.opener?.isConnected ? session.opener : $('comicOpen');
+    opener.focus({ preventScroll: true });
+    const originalBehavior = document.documentElement.style.scrollBehavior;
+    document.documentElement.style.scrollBehavior = 'auto';
+    window.scrollTo(session.x, session.y);
+    document.documentElement.style.scrollBehavior = originalBehavior;
+  }
+  closingReader = false;
+}
+
+$('comicOpen').onclick = () => {
+  if (!entrance.hidden || reader.classList.contains('open')) return;
+  const opener = $('comicOpen');
+  if (matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    openReader(0, opener);
     return;
   }
-  $('comicEntrancePage').src=comicSrc(1);
-  entrance.hidden=false;
-  $('comicSkip').focus();
-  function finish(){
+  $('comicEntrancePage').src = comicSrc(1);
+  entrance.hidden = false;
+  activateModal(entrance, opener);
+  $('comicSkip').focus({ preventScroll: true });
+  const book = entrance.querySelector('.comic-entrance-book');
+  let finished = false;
+  function finish() {
+    if (finished) return;
+    finished = true;
     clearTimeout(fallback);
-    $('comicSkip').onclick=null;
-    entrance.querySelector('.comic-entrance-book').removeEventListener('animationend',onFinish);
+    $('comicSkip').onclick = null;
+    book.removeEventListener('animationend', onFinish);
+    finishEntrance = null;
+    entrance.hidden = true;
     openReader(0);
-    entrance.hidden=true;
-    $('comicSkip').onkeydown=null;
-    $('closeReader').focus();
   }
-  function onFinish(event){
-    if(event.animationName==='comic-enter')finish();
+  function onFinish(event) {
+    if (event.animationName === 'comic-enter') finish();
   }
-  entrance.querySelector('.comic-entrance-book').addEventListener('animationend',onFinish);
-  const fallback=setTimeout(finish,3200);
-  $('comicSkip').onclick=finish;
-  $('comicSkip').onkeydown=event=>{
-    if(event.key==='Tab')event.preventDefault();
-    if(event.key==='Escape'){event.stopPropagation();finish();}
-  };
+  const fallback = setTimeout(finish, 3200);
+  finishEntrance = finish;
+  book.addEventListener('animationend', onFinish);
+  $('comicSkip').onclick = finish;
 };
-document.querySelectorAll('[data-reader]').forEach(b=>b.onclick=()=>openReader());document.querySelectorAll('[data-episode]').forEach(b=>b.onclick=()=>openReader(b.dataset.episode));
-$('closeReader').onclick=()=>$('reader').classList.remove('open');$('readerEpisode').onchange=e=>{episode=+e.target.value;page=chapters[episode].start;renderReader()};
-$('prevPage').onclick=()=>{page=Math.max(chapters[episode].start,page-(readerMode==='double'?2:1));renderReader()};$('nextPage').onclick=()=>{page=Math.min(chapters[episode].end,page+(readerMode==='double'?2:1));renderReader()};
-function setLang(x){lang=x;renderReader()}$('comicEN').onclick=()=>setLang('en');$('comicMM').onclick=()=>setLang('mm');$('readerLang').onclick=()=>setLang(lang==='en'?'mm':'en');
-document.querySelectorAll('[data-reading-mode]').forEach(b=>b.onclick=()=>{readerMode=b.dataset.readingMode;readerZoom=1;renderReader()});
-$('readerZoomIn').onclick=()=>{readerZoom=Math.min(2,Math.round((readerZoom+.15)*100)/100);renderReader()};$('readerZoomOut').onclick=()=>{readerZoom=Math.max(.7,Math.round((readerZoom-.15)*100)/100);renderReader()};$('readerFullscreen').onclick=()=>{const el=$('reader');if(document.fullscreenElement)document.exitFullscreen?.();else el.requestFullscreen?.().catch(()=>{})};
-
-document.addEventListener('keydown',event=>{
-  if(!$('reader').classList.contains('open'))return;
-  if(event.key==='Escape')$('closeReader').click();
-  if(event.target.matches('select,input,textarea'))return;
-  if(event.key==='ArrowRight')$('nextPage').click();
-  if(event.key==='ArrowLeft')$('prevPage').click();
+document.querySelectorAll('[data-reader]').forEach(button => { button.onclick = () => openReader(null, button); });
+document.querySelectorAll('[data-episode]').forEach(button => { button.onclick = () => openReader(button.dataset.episode, button); });
+$('closeReader').onclick = closeReader;
+$('readerEpisode').onchange = event => {
+  episode = Number(event.target.value);
+  page = chapters[episode].start;
+  renderReader();
+};
+$('prevPage').onclick = () => movePage(-1);
+$('nextPage').onclick = () => movePage(1);
+function setLang(locale) {
+  const position = scrollPosition();
+  lang = locale;
+  if (reader.classList.contains('open')) renderReader(position);
+  else { refreshComicLanding(); persistReader(); }
+}
+$('comicEN').onclick = () => setLang('en');
+$('comicMM').onclick = () => setLang('mm');
+$('readerLang').onclick = () => setLang(lang === 'en' ? 'mm' : 'en');
+document.querySelectorAll('[data-reading-mode]').forEach(button => {
+  button.onclick = () => {
+    const position = scrollPosition();
+    if (position) page = position.page;
+    readerMode = button.dataset.readingMode;
+    readerZoom = 1;
+    renderReader();
+  };
 });
+function zoomReader(change) {
+  const position = scrollPosition();
+  readerZoom = Math.max(.7, Math.min(2, Math.round((readerZoom + change) * 100) / 100));
+  renderReader(position);
+}
+$('readerZoomIn').onclick = () => zoomReader(.15);
+$('readerZoomOut').onclick = () => zoomReader(-.15);
+$('readerFullscreen').onclick = async () => {
+  try {
+    if (document.fullscreenElement) await document.exitFullscreen?.();
+    else await reader.requestFullscreen?.();
+  } catch (error) {}
+};
+
+function trapModalTab(event) {
+  const controls = Array.from(activeModal.querySelectorAll('a[href],button:not([disabled]),select:not([disabled]),input:not([disabled]),textarea:not([disabled]),[tabindex]:not([tabindex="-1"])'))
+    .filter(element => !element.closest('[hidden],[inert]') && element.getClientRects().length);
+  const first = controls[0], last = controls[controls.length - 1];
+  if (!first) return;
+  const outside = !activeModal.contains(document.activeElement);
+  if ((event.shiftKey && (document.activeElement === first || outside)) || (!event.shiftKey && (document.activeElement === last || outside))) {
+    event.preventDefault();
+    (event.shiftKey ? last : first).focus({ preventScroll: true });
+  }
+}
+document.addEventListener('keydown', event => {
+  if (!activeModal) return;
+  if (event.key === 'Tab') { trapModalTab(event); return; }
+  if (event.key === 'Escape') {
+    event.preventDefault();
+    if (activeModal === entrance) finishEntrance?.();
+    else closeReader();
+    return;
+  }
+  if (activeModal !== reader || event.target.matches('select,input,textarea')) return;
+  if (event.key === 'ArrowRight' || event.key === 'ArrowLeft') {
+    event.preventDefault();
+    $(event.key === 'ArrowRight' ? 'nextPage' : 'prevPage').click();
+  }
+});
+document.addEventListener('focusin', event => {
+  if (activeModal && !activeModal.contains(event.target)) {
+    $(activeModal === reader ? 'closeReader' : 'comicSkip').focus({ preventScroll: true });
+  }
+});
+refreshComicLanding();

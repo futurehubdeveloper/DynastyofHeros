@@ -61,6 +61,8 @@
 
 .comic-site{--cream:#f6e9d5;--gold:#e8bc77;--muted:#c7af95;background:#1a120e;color:var(--cream)}
 #comics{background:radial-gradient(ellipse at 65% 16%,#412b1d,#1a120e 64%);padding:clamp(3rem,8vw,7rem) clamp(1rem,6vw,5rem)}
+/* Clear the 84px fixed header; the feature adds its existing 24–48px breathing room. */
+.comic-site #comics{padding-top:max(84px,clamp(3rem,8vw,7rem))}
 .comic-edition{margin:auto}
 .comic-intro .eyebrow{color:var(--gold);text-transform:uppercase;font-size:.8rem;letter-spacing:.17em}
 .comic-intro>p{line-height:1.65}
