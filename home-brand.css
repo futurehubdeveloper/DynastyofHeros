@@ -124,9 +124,18 @@
   font-display: swap;
 }
 
-html:lang(en) body.home-page,
-html:lang(en) body.home-page :is(h1, h2, h3, p, em, i, a, span, div, footer, button, small, strong):lang(en) {
+html:lang(en) .home-page {
+  font-family: Inter, Arial, sans-serif;
+}
+
+html:lang(en) .home-page :is(h2, h3) {
   font-family: "Home Skranji", Georgia, serif;
+}
+
+html:lang(en) .home-page .site-header .site-menu a:lang(en),
+html:lang(en) .home-page :is(.button, .coming) {
+  font-family: Inter, Arial, sans-serif;
+  font-weight: 600;
 }
 
 .home-page :is(.section-intro, .story-copy p, .four p, .experience-copy p) {
