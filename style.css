@@ -229,7 +229,7 @@ body.characters-page{--characters-world-image:url("assets/characters-forest.svg"
  [data-character-id="nga-nyo"],
  [data-character-id="mae-pan"]
 ) .modal-image{
- background-image:url("assets/DOH_First10_Illustrated_Sprite.svg")!important;
+ background-image:url("assets/DOH_First10_Illustrated_Sprite.webp")!important;
  background-size:500% auto!important;
  background-position:var(--batch1-x,0%) var(--batch1-y,0%)!important;
  background-repeat:no-repeat!important;
@@ -279,7 +279,7 @@ body.characters-page{--characters-world-image:url("assets/characters-forest.svg"
    Every heading, subtitle, name, description and button remains editable HTML.
    To change backgrounds, swap the files below. */
 body.characters-page{
-  --characters-world-image:url("assets/characters-world-cinematic.svg");
+  --characters-world-image:url("assets/characters-world-cinematic.webp");
   background:#0e1011;
 }
 .characters-page .characters-page-backdrop{
@@ -300,7 +300,7 @@ body.characters-page{
   min-height:clamp(255px,22vw,355px);
   background-image:
     linear-gradient(180deg,rgba(12,11,15,.19),rgba(12,10,14,.24) 56%,rgba(9,8,10,.67)),
-    url("assets/characters-top-cinematic.svg");
+    url("assets/characters-top-cinematic.webp");
   background-size:cover;
   background-position:center center;
   background-repeat:no-repeat;
