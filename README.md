@@ -74,3 +74,12 @@ The old Characters page is also available at `characters-classic.html` on the ma
 - The original card-based design remains untouched at `characters-classic.html`. Complete backups: `backup/characters-gallery-2026-11-25` and `backup/cinematic-pre-fullbody-2026-11-25`.
 
 To add another full-body cutout later, upload a transparent WebP under `assets/fullbody/` and add that character's ID/path to `imageFor` in `characters-cinematic.js`. Do not change the thumbnail file or text labels.
+
+## 22 independent full-body character assets (November 25, 2026)
+
+- All 22 cast IDs now have separate transparent WebP files under `assets/fullbody/<character-id>.webp`.
+- `characters-cinematic.js` displays these full-body files on the **large detail stage**. The character selector deliberately continues to use the existing `assets/portraits/<character-id>.webp` thumbnails.
+- Each figure remains independent from the Bagan scenery, the editable HTML name/biography/traits, and the preserved `CHARACTERS` banner.
+- `assets/fullbody/nga-lone.webp` retains the previously approved, heavily muscled full-body version.
+- **Artwork QA:** the independently rendered main heroes, allies and Sayadaws are sharp; figures extracted from older full-character lineup references are concept drafts at lower native resolution, including some military characters and two Paladins. Do not label all 22 as final-quality native high-resolution illustrations; replace those particular draft WebPs with future approved single-character renders without changing the HTML/CSS/JS.
+- Backup of the cinematic site before this full-body rollout: `backup/before-fullbody-all22-2026-11-25`. The previously approved classic layout remains in `characters-classic.html`.
