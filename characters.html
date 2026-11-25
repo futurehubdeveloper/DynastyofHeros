@@ -10,9 +10,8 @@
   <div class="featured-hero__scene" aria-hidden="true"></div>
   <div class="featured-hero__content">
     <div class="featured-hero__portrait">
-      <!-- Independent foreground asset. The video is a temporary visual fallback until the transparent cutout is uploaded. -->
-      <video class="featured-hero__video-fallback" autoplay muted playsinline loop preload="metadata" aria-hidden="true"><source src="assets/GoldenWarrior_FutureWind_Banner_CalmDark.mp4" type="video/mp4"></video>
-      <img class="featured-hero__cutout" src="assets/mg-kan-cutout.png" alt="Mg Kan wearing his black-and-red warrior outfit" loading="eager">
+      <!-- Separate transparent foreground asset; not part of the forest background -->
+      <img class="featured-hero__cutout" src="assets/mg-kan-cutout-art.svg" alt="Mg Kan wearing his black-and-red warrior outfit" loading="eager" fetchpriority="high">
     </div>
     <div class="featured-hero__copy">
       <span class="section-label">THE MAIN HERO</span>
