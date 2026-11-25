@@ -47,8 +47,19 @@
 
   // Use the individual full-body artwork and matching portrait exports.
   // Version replaced assets so returning visitors receive the new artwork.
-  const updatedArtwork = new Set(['army-general','army-soldiers','royal-commander','royal-soldiers','palace-guards','nyaung-u-hpi','nga-htwe-yu','mg-kyan','nga-pyae-wa']);
-  const artworkVersion = id => updatedArtwork.has(id) ? '?v=20261125-individual-art' : '';
+  const artworkVersions = {
+    'army-general': '20261125-individual-art',
+    'army-soldiers': '20261125-individual-art',
+    'royal-commander': '20261125-individual-art',
+    'royal-soldiers': '20261125-individual-art',
+    'palace-guards': '20261125-individual-art',
+    'nyaung-u-hpi': '20261125-individual-art',
+    'nga-htwe-yu': '20261125-individual-art',
+    'mg-kyan': '20261125-bow-white-gold',
+    'nga-pyae-wa': '20261125-individual-art',
+    'nga-nyo': '20261125-bow-white-gold'
+  };
+  const artworkVersion = id => artworkVersions[id] ? '?v=' + artworkVersions[id] : '';
   function imageFor(person) {
     return 'assets/fullbody/' + person.id + '.webp' + artworkVersion(person.id);
   }

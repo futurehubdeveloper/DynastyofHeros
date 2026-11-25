@@ -6,7 +6,7 @@ window.DOH_CAST = [
     "title": "The Sword",
     "group": "main",
     "role": "Main protagonist and protective swordsman",
-    "identity": "Grandson of General Min Sithu; Kyansittha's childhood companion",
+    "identity": "Grandson of General Min Sithu; King Kyan's childhood companion",
     "personality": "Brave, loyal, observant, sometimes playful",
     "traits": [
       "Swordsmanship",
@@ -18,7 +18,7 @@ window.DOH_CAST = [
   },
   {
     "id": "mg-kyan",
-    "name": "Mg Kyan · Kyansittha",
+    "name": "King Kyan",
     "title": "The Hidden Prince",
     "group": "family",
     "role": "Prince and emerging leader",
@@ -86,7 +86,7 @@ window.DOH_CAST = [
     "title": "Elderly Caretaker",
     "group": "family",
     "role": "Grandmother and caretaker",
-    "identity": "Mg Kan's grandmother and caregiver of Kyansittha",
+    "identity": "Mg Kan's grandmother and caregiver of King Kyan",
     "personality": "Kind, resolute, protective",
     "traits": [
       "Caregiving",
@@ -101,7 +101,7 @@ window.DOH_CAST = [
     "name": "Princess Pyin Sa",
     "title": "Royal Mother",
     "group": "family",
-    "role": "Kyansittha's mother",
+    "role": "King Kyan's mother",
     "identity": "Royal mother of the hidden prince",
     "personality": "Compassionate, courageous, determined",
     "traits": [
@@ -118,7 +118,7 @@ window.DOH_CAST = [
     "title": "King of Pagan",
     "group": "family",
     "role": "Ruler and warrior king",
-    "identity": "Kyansittha's father",
+    "identity": "King Kyan's father",
     "personality": "Authoritative, proud, complex",
     "traits": [
       "Command",
