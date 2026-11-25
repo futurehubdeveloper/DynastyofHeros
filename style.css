@@ -387,3 +387,53 @@ body.characters-page{
 .characters-page .character-disclaimer{
   background:linear-gradient(90deg,rgba(11,9,12,.67),rgba(20,13,16,.68));
 }
+
+/* === REAL CHARACTER PORTRAIT CARD FIX / NOV 2026 ===
+   One correctly framed portrait image per card, no sprites, text-free artwork.
+   Keep the HTML title and button separate for easy content editing. */
+.characters-page .character-card {min-width:0;display:flex;flex-direction:column;overflow:hidden}
+.characters-page .character-card .portrait{
+ position:relative;flex:0 0 auto;width:100%;height:auto;min-height:0;
+ aspect-ratio:3 / 4;overflow:hidden;
+ background:#221a19;border-bottom:1px solid rgba(224,166,75,.42);
+ background-image:none!important;background-position:initial!important;background-size:auto!important;
+}
+.characters-page .character-card .portrait img {
+ display:block;position:absolute;inset:0;width:100%;height:100%;max-width:none;
+ object-fit:cover;object-position:center center;
+ opacity:1!important;transform:none;filter:none;
+ transition:transform .45s ease;
+}
+@media(hover:hover){
+ .characters-page .character-card:hover .portrait img{transform:scale(1.025)}
+}
+.characters-page .character-summary{
+ width:100%;flex:1;display:flex;flex-direction:column;gap:5px;
+ padding:clamp(12px,1vw,20px) clamp(10px,1vw,18px);
+}
+.characters-page .character-summary h3{font-size:clamp(15px,1.28vw,22px);line-height:1.22;margin:0;color:#f4deb7;word-break:normal}
+.characters-page .character-summary p{font-size:clamp(12px,.98vw,16px);line-height:1.35;margin:0 0 9px;color:#c8ac82}
+.characters-page .character-summary .view-profile{margin-top:auto;font-size:10px}
+.characters-page #roster-allies{grid-template-columns:repeat(6,minmax(0,1fr))}
+.characters-page #roster-paladins{grid-template-columns:repeat(3,minmax(0,1fr));max-width:calc(65% - 20px)}
+.characters-page #roster-military{grid-template-columns:repeat(5,minmax(0,1fr))}
+/* Real images also fill the profile lightbox without cropping heads. */
+.characters-page .modal-image{display:flex;align-items:stretch;justify-content:center;overflow:hidden;background:#1a1415;background-image:none!important}
+.characters-page .modal-image img{display:block;width:100%;height:100%;object-fit:contain;object-position:center top;opacity:1!important}
+@media(max-width:1400px){
+ .characters-page #roster-allies{grid-template-columns:repeat(3,minmax(0,1fr))}
+ .characters-page #roster-paladins{max-width:none}
+}
+@media(max-width:1000px){
+ .characters-page #roster-military{grid-template-columns:repeat(3,minmax(0,1fr))}
+}
+@media(max-width:600px){
+ .characters-page #roster-allies,
+ .characters-page #roster-paladins,
+ .characters-page #roster-military{grid-template-columns:repeat(2,minmax(0,1fr))}
+ .characters-page .character-summary{padding:12px 9px}
+ .characters-page .character-summary h3{font-size:14px}
+ .characters-page .character-summary p{font-size:12px}
+ .characters-page .modal-image{height:38vh;min-height:0}
+ .characters-page .modal-image img{object-fit:contain;object-position:center top}
+}
