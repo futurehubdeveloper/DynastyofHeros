@@ -217,17 +217,33 @@
   });
 
   const scene=document.querySelector('.cs-scene__landscape');
-  if(scene && !matchMedia('(prefers-reduced-motion: reduce)').matches){
+  if(scene){
+    const stage=scene.closest('.cs-stage');
+    const motion=matchMedia('(prefers-reduced-motion: reduce)');
     let queued=false;
     function update(){
       queued=false;
-      const amount=Math.min(72,Math.max(0,scrollY*.075));
-      scene.style.setProperty('--cs-scroll',amount+'px');
+      if(motion.matches){
+        scene.style.removeProperty('--cs-scroll');
+        return;
+      }
+      const bounds=stage.getBoundingClientRect();
+      const progress=Math.max(0,Math.min(1,(innerHeight-bounds.top)/(innerHeight+bounds.height)));
+      // Keep the displacement inside the landscape's vertical overscan.
+      const travel=Math.min(96,bounds.height*.115);
+      scene.style.setProperty('--cs-scroll',((2*progress-1)*travel)+'px');
     }
-    addEventListener('scroll',()=>{
+    function schedule(){
       if(!queued){queued=true;requestAnimationFrame(update)}
-    },{passive:true});
-    update();
+    }
+    function syncMotion(){
+      if(motion.matches) removeEventListener('scroll',schedule);
+      else addEventListener('scroll',schedule,{passive:true});
+      schedule();
+    }
+    addEventListener('resize',schedule);
+    motion.addEventListener('change',syncMotion);
+    syncMotion();
   }
 
   drawCategories();
