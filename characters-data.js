@@ -226,7 +226,7 @@ window.DOH_CAST = [
   },
   {
     "id": "nga-lone",
-    "name": "Nga Lone Letphel",
+    "name": "Nga Lone",
     "title": "Strength Hero",
     "group": "paladins",
     "role": "Legendary strongman",
@@ -242,7 +242,7 @@ window.DOH_CAST = [
   },
   {
     "id": "nyaung-u-hpi",
-    "name": "Nyaung-U Hpi",
+    "name": "Nga Oo",
     "title": "Water Hero",
     "group": "paladins",
     "role": "Legendary swimmer",
@@ -258,7 +258,7 @@ window.DOH_CAST = [
   },
   {
     "id": "nga-htwe-yu",
-    "name": "Nga Htwe Yu",
+    "name": "Nga Ntwe",
     "title": "Agile Hero",
     "group": "paladins",
     "role": "Legendary climber",
