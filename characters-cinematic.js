@@ -45,14 +45,10 @@
     traits:$('#cs-traits'), count:$('#cs-count'), group:$('#cs-group-name')
   };
 
+  // Detail stage uses a separate, transparent full-body image for each of the 22 characters.
+  // The small selector continues using the original headshot/portrait assets.
   function imageFor(person) {
-    // Only approved full-body cutouts are mapped here.
-    // Leave all other character portraits as portraits until their full-body art is approved.
-    const fullBody = {
-      'mg-kan': 'assets/mg-kan-cutout-art.webp',
-      'nga-lone': 'assets/fullbody/nga-lone.webp'
-    };
-    return fullBody[person.id] || 'assets/portraits/' + person.id + '.webp';
+    return 'assets/fullbody/' + person.id + '.webp';
   }
   function thumbnailFor(person) {
     return 'assets/portraits/' + person.id + '.webp';
