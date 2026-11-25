@@ -42,6 +42,8 @@ The website references the actual uploaded filenames, without requiring renaming
 ## Story artwork and studio branding
 
 - `story-banner-brothers.webp` — the user-supplied image of Mg Kan and King Kyan at sunset, converted to WebP. Its darkening is a reversible CSS overlay in `story.css`; no faces or poses were redrawn.
+- `story-banner-motion.mp4` — the user-supplied 6-second, 1024 × 592 sunset animation, used in the taller Story banner. The original video bytes are preserved. Playback is muted and loops, with a pause control and a still fallback for reduced motion or loading problems.
+- `story-banner-video-poster.webp` — first-frame poster extracted from that animation; used while the video loads and when motion is disabled.
 - `story-world-map.webp` — the illustrated Pagan-inspired game world. A single dim, fixed layer spans the Story page; scroll moves it slightly. Reduced-motion preference disables the movement. The full artwork is available in the optional map dialog.
 - `factory-of-future-mark.png` — transparent, icon-only extraction from the supplied navy/cyan studio logo. Created with the built-in image editing tool. Edit prompt: remove the white background and all wording below the bulb; preserve the bulb outline, monogram, navy/cyan colors, and negative spaces; output true transparency with no added text or effects.
 - `fonts/RockSalt-Regular.ttf` — locally hosted Rock Salt Regular from the official Google Fonts repository, used for the separate HTML text “Factory of Future.” This is lettering inspired by the user’s reference, not the reference’s exact font. The Apache 2.0 license is included as `fonts/RockSalt-LICENSE.txt`.

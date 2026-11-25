@@ -1,6 +1,165 @@
 (() => {
   'use strict';
 
+  function initializeHeroVideo(reducedMotion) {
+    const hero = document.querySelector('.story-hero');
+    const video = document.getElementById('story-banner-video');
+    const toggle = document.querySelector('[data-story-video-toggle]');
+    if (!hero || !video || !toggle || typeof video.play !== 'function') return () => {};
+
+    let heroVisible = false;
+    let manuallyPaused = false;
+    let explicitMotion = false;
+    let autoplayBlocked = false;
+    let mediaFailed = Boolean(video.error);
+    let playPending = false;
+    let playRequest = 0;
+
+    function updateToggle() {
+      toggle.hidden = mediaFailed;
+      toggle.textContent = !video.paused || playPending ? 'Pause motion' : 'Play motion';
+    }
+
+    function shouldPlay() {
+      return heroVisible && document.visibilityState !== 'hidden' &&
+        !manuallyPaused && !mediaFailed && !autoplayBlocked &&
+        (!reducedMotion.matches || explicitMotion);
+    }
+
+    function pauseVideo() {
+      if (playPending) {
+        playRequest += 1;
+        playPending = false;
+      }
+      video.pause();
+      updateToggle();
+    }
+
+    function showPoster() {
+      hero.classList.remove('is-video-ready');
+    }
+
+    function handleMediaFailure() {
+      mediaFailed = true;
+      showPoster();
+      pauseVideo();
+    }
+
+    function reconcilePlayback() {
+      if (reducedMotion.matches && !explicitMotion) showPoster();
+      if (!shouldPlay()) {
+        pauseVideo();
+        return;
+      }
+      if (playPending || !video.paused) return;
+
+      const request = ++playRequest;
+      playPending = true;
+      updateToggle();
+
+      function handlePlayFailure(error) {
+        if (request !== playRequest) return;
+        playPending = false;
+        if (error?.name === 'NotSupportedError') {
+          handleMediaFailure();
+          return;
+        }
+        if (error?.name !== 'AbortError') {
+          autoplayBlocked = true;
+          showPoster();
+          video.pause();
+        }
+        updateToggle();
+      }
+
+      try {
+        const playback = video.play();
+        if (playback && typeof playback.then === 'function') {
+          playback.then(() => {
+            if (request !== playRequest) return;
+            playPending = false;
+            if (!shouldPlay()) pauseVideo();
+            updateToggle();
+          }).catch(handlePlayFailure);
+        } else {
+          playPending = false;
+          updateToggle();
+        }
+      } catch (error) {
+        handlePlayFailure(error);
+      }
+    }
+
+    function refreshVisibility() {
+      const bounds = hero.getBoundingClientRect();
+      heroVisible = bounds.bottom > 0 && bounds.top < window.innerHeight;
+      reconcilePlayback();
+    }
+
+    // JavaScript controls autoplay so reduced motion is honored before reveal.
+    video.autoplay = false;
+    video.muted = true;
+    video.playsInline = true;
+    showPoster();
+    pauseVideo();
+
+    video.addEventListener('playing', () => {
+      if (!shouldPlay()) {
+        pauseVideo();
+        return;
+      }
+      playPending = false;
+      hero.classList.add('is-video-ready');
+      updateToggle();
+    });
+    video.addEventListener('pause', updateToggle);
+    video.addEventListener('error', handleMediaFailure);
+    video.querySelectorAll('source').forEach(source => {
+      source.addEventListener('error', handleMediaFailure);
+    });
+
+    toggle.addEventListener('click', () => {
+      if (!video.paused || playPending) {
+        manuallyPaused = true;
+        pauseVideo();
+        return;
+      }
+      manuallyPaused = false;
+      explicitMotion = true;
+      autoplayBlocked = false;
+      refreshVisibility();
+    });
+
+    if (typeof window.IntersectionObserver === 'function') {
+      const observer = new IntersectionObserver(entries => {
+        const entry = entries[entries.length - 1];
+        heroVisible = entry.isIntersecting && entry.intersectionRatio >= 0.01;
+        reconcilePlayback();
+      }, { threshold: 0.01 });
+      observer.observe(hero);
+    } else {
+      let visibilityFrame = 0;
+      const queueVisibility = () => {
+        if (visibilityFrame) return;
+        visibilityFrame = window.requestAnimationFrame(() => {
+          visibilityFrame = 0;
+          refreshVisibility();
+        });
+      };
+      window.addEventListener('scroll', queueVisibility, { passive: true });
+      window.addEventListener('resize', queueVisibility, { passive: true });
+    }
+    document.addEventListener('visibilitychange', refreshVisibility);
+    window.addEventListener('pagehide', pauseVideo);
+    window.addEventListener('pageshow', refreshVisibility);
+    refreshVisibility();
+
+    return () => {
+      explicitMotion = false;
+      reconcilePlayback();
+    };
+  }
+
   function initializeStory() {
     if (!document.body.classList.contains('story-page')) return;
 
@@ -11,6 +170,7 @@
     const menuToggle = document.querySelector('.menu-toggle');
     const mapDialog = document.getElementById('story-map-dialog');
     const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+    const updateVideoMotionPreference = initializeHeroVideo(reducedMotion);
     const smallScreen = window.matchMedia('(max-width: 700px)');
     const desktopMenu = window.matchMedia('(min-width: 951px)');
     let frame = 0;
@@ -64,10 +224,14 @@
     window.addEventListener('pageshow', queueScroll);
     window.addEventListener('load', queueScroll, { once: true });
 
+    const updateMotionPreference = () => {
+      queueScroll();
+      updateVideoMotionPreference();
+    };
     if (typeof reducedMotion.addEventListener === 'function') {
-      reducedMotion.addEventListener('change', queueScroll);
+      reducedMotion.addEventListener('change', updateMotionPreference);
     } else if (typeof reducedMotion.addListener === 'function') {
-      reducedMotion.addListener(queueScroll);
+      reducedMotion.addListener(updateMotionPreference);
     }
     if (document.fonts?.ready) document.fonts.ready.then(queueScroll);
     renderScroll();

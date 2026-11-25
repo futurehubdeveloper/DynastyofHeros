@@ -7,7 +7,7 @@
   <meta name="description" content="Enter the world of Dynasty of Heroes: a prophecy, a palace escape, and a brotherhood growing among the forests and mountains of Pagan.">
   <title>The Story — Dynasty of Heroes</title>
   <link rel="stylesheet" href="style.css?v=charcoal-cards">
-  <link rel="stylesheet" href="story.css?v=20261125-dim-map-v2">
+  <link rel="stylesheet" href="story.css?v=20261126-motion-space">
 </head>
 <body class="story-page">
   <a class="st-skip-link" href="#story-content">Skip to the story</a>
@@ -30,7 +30,10 @@
 
   <main id="story-content" tabindex="-1">
     <section class="story-hero" aria-labelledby="story-title">
-      <img class="st-hero-art" src="assets/story-banner-brothers.webp" alt="Mg Kan and King Kyan overlooking the world of Pagan" width="1672" height="941" fetchpriority="high" decoding="async">
+      <img class="st-hero-art st-hero-fallback" src="assets/story-banner-video-poster.webp" alt="Mg Kan and King Kyan seated above Pagan at sunset" width="1024" height="592" fetchpriority="high" decoding="async">
+      <video class="st-hero-video st-hero-art" id="story-banner-video" autoplay muted loop playsinline preload="metadata" poster="assets/story-banner-video-poster.webp" aria-hidden="true" tabindex="-1">
+        <source src="assets/story-banner-motion.mp4" type="video/mp4">
+      </video>
       <div class="st-hero-inner">
         <div class="st-hero-copy">
           <p class="st-eyebrow">DYNASTY OF HEROES</p>
@@ -39,6 +42,7 @@
           <span class="st-title-rule" aria-hidden="true"></span>
         </div>
       </div>
+      <button class="st-video-toggle" type="button" data-story-video-toggle aria-controls="story-banner-video" hidden>Pause motion</button>
     </section>
 
     <div class="st-content">
@@ -131,6 +135,6 @@
       <figcaption>Illustrated game world inspired by Pagan.</figcaption>
     </figure>
   </dialog>
-  <script src="story.js?v=20261125-story-world"></script>
+  <script src="story.js?v=20261126-motion-space"></script>
 </body>
 </html>

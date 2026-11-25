@@ -46,7 +46,7 @@ body.story-page .site-header:not(.is-scrolled) {
 }
 .story-page .story-hero {
   position: relative; isolation: isolate; overflow: hidden;
-  height: clamp(390px, 33vw, 540px); margin-top: 84px;
+  height: clamp(500px, 48vw, 740px); margin-top: 84px;
   background: #142127;
 }
 .st-hero-art {
@@ -55,6 +55,16 @@ body.story-page .site-header:not(.is-scrolled) {
   object-fit: cover; object-position: center 16%;
   filter: brightness(.74) saturate(.83);
 }
+.st-hero-fallback { z-index: -3; }
+.st-hero-video { opacity: 0; transition: opacity .35s ease; }
+.story-hero.is-video-ready .st-hero-video { opacity: 1; }
+.st-video-toggle {
+  position: absolute; right: 6.5vw; bottom: 24px; z-index: 2;
+  min-height: 44px; padding: 10px 15px;
+  border: 1px solid #d4bd8a70; background: #0b1116b3; color: #f0e6d2;
+  font: 500 14px/1.4 Inter, sans-serif;
+}
+.st-video-toggle:hover { border-color: #ead3a4; background: #0b1116e6; }
 .story-hero::after {
   content: ''; position: absolute; inset: 0; z-index: -1;
   background: linear-gradient(90deg, #0b111605 18%, #0b111615 39%, #0b11166e 69%, #0b1116ad),
@@ -68,7 +78,7 @@ body.story-page .site-header:not(.is-scrolled) {
 .st-title-rule { display: block; width: 150px; height: 1px; margin: auto; background: linear-gradient(90deg, transparent, #d9b874, transparent); }
 
 .st-content { width: min(1280px, 87%); margin-inline: auto; }
-.st-section { position: relative; padding: 58px 0; scroll-margin-top: 108px; }
+.st-section { position: relative; padding: 78px 0; scroll-margin-top: 108px; }
 .st-section + .st-section { border-top: 1px solid #cda96c29; }
 .st-world, .st-prophecy { display: grid; grid-template-columns: .78fr 1.3fr; gap: clamp(44px, 6vw, 90px); align-items: start; }
 .st-section-mark { display: block; width: 11px; height: 11px; border: 1px solid #cda96c; transform: rotate(45deg); margin: 3px 0 22px 3px; box-shadow: 0 0 0 5px #cda96c0c; }
@@ -80,12 +90,12 @@ body.story-page .site-header:not(.is-scrolled) {
 .st-map-link { display: inline-flex; align-items: center; gap: 10px; min-height: 44px; padding: 8px 0; border: 0; border-bottom: 1px solid #cda96c7d; background: transparent; color: #e5cc9f; font: .875rem/1.5 Inter, sans-serif; }
 .st-map-link:hover { color: #fff0cf; border-bottom-color: #f1d69f; }
 .st-map-link svg { width: 22px; height: 22px; fill: none; stroke: currentColor; stroke-width: 1.4; stroke-linejoin: round; }
-.st-prophecy { padding-top: 54px; padding-bottom: 54px; }
+.st-prophecy { padding-top: 74px; padding-bottom: 74px; }
 .st-prophecy-copy { max-width: 690px; }
 .st-prophecy-copy p { margin: 0 0 20px; }
 .st-prophecy-copy p:last-child { margin-bottom: 0; }
 
-.st-journey { padding-top: 55px; padding-bottom: 58px; }
+.st-journey { padding-top: 76px; padding-bottom: 78px; }
 .st-journey-heading { display: flex; align-items: center; gap: 20px; margin-bottom: 45px; }
 .st-journey-heading .st-section-mark { flex-shrink: 0; margin: 0 3px; }
 .st-journey-heading h2 { font-size: clamp(28px, 2.5vw, 38px); }
@@ -98,7 +108,7 @@ body.story-page .site-header:not(.is-scrolled) {
 .st-journey-list h3 { color: #e9d9b9; font-size: clamp(17px, 1.3vw, 21px); line-height: 1.4; font-weight: 500; margin: 0 0 12px; }
 .st-journey-list p { color: #dce0da; font: 1rem/1.6 Georgia, serif; margin: 0 auto; max-width: 190px; }
 
-.st-closing { padding-top: 64px; padding-bottom: 70px; text-align: center; }
+.st-closing { padding-top: 86px; padding-bottom: 94px; text-align: center; }
 .st-closing blockquote { margin: 0 auto 30px; max-width: 880px; }
 .st-closing blockquote p { margin: 0; color: #e7d8b8; font: italic clamp(27px, 2.7vw, 40px)/1.5 Georgia, serif; text-shadow: 0 2px 14px #0b1116; }
 .st-actions { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 18px 30px; }
@@ -159,17 +169,18 @@ body.story-page .site-header:not(.is-scrolled) {
   body.story-page .site-header, body.story-page .site-header:not(.is-scrolled) { min-height: 76px; padding: 10px 22px; }
   .story-page .site-header .brand-logo { width: 92px; height: 56px; }
   .story-page .site-menu { top: 76px; padding-inline: 22px; }
-  .story-page .story-hero { margin-top: 76px; height: 430px; }
-  .st-hero-art { object-position: 25% center; filter: brightness(.75) saturate(.85); }
+  .story-page .story-hero { margin-top: 76px; height: clamp(500px, 72svh, 620px); }
+  .st-hero-art { object-position: 20% center; filter: brightness(.75) saturate(.85); }
   .story-hero::after { background: linear-gradient(0deg, #0b1116 0%, #0b1116b3 29%, #0b11161a 68%, #0b11161a); }
   .st-hero-inner { width: 100%; align-items: flex-end; }
-  .st-hero-copy { width: 100%; padding: 0 22px 35px; }
+  .st-hero-copy { width: 100%; padding: 0 22px 82px; }
+  .st-video-toggle { right: 22px; bottom: 20px; }
   .st-eyebrow { font-size: .875rem; margin-bottom: 10px; }
   .st-hero-copy h1 { font-size: clamp(42px, 11vw, 58px); }
   .st-hero-subtitle { margin: 13px 0 18px; font-size: 18px; }
   .st-content { width: calc(100% - 44px); }
-  .st-section { padding: 40px 0; scroll-margin-top: 96px; }
-  .st-world { padding-top: 38px; }
+  .st-section { padding: 56px 0; scroll-margin-top: 96px; }
+  .st-world { padding-top: 54px; }
   .st-section h2 { font-size: 28px; line-height: 1.35; }
   .st-section-heading { align-items: flex-start; gap: 16px; }
   .st-section-heading .st-section-mark { margin-top: 13px; }
@@ -178,7 +189,7 @@ body.story-page .site-header:not(.is-scrolled) {
   .st-journey-heading { gap: 16px; align-items: flex-start; }
   .st-journey-heading .st-section-mark { margin-top: 13px; }
   .st-journey-list li { padding-left: 68px; }
-  .st-closing { padding: 45px 0 50px; }
+  .st-closing { padding: 61px 0 68px; }
   .st-closing blockquote p { font-size: 28px; line-height: 1.55; }
   .st-quote-break { display: none; }
   .st-actions { flex-direction: column; gap: 10px; }
