@@ -201,3 +201,62 @@ body.characters-page{--characters-world-image:url("assets/characters-forest.svg"
 .has-character-sprite .characters-page .character-card[data-character-id="nga-htwe-yu"] .portrait img{opacity:1!important}
 .has-character-sprite .modal[data-character-id="nga-htwe-yu"] .modal-image{background-image:none!important}
 .has-character-sprite .modal[data-character-id="nga-htwe-yu"] .modal-image img{opacity:1!important}
+
+
+/* Batch-one sprite is optional and only affects these ten character panels.
+   Each panel's label and Details button remain native, editable HTML. */
+.has-first-ten-sprite .characters-page .character-card:is(
+ [data-character-id="mg-kyan"],
+ [data-character-id="pyin-sa"],
+ [data-character-id="anawrahta"],
+ [data-character-id="min-sithu"],
+ [data-character-id="a-may-mya"],
+ [data-character-id="nga-pyae-wa"],
+ [data-character-id="nga-htoo"],
+ [data-character-id="nga-than"],
+ [data-character-id="nga-nyo"],
+ [data-character-id="mae-pan"]
+) .portrait,
+.has-first-ten-sprite .characters-page .modal:is(
+ [data-character-id="mg-kyan"],
+ [data-character-id="pyin-sa"],
+ [data-character-id="anawrahta"],
+ [data-character-id="min-sithu"],
+ [data-character-id="a-may-mya"],
+ [data-character-id="nga-pyae-wa"],
+ [data-character-id="nga-htoo"],
+ [data-character-id="nga-than"],
+ [data-character-id="nga-nyo"],
+ [data-character-id="mae-pan"]
+) .modal-image{
+ background-image:url("assets/DOH_First10_Illustrated_Sprite.webp")!important;
+ background-size:500% auto!important;
+ background-position:var(--batch1-x,0%) var(--batch1-y,0%)!important;
+ background-repeat:no-repeat!important;
+}
+.has-first-ten-sprite .characters-page .character-card:is(
+ [data-character-id="mg-kyan"],
+ [data-character-id="pyin-sa"],
+ [data-character-id="anawrahta"],
+ [data-character-id="min-sithu"],
+ [data-character-id="a-may-mya"],
+ [data-character-id="nga-pyae-wa"],
+ [data-character-id="nga-htoo"],
+ [data-character-id="nga-than"],
+ [data-character-id="nga-nyo"],
+ [data-character-id="mae-pan"]
+) .portrait img,
+.has-first-ten-sprite .characters-page .modal:is(
+ [data-character-id="mg-kyan"],
+ [data-character-id="pyin-sa"],
+ [data-character-id="anawrahta"],
+ [data-character-id="min-sithu"],
+ [data-character-id="a-may-mya"],
+ [data-character-id="nga-pyae-wa"],
+ [data-character-id="nga-htoo"],
+ [data-character-id="nga-than"],
+ [data-character-id="nga-nyo"],
+ [data-character-id="mae-pan"]
+) .modal-image img{
+ opacity:0!important;
+}
