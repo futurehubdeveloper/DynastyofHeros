@@ -449,3 +449,5 @@ body:not(.characters-page) .site-header.is-scrolled{background:rgba(8,8,12,.9);b
 body:not(.characters-page) .site-header:not(.is-scrolled){background:transparent;border-bottom:0;box-shadow:none;backdrop-filter:none;-webkit-backdrop-filter:none}
 
 .site-header .brand-logo{display:block;width:100px;height:60px;object-fit:contain}
+
+footer .brand-logo{display:block;width:100px;height:60px;object-fit:contain}
