@@ -293,13 +293,19 @@ function enterChronicle(event) {
     { transform: 'rotateY(-165deg)', offset: .76 },
     { transform: 'rotateY(-165deg)', offset: 1 }
   ], options);
+  const pageReveal = $('comicEntrancePage').animate([
+    { opacity: 0, offset: 0 },
+    { opacity: 0, offset: .49 },
+    { opacity: 1, offset: .65 },
+    { opacity: 1, offset: 1 }
+  ], options);
   const fallback = setTimeout(finish, duration + 250);
 
   function finish() {
     if (entrance.hidden) return;
     clearTimeout(fallback);
     entrance.hidden = true;
-    for (const animation of [room, book, cover]) animation.cancel();
+    for (const animation of [room, book, cover, pageReveal]) animation.cancel();
     skip.onclick = null;
     finishEntrance = null;
     openReader(0, opener);
