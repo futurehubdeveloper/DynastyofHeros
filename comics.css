@@ -251,8 +251,9 @@
   flex: none;
   width: calc(min(100cqw, 111.1cqh) * var(--reader-zoom, 1));
   aspect-ratio: 1322 / 1190;
-  background: url("assets/scenes/reader-book-title.webp") center / 100% 100% no-repeat;
-  box-shadow: 0 16px 32px #0009;
+  background: url("assets/scenes/reader-book-transparent.webp") center / 100% 100% no-repeat;
+  box-shadow: none;
+  filter: drop-shadow(0 12px 14px #0008);
 }
 .reader-page:is(.mode-single,.mode-double) .reader-endpaper {
   display: flex;
