@@ -193,3 +193,24 @@
   box-shadow: var(--book-depth),8px 4px 0 0 #682c25,9px 5px 0 0 #be9655,
     11px 7px 0 0 #3c1c18,8px 12px 16px #100906b5;
 }
+
+/* Show the illustrated cover boards beyond the typeset pages, including their gold corners. */
+.reader-page:is(.mode-single,.mode-double) {
+  --board: clamp(9px,1.5vw,22px);
+  padding: calc(var(--board) + 12px);
+}
+.reader-page:is(.mode-single,.mode-double) img {
+  border-image-source: url("assets/scenes/royal-chronicle.webp");
+  border-image-slice: 12% 14% 19% 18%;
+  border-image-width: var(--board);
+  border-image-outset: var(--board);
+  border-image-repeat: stretch;
+}
+.reader-page.mode-double .page-slot:first-child:not(:only-child) img {
+  border-image-width: var(--board) 0 var(--board) var(--board);
+  border-image-outset: var(--board) 0 var(--board) var(--board);
+}
+.reader-page.mode-double .page-slot + .page-slot img {
+  border-image-width: var(--board) var(--board) var(--board) 0;
+  border-image-outset: var(--board) var(--board) var(--board) 0;
+}
