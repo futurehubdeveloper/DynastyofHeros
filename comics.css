@@ -24,7 +24,6 @@
 #comics{background:#17110e}
 #comics:before{content:none}
 .comic-edition{max-width:1120px}
-.comic-feature{display:grid;grid-template-columns:minmax(0,1fr) minmax(240px,340px);gap:clamp(2rem,8vw,7rem);align-items:center;padding:clamp(1.5rem,4vw,3rem) 0 3rem;border-bottom:1px solid #59402b}
 .comic-intro .heading{margin:.2em 0 .35em;font-size:clamp(2.8rem,7vw,6rem);line-height:.94}
 .comic-intro>p:not(.eyebrow){max-width:38ch}
 .comic-intro .comic-volume{color:var(--muted);font-size:.9rem}
@@ -33,9 +32,6 @@
 .comic-edition .book-pills button[aria-pressed="true"],.comic-edition .book-pills button:hover,.comic-actions #comicOpen:hover{text-decoration:underline;text-underline-offset:.3em}
 .comic-actions{display:flex;flex-wrap:wrap;align-items:center;gap:1rem}
 .comic-resume{font:inherit;color:var(--gold);background:none;border:0;text-decoration:underline;cursor:pointer;padding:.7rem 0}
-.comic-sample{margin:0;width:100%;max-width:340px;justify-self:center}
-.comic-sample img{width:100%;height:auto;display:block;border:1px solid #775338;box-shadow:0 14px 35px #0008}
-.comic-sample figcaption{margin-top:.65rem;color:var(--muted);font-size:.85rem}
 .comic-list-title{margin:2rem 0 .7rem;font-size:1.8rem}
 .comic-chapter{width:100%;display:grid;grid-template-columns:2ch 3rem minmax(0,1fr) auto;gap:clamp(.5rem,2vw,1.4rem);align-items:center;text-align:left;font:inherit;color:var(--cream);background:none;border:0;border-bottom:1px solid #4f3626;padding:.65rem .3rem;cursor:pointer}
 .comic-chapter:hover,.comic-chapter:focus-visible{background:#302016}
@@ -43,7 +39,7 @@
 .comic-chapter-copy small{display:block;margin-top:.25rem;color:var(--muted)}
 .comic-chapter-number,.comic-chapter-count{color:var(--gold);font-size:.85rem}
 .comic-chapter-count span{padding-left:.4rem}
-@media(max-width:650px){.comic-feature{grid-template-columns:1fr;gap:2rem}.comic-sample{max-width:230px;justify-self:start}.comic-chapter{grid-template-columns:2ch 2rem minmax(0,1fr) auto}.comic-chapter img{width:2rem;height:2.5rem}}
+@media(max-width:650px){.comic-chapter{grid-template-columns:2ch 2rem minmax(0,1fr) auto}.comic-chapter img{width:2rem;height:2.5rem}}
 
 .comic-entrance[hidden]{display:none}
  .comic-entrance-room{position:absolute;inset:0;background:linear-gradient(#150b041a,#14080436),url("assets/scenes/comic-monastery-desk.webp") center/cover;transform-origin:50% 72%}
@@ -65,43 +61,61 @@
 .reader-toolbar .selected,.reader-bottom button{background:#533622}
 .comic-site .reader-modal{z-index:2000}
 
-.comic-sample{transform:perspective(950px) rotateX(var(--comic-tilt-x,0deg)) rotateY(var(--comic-tilt-y,0deg));transition:transform .25s ease-out}
 
-.comic-site #comics{padding-top:max(84px,clamp(3rem,8vw,7rem))}
-
-/* The landing and book-opening sequence share the monastery and its chronicle. */
-#comics { overflow-x: clip; padding-top: 0; }
+.comic-site #comics { overflow-x: clip; padding-top: 76px; }
 .comic-feature {
   position: relative;
   isolation: isolate;
-  min-height: 92svh;
-  padding: max(6rem, 12svh) 0 3rem;
+  min-height: clamp(510px, 55vw, 790px);
+  display: grid;
+  align-items: center;
+  padding: clamp(3rem, 7vw, 6rem) 0;
 }
-.comic-feature::before {
+.comic-film {
+  position: absolute;
+  inset: 0 calc(50% - 50vw);
+  z-index: -1;
+  background: #180f0c url("assets/scenes/royal-reading-poster.webp") center 38% / cover no-repeat;
+}
+.comic-film video { width: 100%; height: 100%; display: block; object-fit: cover; object-position: center 38%; }
+.comic-film::after {
   content: "";
   position: absolute;
-  z-index: -1;
-  inset: 0 calc(50% - 50vw);
-  background: linear-gradient(90deg,#130c09ed, #160c0780 43%, transparent 78%),
-    url("assets/scenes/comic-monastery-desk.webp") center / cover;
+  inset: 0;
+  pointer-events: none;
+  background: linear-gradient(90deg, #130c08f2 0%, #190e09d9 23%, #190e098c 39%, transparent 59%),
+    linear-gradient(0deg, #1a120e8a, transparent 15%);
 }
-.comic-sample {
-  align-self: end;
-  margin-bottom: 3vh;
-  border: 0;
-  padding: 0;
-  background: transparent;
+#readingFilmToggle {
+  position: absolute;
+  z-index: 1;
+  right: clamp(1rem, 4vw, 3rem);
+  bottom: 1.2rem;
+  border: 1px solid #c4a37977;
+  border-radius: 2px;
+  background: #190f0cd4;
+  color: #fff1d6;
+  padding: .65rem .85rem;
+  font: inherit;
   cursor: pointer;
 }
-.comic-sample img {
-  border: 0;
-  box-shadow: none;
-  filter: drop-shadow(0 12px 8px #180902b3);
-}
-@media(max-width:650px) {
-  .comic-feature { padding-top: 6rem; gap: .75rem; }
-  .comic-intro .heading { font-size: clamp(2.5rem,10vw,4rem); }
-  .comic-sample { justify-self: end; width: min(48vw,220px); margin: 0; }
+.comic-intro { width: min(43%, 32rem); }
+.comic-actions #comicOpen { display: inline-flex; align-items: center; gap: .65rem; }
+#comicOpen img { width: 41px; height: auto; filter: drop-shadow(0 3px 3px #150c09a1); }
+@media (max-width: 760px) {
+  .comic-site #comics { padding-top: 68px; }
+  .comic-feature { display: block; min-height: 0; padding: 0 0 1.5rem; }
+  .comic-film {
+    position: relative;
+    inset: auto;
+    margin-inline: calc(50% - 50vw);
+    aspect-ratio: 7 / 4;
+    z-index: auto;
+  }
+  .comic-film::after { background: linear-gradient(0deg, #1a120e, transparent 16%); }
+  #readingFilmToggle { bottom: .7rem; right: .75rem; font-size: .875rem; }
+  .comic-intro { width: 100%; padding-top: .6rem; }
+  .comic-intro .heading { font-size: clamp(2.5rem, 10vw, 4rem); }
 }
 
 .reader-page { position: relative; isolation: isolate; }

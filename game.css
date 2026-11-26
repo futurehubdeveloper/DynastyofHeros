@@ -27,7 +27,8 @@ button.tactics-motion { position:absolute; right:1.5rem; bottom:1.5rem; border:0
 .tactics-spread h2 { margin:.3em 0; color:#681e14; font-size:clamp(26px,2.3vw,40px); }
 .tactics-spread p,.tactics-field p { line-height:1.5; margin:.5em 0; }
 .tactics-spread img { display:block; width:100%; height:100%; object-fit:cover; }
-.tactics-battle { display:block; min-width:0; }
+.tactics-battle { display:block; min-width:0; align-self:center; }
+.tactics-battle img { height:auto; }
 .tactics-scenes { display:grid; grid-template-rows:1fr 1fr; gap:5px; min-height:0; }
 .tactics-scenes img { min-height:0; }
 .tactics-field { display:grid; grid-template-columns:repeat(5,1fr); gap:2vw; padding:3rem 6vw clamp(100px,10vw,190px); background:linear-gradient(#241616 12%,#261811d9 44%,transparent 72%),url("assets/game/procession.webp") bottom center / 100% auto no-repeat; }

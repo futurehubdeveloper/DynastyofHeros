@@ -345,6 +345,7 @@ function openReader(selectedEpisode = null, opener = document.activeElement) {
   }
   reader.classList.add('open');
   activateModal(reader, opener);
+  syncReadingFilm();
   renderReader();
   $('closeReader').focus({ preventScroll: true });
 }
@@ -378,25 +379,53 @@ async function closeReader() {
     document.documentElement.style.scrollBehavior = originalBehavior;
   }
   closingReader = false;
+  syncReadingFilm();
 }
 
 const comicMotion = matchMedia('(prefers-reduced-motion: reduce)');
-const sample = document.querySelector('.comic-sample');
-sample.addEventListener('pointermove', event => {
-  if (comicMotion.matches || event.pointerType !== 'mouse') return;
-  const bounds = sample.getBoundingClientRect();
-  sample.style.setProperty('--comic-tilt-x', (3 - 6 * (event.clientY - bounds.top) / bounds.height) + 'deg');
-  sample.style.setProperty('--comic-tilt-y', (6 * (event.clientX - bounds.left) / bounds.width - 3) + 'deg');
+const readingFilm = $('readingFilm');
+const filmToggle = $('readingFilmToggle');
+let wantsFilm = !comicMotion.matches;
+let filmVisible = true;
+
+function syncReadingFilm() {
+  if (!wantsFilm || !filmVisible || document.hidden || activeModal) {
+    readingFilm.pause();
+    return;
+  }
+  if (!readingFilm.hasAttribute('src')) readingFilm.src = readingFilm.dataset.src;
+  readingFilm.play().catch(error => {
+    if (error.name !== 'AbortError') wantsFilm = false;
+  });
+}
+function labelFilmControl() {
+  filmToggle.textContent = readingFilm.paused ? 'Play scene' : 'Pause scene';
+}
+filmToggle.hidden = false;
+filmToggle.onclick = () => { wantsFilm = readingFilm.paused; syncReadingFilm(); };
+readingFilm.addEventListener('play', labelFilmControl);
+readingFilm.addEventListener('pause', labelFilmControl);
+readingFilm.addEventListener('error', () => {
+  readingFilm.hidden = true;
+  filmToggle.hidden = true;
+  wantsFilm = false;
 });
-sample.addEventListener('pointerleave', () => {
-  sample.style.removeProperty('--comic-tilt-x');
-  sample.style.removeProperty('--comic-tilt-y');
+if ('IntersectionObserver' in window) {
+  new IntersectionObserver(([entry]) => {
+    filmVisible = entry.isIntersecting;
+    syncReadingFilm();
+  }).observe(readingFilm);
+} else syncReadingFilm();
+document.addEventListener('visibilitychange', syncReadingFilm);
+comicMotion.addEventListener('change', () => {
+  wantsFilm = !comicMotion.matches;
+  syncReadingFilm();
 });
 
 function enterChronicle(event, selectedEpisode = 0) {
   if (!entrance.hidden || reader.classList.contains('open')) return;
   const opener = event.currentTarget;
-  const origin = sample.getBoundingClientRect();
+  const origin = document.querySelector('#comicOpen img').getBoundingClientRect();
   openReader(selectedEpisode, opener);
   if (comicMotion.matches || typeof entrance.animate !== 'function') return;
 
@@ -462,7 +491,6 @@ function enterChronicle(event, selectedEpisode = 0) {
   cover.onfinish = finish;
   skip.onclick = finish;
 }
-sample.onclick = enterChronicle;
 $('comicOpen').onclick = enterChronicle;
 document.querySelectorAll('[data-reader]').forEach(button => { button.onclick = event => enterChronicle(event, null); });
 document.querySelectorAll('[data-episode]').forEach(button => { button.onclick = event => enterChronicle(event, Number(button.dataset.episode)); });

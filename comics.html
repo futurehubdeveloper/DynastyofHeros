@@ -6,9 +6,9 @@
   <meta name="theme-color" content="#1a120e">
   <title>Comics | Dynasty of Heroes</title>
   <link rel="stylesheet" href="style.css?v=comic-cinzel">
-  <link rel="stylesheet" href="comics.css?v=bound-chronicle-1">
-  <link rel="preload" as="image" href="assets/scenes/comic-monastery-desk.webp">
-  <script src="comics.js?v=bound-chronicle-1" defer></script>
+  <link rel="stylesheet" href="comics.css?v=royal-reading-1">
+  <link rel="preload" as="image" href="assets/scenes/royal-reading-poster.webp">
+  <script src="comics.js?v=royal-reading-1" defer></script>
 </head>
 <body class="comic-site">
 <header class="site-header"><a class="brand" href="index.html" aria-label="Dynasty of Heroes homepage"><img class="brand-logo" src="assets/avatar.png" alt="Dynasty of Heroes"></a><button class="menu-toggle" aria-expanded="false" aria-label="Toggle menu">☰</button><nav class="site-menu"><a  href="index.html">Home</a><a href="story.html">Story</a><a href="characters.html">Characters</a><a class="active" href="comics.html" aria-current="page">Comics</a><a href="game.html">Game</a></nav><span class="language">EN ▾</span></header>
@@ -16,6 +16,10 @@
 <section id="comics" class="section comics" aria-labelledby="comicTitle">
   <div class="section-inner comic-edition">
     <div class="comic-feature">
+      <div class="comic-film">
+        <video id="readingFilm" muted loop playsinline preload="none" poster="assets/scenes/royal-reading-poster.webp" data-src="assets/scenes/royal-reading-loop.mp4" aria-label="The king reading Dynasty of Heroes by lamplight"></video>
+        <button id="readingFilmToggle" type="button" aria-controls="readingFilm" hidden>Play scene</button>
+      </div>
       <div class="comic-intro">
         <p class="eyebrow">The original comic</p>
         <h1 class="heading" id="comicTitle">It began<br>with a comic.</h1>
@@ -26,13 +30,10 @@
           <button id="comicMM" type="button" lang="my" aria-pressed="false">မြန်မာ</button>
         </div>
         <div class="comic-actions">
-          <button id="comicOpen" type="button">Read from the beginning</button>
+          <button id="comicOpen" type="button"><img src="assets/scenes/royal-chronicle.webp" alt="" width="41" height="45">Read from the beginning</button>
           <button class="comic-resume" data-reader="open" type="button" hidden>Continue reading</button>
         </div>
       </div>
-      <button class="comic-sample" type="button" aria-label="Open the Dynasty of Heroes chronicle">
-        <img src="assets/scenes/royal-chronicle.webp" alt="" fetchpriority="high">
-      </button>
     </div>
     <h3 class="comic-list-title">Chapters</h3>
     <div class="comic-chapters" id="episodeLibrary" aria-label="Volume 1 chapters">
