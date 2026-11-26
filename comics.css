@@ -74,3 +74,44 @@
 .comic-sample{transform:perspective(950px) rotateX(var(--comic-tilt-x,0deg)) rotateY(var(--comic-tilt-y,0deg));transition:transform .25s ease-out}
 
 .comic-site #comics{padding-top:max(84px,clamp(3rem,8vw,7rem))}
+
+/* The landing and book-opening sequence share the monastery and its chronicle. */
+#comics { overflow-x: clip; padding-top: 0; }
+.comic-feature {
+  position: relative;
+  isolation: isolate;
+  min-height: 92svh;
+  padding: max(6rem, 12svh) 0 3rem;
+}
+.comic-feature::before {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  inset: 0 calc(50% - 50vw);
+  background: linear-gradient(90deg,#130c09ed, #160c0780 43%, transparent 78%),
+    url("assets/scenes/comic-monastery.webp") center / cover;
+}
+.comic-sample {
+  align-self: end;
+  margin-bottom: 3vh;
+  border: 0;
+  padding: 0;
+  background: transparent;
+  cursor: pointer;
+}
+.comic-sample img {
+  border: 0;
+  box-shadow: none;
+  filter: drop-shadow(0 12px 8px #180902b3);
+}
+.comic-entrance-cover {
+  border: 0;
+  padding: 0;
+  background: transparent;
+}
+.comic-entrance-cover img { width: 100%; height: 100%; }
+@media(max-width:650px) {
+  .comic-feature { padding-top: 6rem; gap: .75rem; }
+  .comic-intro .heading { font-size: clamp(2.5rem,10vw,4rem); }
+  .comic-sample { justify-self: end; width: min(48vw,220px); margin: 0; }
+}

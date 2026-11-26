@@ -253,10 +253,11 @@ sample.addEventListener('pointerleave', () => {
   sample.style.removeProperty('--comic-tilt-y');
 });
 
-$('comicOpen').onclick = () => {
+function enterChronicle(event) {
   const skip = $('comicSkip');
   if (!entrance.hidden || reader.classList.contains('open')) return;
-  const opener = $('comicOpen');
+  const opener = event.currentTarget;
+  const origin = sample.getBoundingClientRect();
   if (comicMotion.matches || typeof entrance.animate !== 'function') {
     openReader(0, opener);
     return;
@@ -274,9 +275,13 @@ $('comicOpen').onclick = () => {
     { transform: 'scale(1.38)', offset: .58 },
     { transform: 'scale(2.1)', opacity: 0, offset: 1 }
   ], options);
-  const book = entrance.querySelector('.comic-entrance-book').animate([
-    { transform: 'translateY(24vh) scale(.66) rotateX(60deg) rotateZ(-9deg)', offset: 0 },
-    { transform: 'translateY(24vh) scale(.66) rotateX(60deg) rotateZ(-9deg)', offset: .14 },
+  const bookElement = entrance.querySelector('.comic-entrance-book');
+  const bounds = bookElement.getBoundingClientRect();
+  const start = `translate(${origin.left + origin.width/2 - bounds.left - bounds.width/2}px,
+    ${origin.top + origin.height/2 - bounds.top - bounds.height/2}px)
+    scale(${origin.width/bounds.width}, ${origin.height/bounds.height})`;
+  const book = bookElement.animate([
+    { transform: start, offset: 0 },
     { transform: 'translateY(12vh) scale(1) rotateX(45deg)', offset: .48 },
     { transform: 'translateY(2vh) scale(1.16) rotateX(13deg)', offset: .76 },
     { opacity: 1, offset: .94 },
@@ -302,7 +307,9 @@ $('comicOpen').onclick = () => {
   finishEntrance = finish;
   book.onfinish = finish;
   skip.onclick = finish;
-};
+}
+sample.onclick = enterChronicle;
+$('comicOpen').onclick = enterChronicle;
 document.querySelectorAll('[data-reader]').forEach(button => { button.onclick = () => openReader(null, button); });
 document.querySelectorAll('[data-episode]').forEach(button => { button.onclick = () => openReader(button.dataset.episode, button); });
 $('closeReader').onclick = closeReader;
