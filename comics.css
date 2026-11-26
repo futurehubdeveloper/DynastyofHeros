@@ -189,6 +189,17 @@
   user-select: none;
   touch-action: pan-y pinch-zoom;
 }
+/* Feather the exposed parchment beneath the bound pages. */
+.reader-book::before {
+  content: "";
+  position: absolute;
+  pointer-events: none;
+  inset: 5px 2px -6px;
+  border-radius: 3px 5px 5px 3px;
+  background: repeating-linear-gradient(0deg, #5e3a14 0 1px, #a87a3a 1px 3px);
+  filter: blur(.8px) drop-shadow(0 5px 8px #26140785);
+}
+.reader-page.mode-scroll img, .reader-book .book-page img { filter: none; }
 .reader-book.zoomed { touch-action: auto; }
 .mode-double .reader-book { --leaves: 2; }
 
