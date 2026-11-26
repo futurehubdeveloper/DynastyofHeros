@@ -162,7 +162,30 @@ function renderReader(position = null) {
   if (readerMode === 'scroll') alignScroll(position);
   else readerPage.scrollTop = readerPage.scrollLeft = 0;
 }
+function captureLeaf(direction) {
+  if (readerMode === 'scroll' || comicMotion.matches || !readerPage.animate) return null;
+  const images = readerPage.querySelectorAll('img');
+  const image = images[direction > 0 ? images.length - 1 : 0];
+  if (!image?.naturalWidth) return null;
+  const box = image.getBoundingClientRect();
+  const area = readerPage.getBoundingClientRect();
+  const scale = Math.min(box.width / image.naturalWidth, box.height / image.naturalHeight);
+  const width = image.naturalWidth * scale, height = image.naturalHeight * scale;
+  const leaf = document.createElement('div');
+  leaf.className = 'reader-turn';
+  leaf.setAttribute('aria-hidden', 'true');
+  Object.assign(leaf.style, {
+    left: box.left - area.left + (box.width - width) / 2 + 'px',
+    top: box.top - area.top + (box.height - height) / 2 + 'px',
+    width: width + 'px', height: height + 'px',
+    backgroundImage: 'url("' + image.currentSrc + '")',
+    transformOrigin: direction > 0 ? 'left center' : 'right center'
+  });
+  return leaf;
+}
 function movePage(direction) {
+  const oldPage = page;
+  const leaf = captureLeaf(direction);
   const currentPosition = scrollPosition();
   if (currentPosition) page = currentPosition.page;
   const chapter = chapters[episode], step = readerMode === 'double' ? 2 : 1;
@@ -175,6 +198,16 @@ function movePage(direction) {
     page = previous.start + Math.floor((previous.end - previous.start) / step) * step;
   } else page = Math.min(chapter.end, Math.max(chapter.start, page + direction * step));
   renderReader();
+  if (leaf && oldPage !== page) {
+    readerPage.append(leaf);
+    const tilt = direction > 0 ? -1 : 1;
+    const turn = leaf.animate([
+      { transform: 'perspective(1500px) rotateY(0deg)' },
+      { transform: 'perspective(1500px) rotateY(' + tilt * 80 + 'deg)', filter: 'brightness(.8)', offset: .54 },
+      { transform: 'perspective(1500px) rotateY(' + tilt * 165 + 'deg)', opacity: 0 }
+    ], {duration: 620, easing: 'ease-in-out', fill: 'forwards'});
+    turn.onfinish = () => leaf.remove();
+  }
 }
 
 function beginModal(opener) {
