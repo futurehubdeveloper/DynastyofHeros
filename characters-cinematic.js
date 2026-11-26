@@ -55,13 +55,12 @@
     'palace-guards': '20261125-individual-art',
     'nyaung-u-hpi': '20261125-individual-art',
     'nga-htwe-yu': '20261125-individual-art',
-    'mg-kyan': '20261125-bow-portrait-restore',
+    'mg-kyan': '20261126-royal-attire',
     'nga-pyae-wa': '20261126-complete-legs',
     'nga-nyo': '20261125-relaxed-bow'
   };
   const portraitVersions = {
     ...fullBodyVersions,
-    'mg-kyan': '20261125-dedicated-portraits',
     'nga-nyo': '20261125-dedicated-portraits',
     'old-sayadaw': '20261125-dedicated-portraits',
     'nyaung-u-hpi': '20261125-dedicated-portraits',
