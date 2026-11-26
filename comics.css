@@ -116,3 +116,21 @@
   .comic-intro .heading { font-size: clamp(2.5rem,10vw,4rem); }
   .comic-sample { justify-self: end; width: min(48vw,220px); margin: 0; }
 }
+
+.reader-page { position: relative; isolation: isolate; }
+.reader-turn {
+  position: absolute;
+  z-index: 2;
+  pointer-events: none;
+  background: #e5cf9e center / contain no-repeat;
+  box-shadow: 0 5px 18px #0007;
+  transform-style: preserve-3d;
+}
+.reader-turn::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg,#b79a70,#f1dfb9 25%,#d9bf91);
+  transform: rotateY(180deg) translateZ(1px);
+  backface-visibility: hidden;
+}
