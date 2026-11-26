@@ -134,3 +134,42 @@
   transform: rotateY(180deg) translateZ(1px);
   backface-visibility: hidden;
 }
+
+/* Carry the site's chocolate, ivory and gold palette into the reader. */
+.reader-modal { background: #1c1411; }
+.reader-shell {
+  border: 0;
+  box-shadow: none;
+  background: transparent;
+  color: var(--cream);
+  font-family: Inter, Arial, sans-serif;
+}
+.reader-toolbar, .reader-modes, .reader-thumbs, .reader-bottom {
+  border: 0;
+  background: transparent;
+}
+.reader-toolbar strong { font-family: Cinzel, Georgia, serif; color: var(--gold); }
+.reader-page { background: radial-gradient(ellipse, #30231d, #1c1411 80%); }
+.reader-shell :is(.reader-toolbar, .reader-bottom) :is(button, select) {
+  border: 0;
+  box-shadow: none;
+  background: transparent;
+  color: var(--cream);
+  font-family: inherit;
+  cursor: pointer;
+}
+.reader-toolbar select { color-scheme: dark; }
+.reader-toolbar option { background: #291c16; color: var(--cream); }
+.reader-shell .reader-toolbar button.selected,
+.reader-shell button:enabled:hover {
+  color: var(--gold);
+  text-decoration: underline;
+  text-underline-offset: .32em;
+}
+.reader-thumbs button, .reader-thumbs button.selected {
+  border: 0;
+  padding: 0 0 4px;
+}
+.reader-thumbs button.selected { box-shadow: inset 0 -2px var(--gold); }
+.reader-shell :is(button, select):focus-visible { outline: 2px solid var(--gold); outline-offset: 1px; }
+.reader-shell .reader-bottom button:disabled { cursor: default; }
