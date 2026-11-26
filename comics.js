@@ -152,21 +152,11 @@ function renderReader(position = null) {
       const slot = document.createElement('div');
       slot.className = 'page-slot page-slot-right';
       slot.style.setProperty('--page-image', 'url("' + comicSrc(n) + '")');
-      const cover = document.createElement('div');
-      cover.className = 'reader-endpaper';
-      cover.setAttribute('aria-hidden', 'true');
       const spread = document.createElement('div');
       spread.className = 'reader-bound-spread';
       spread.style.setProperty('--sheet-ratio', image.width / image.height);
       slot.append(image);
-      spread.append(cover);
-      if (n > 1) {
-        const previous = document.createElement('div');
-        previous.className = 'page-slot page-slot-left';
-        previous.style.setProperty('--page-image', 'url("' + comicSrc(n - 1) + '")');
-        previous.append(pageImage(n - 1));
-        spread.append(previous);
-      }
+      // The open-book illustration supplies the fixed inside cover on the left.
       spread.append(slot);
       readerPage.append(spread);
     } else readerPage.append(image);
