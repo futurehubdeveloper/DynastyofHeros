@@ -174,6 +174,10 @@ function renderReader(position = null) {
     const ratio = image.width / image.height;
     stack.style.setProperty('--sheet-ratio', ratio);
     stack.style.setProperty('--sheet-tilt', [-0.6, 0.4, -0.2, 0.7, -0.4][(page - 1) % 5] + 'deg');
+    // Scale back the right-shift for wider-than-standard pages so the sheet
+    // doesn't overflow the reader on small screens (pages 22-24 are near-square).
+    const sheetOffset = ratio > 0.72 ? Math.min(1, 0.6 / ratio) : 1;
+    stack.style.setProperty('--sheet-offset', sheetOffset);
 
     const layer3 = document.createElement('div');
     layer3.className = 'sheet-layer sheet-layer-3';
