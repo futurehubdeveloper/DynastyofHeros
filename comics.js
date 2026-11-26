@@ -182,8 +182,11 @@ function renderReader(position = null) {
       }
     });
 
+    const bundle = document.createElement('div');
+    bundle.className = 'reader-side-bundle';
+    bundle.setAttribute('aria-hidden', 'true');
     currentSheet.append(image);
-    stack.append(layer3, layer2, layer1, currentSheet);
+    stack.append(bundle, layer3, layer2, layer1, currentSheet);
     readerPage.append(stack);
   }
 
@@ -226,17 +229,17 @@ function movePage(direction) {
 
         drawn.animate([
           { transform: 'translate(0, 0) rotate(0deg) scale(1)', opacity: 1 },
-          { transform: 'translate(-115%, -30px) rotate(-9deg) scale(0.96)', opacity: 0 }
+          { transform: 'translate(-28%, -20px) rotate(-5deg) scale(0.96)', opacity: 0 }
         ], { duration: 340, easing: 'cubic-bezier(.25, .1, .25, 1)' }).onfinish = () => drawn.remove();
 
         newSheet.animate([
-          { transform: 'scale(0.97)', opacity: 0.7 },
+          { transform: 'translate(70%, 30%) rotate(8deg) scale(0.55)', opacity: 0 },
           { transform: 'scale(1)', opacity: 1 }
         ], { duration: 300, easing: 'ease-out' });
       } else {
         // Prev: slide previous sheet back into place onto the stack
         newSheet.animate([
-          { transform: 'translate(-105%, -25px) rotate(-8deg) scale(0.96)', opacity: 0.3 },
+          { transform: 'translate(70%, 30%) rotate(8deg) scale(0.55)', opacity: 0 },
           { transform: 'translate(0, 0) rotate(0deg) scale(1)', opacity: 1 }
         ], { duration: 320, easing: 'cubic-bezier(.22, 1, .36, 1)' });
       }
