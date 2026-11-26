@@ -61,6 +61,7 @@
   };
   const portraitVersions = {
     ...fullBodyVersions,
+    'mg-kyan': '20261126-royal-closeup',
     'nga-nyo': '20261125-dedicated-portraits',
     'old-sayadaw': '20261125-dedicated-portraits',
     'nyaung-u-hpi': '20261125-dedicated-portraits',
