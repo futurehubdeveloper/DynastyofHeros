@@ -155,6 +155,7 @@ function renderReader(position = null) {
     stack.className = 'reader-sheet-stack';
     const ratio = (image.width / image.height).toFixed(3);
     stack.style.setProperty('--sheet-ratio', ratio);
+    stack.style.setProperty('--sheet-tilt', [-0.6, 0.4, -0.2, 0.7, -0.4][(page - 1) % 5] + 'deg');
 
     const layer3 = document.createElement('div');
     layer3.className = 'sheet-layer sheet-layer-3';
