@@ -52,7 +52,7 @@
 .comic-entrance-book>img{position:absolute;inset:5% 9% 14% 13%;width:78%;height:81%;object-fit:cover;object-position:top;opacity:0}
 .comic-entrance-cover{position:absolute;inset:0;display:grid;place-items:center;padding:12%;border:2px solid #a56d39;border-radius:3px 9px 9px 3px;background:radial-gradient(ellipse at 50% 35%,#773936,#290f12 80%);transform-origin:left center;backface-visibility:hidden;}
 .comic-entrance-cover img{width:100%;height:auto}
- .comic-entrance-room{position:absolute;inset:0;background:linear-gradient(#150b041a,#14080436),url("assets/scenes/comic-monastery.webp") center/cover;transform-origin:50% 72%}
+ .comic-entrance-room{position:absolute;inset:0;background:linear-gradient(#150b041a,#14080436),url("assets/scenes/comic-monastery-desk.webp") center/cover;transform-origin:50% 72%}
 .comic-entrance-skip{position:absolute;z-index:1;right:1rem;bottom:1rem;color:#fff5e2;background:#21150f;border:1px solid #8d6747;padding:.55rem .85rem;font:inherit;cursor:pointer}
 
 
@@ -90,7 +90,7 @@
   z-index: -1;
   inset: 0 calc(50% - 50vw);
   background: linear-gradient(90deg,#130c09ed, #160c0780 43%, transparent 78%),
-    url("assets/scenes/comic-monastery.webp") center / cover;
+    url("assets/scenes/comic-monastery-desk.webp") center / cover;
 }
 .comic-sample {
   align-self: end;
@@ -174,10 +174,10 @@
 .reader-shell :is(button, select):focus-visible { outline: 2px solid var(--gold); outline-offset: 1px; }
 .reader-shell .reader-bottom button:disabled { cursor: default; }
 
-/* Keep the reader on the same lantern-lit desk as the closed chronicle. */
+/* Continue the Comics landing page's lantern-lit room behind the open book. */
 .reader-shell .reader-page {
   background: linear-gradient(90deg,#170c0973,#25130b26 70%,#190d094d),
-    url("assets/scenes/chronicle-table.webp") center / cover;
+    url("assets/scenes/comic-monastery-desk.webp") center / cover;
 }
 .reader-page:is(.mode-single,.mode-double) {
   padding: clamp(15px,2.2vw,30px);
