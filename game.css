@@ -1,0 +1,41 @@
+.tactics { background:#211615; color:#f7e8d1; }
+.tactics-hero {
+  min-height:clamp(420px,34vw,640px); margin-top:76px;
+  display:flex; justify-content:space-between; align-items:center;
+  padding:2rem 4.5vw 3rem; text-align:center;
+  background:linear-gradient(90deg,#110c0aae,transparent 32%,transparent 66%,#210a0b85),
+    url("assets/game/panorama.webp") center 32% / cover;
+  text-shadow:0 2px 8px #190b07;
+}
+.tactics-origin { width:20%; max-width:245px; }
+.tactics-origin img { width:min(78%,170px); }
+.tactics-invite { width:26%; }
+.tactics-hero p { font:italic clamp(16px,1.4vw,23px)/1.4 Georgia,serif; margin:.6em auto; }
+.tactics-hero a { display:inline-block; padding:.6em .15em; color:#ffe2a0; font:bold 1.15rem Georgia,serif; text-decoration:underline; text-underline-offset:.3em; }
+.tactics-invite h1 { margin:0; line-height:1.05; font-size:clamp(42px,4.4vw,80px); color:#f5d490; }
+.tactics-invite h1 small { display:block; font-size:.32em; letter-spacing:.045em; }
+.tactics-invite>a { font-size:1.6rem; }
+.tactics-invite>small { display:block; font:12px/1.4 Inter,sans-serif; }
+.tactics-spread {
+  position:relative; display:grid; grid-template-columns:1fr 2.8fr 1.4fr; gap:1rem;
+  align-items:stretch; padding:2.2rem 4.5vw; margin:-1rem 0 -.7rem;
+  color:#382010; background:linear-gradient(108deg,#daba88,#fae7c4 35%,#e5c79a);
+  clip-path:polygon(0 4%,4% 1%,16% 3%,29% 1%,43% 3%,57% 0,73% 2%,90% 1%,100% 4%,100% 97%,92% 99%,74% 98%,57% 100%,35% 98%,15% 100%,0 97%);
+}
+.tactics-spread h2 { margin:.3em 0; color:#681e14; font-size:clamp(26px,2.3vw,40px); }
+.tactics-spread p,.tactics-field p { line-height:1.5; margin:.5em 0; }
+.tactics-spread img { display:block; width:100%; height:100%; object-fit:cover; }
+.tactics-battle { display:block; min-width:0; }
+.tactics-scenes { display:grid; grid-template-rows:1fr 1fr; gap:5px; min-height:0; }
+.tactics-scenes img { min-height:0; }
+.tactics-field { display:grid; grid-template-columns:repeat(5,1fr); gap:2vw; padding:3rem 6vw clamp(100px,10vw,190px); background:linear-gradient(#241616 12%,#261811d9 44%,transparent 72%),url("assets/game/procession.webp") bottom center / 100% auto no-repeat; }
+.tactics-field h3 { margin:0; color:#f2cd89; font-size:1.05rem; }
+@media(max-width:950px){.tactics-hero{margin-top:68px}.tactics-field{grid-template-columns:repeat(3,1fr)}}
+@media(max-width:700px){
+  .tactics-hero{position:relative;min-height:450px;align-items:flex-end;justify-content:center;padding:1rem 1rem 2rem;background-size:auto 65%;background-repeat:no-repeat;background-position:47% top;background-color:#321915;background-image:url("assets/game/panorama.webp")}
+  .tactics-hero::before{content:"";position:absolute;inset:45% 0 0;background:linear-gradient(transparent,#321915 42%)}
+  .tactics-origin{display:none}.tactics-invite{position:relative;width:100%}
+  .tactics-spread{grid-template-columns:1fr;gap:.7rem;padding:2rem 5vw;clip-path:polygon(0 1%,25% 0,60% 1%,85% 0,100% 1%,100% 99%,70% 100%,43% 99%,0 100%)}
+  .tactics-scenes{grid-template-columns:1fr 1fr;grid-template-rows:auto}
+  .tactics-field{grid-template-columns:1fr 1fr;gap:1rem;padding:2.2rem 5vw 5rem}
+}
