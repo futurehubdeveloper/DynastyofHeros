@@ -8,23 +8,23 @@
 
 
   const preferred = {
-    main: ['mg-kan'],
-    family: ['mg-kyan','pyin-sa','anawrahta','min-sithu','a-may-mya','nga-tint','nga-pyae-wa'],
+    family: ['mg-kan','mg-kyan','pyin-sa','anawrahta','min-sithu','a-may-mya','nga-tint','nga-pyae-wa'],
     allies: ['nga-htoo','nga-than','nga-nyo','mae-pan','old-sayadaw','head-sayadaw'],
     paladins: ['nga-lone','nyaung-u-hpi','nga-htwe-yu'],
     military: ['army-general','army-soldiers','palace-guards','royal-commander','royal-soldiers']
   };
   const categoryDefs = [
     {id:'all',name:'ALL CHARACTERS',label:'THE PEOPLE OF PAGAN'},
-    {id:'main',name:'MAIN HERO',label:'THE MAIN HERO'},
-    {id:'family',name:'ROYAL FAMILY',label:'THE ROYAL FAMILY'},
+    {id:'family',name:'Family',label:'Family'},
     {id:'allies',name:'ALLIES & MENTORS',label:'CLOSEST ALLIES & MENTORS'},
     {id:'paladins',name:'THE THREE PALADINS',label:'HEROES OF PAGAN'},
     {id:'military',name:'MILITARY FORCES',label:'MILITARY FORCES'}
   ];
   const categoryLabel = Object.fromEntries(categoryDefs.map(g=>[g.id,g.label]));
+  // The explorer combines the main hero and royal household in the Family filter.
+  const roster = cast.map(c => c.group === 'main' ? {...c, group:'family'} : c);
   const desiredOrder = Object.values(preferred).flat();
-  const sorted = [...cast].sort((a,b) => {
+  const sorted = roster.sort((a,b) => {
     const x = desiredOrder.indexOf(a.id), y = desiredOrder.indexOf(b.id);
     return (x < 0 ? Infinity : x) - (y < 0 ? Infinity : y);
   });
