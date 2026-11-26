@@ -61,9 +61,6 @@ function refreshComicLanding() {
   });
   document.querySelector('.comic-resume').hidden = page === 1;
 }
-function lastDisplayedPage() {
-  return readerMode === 'double' ? Math.min(page + 1, chapters[episode].end) : page;
-}
 function updateReaderStatus() {
   const chapter = chapters[episode];
   $('readerCounter').textContent = (page - chapter.start + 1) + ' / ' + (chapter.end - chapter.start + 1) + ' · ' + lang.toUpperCase();
@@ -72,13 +69,13 @@ function updateReaderStatus() {
   $('readerEpisode').value = String(episode);
   $('readerChapterTitle').textContent = chapter.name;
   $('prevPage').disabled = page === 1;
-  $('nextPage').disabled = lastDisplayedPage() === 45;
+  $('nextPage').disabled = page === 45;
   document.querySelectorAll('[data-reading-mode]').forEach(button => {
     button.classList.toggle('selected', button.dataset.readingMode === readerMode);
   });
   $('readerThumbs').querySelectorAll('[data-page]').forEach(button => {
     const n = Number(button.dataset.page);
-    button.classList.toggle('selected', n === page || (readerMode === 'double' && n === page + 1));
+    button.classList.toggle('selected', n === page);
   });
   refreshComicLanding();
   persistReader();
@@ -147,14 +144,21 @@ function renderReader(position = null) {
   readerPage.style.setProperty('--reader-zoom', String(readerZoom));
   const pages = readerMode === 'scroll'
     ? Array.from({ length: chapter.end - chapter.start + 1 }, (_, i) => chapter.start + i)
-    : readerMode === 'double' && page < chapter.end ? [page, page + 1] : [page];
+    : [page];
   for (const n of pages) {
     const image = pageImage(n);
     if (readerMode === 'double') {
       const slot = document.createElement('div');
       slot.className = 'page-slot';
+      const cover = document.createElement('div');
+      cover.className = 'reader-endpaper';
+      cover.setAttribute('aria-hidden', 'true');
+      const spread = document.createElement('div');
+      spread.className = 'reader-bound-spread';
+      spread.style.setProperty('--sheet-ratio', image.width / image.height);
       slot.append(image);
-      readerPage.append(slot);
+      spread.append(cover, slot);
+      readerPage.append(spread);
     } else readerPage.append(image);
   }
   renderThumbs();
@@ -188,15 +192,14 @@ function movePage(direction) {
   const leaf = captureLeaf(direction);
   const currentPosition = scrollPosition();
   if (currentPosition) page = currentPosition.page;
-  const chapter = chapters[episode], step = readerMode === 'double' ? 2 : 1;
-  if (direction > 0 && lastDisplayedPage() === chapter.end && episode < chapters.length - 1) {
+  const chapter = chapters[episode];
+  if (direction > 0 && page === chapter.end && episode < chapters.length - 1) {
     episode += 1;
     page = chapters[episode].start;
   } else if (direction < 0 && page === chapter.start && episode > 0) {
     episode -= 1;
-    const previous = chapters[episode];
-    page = previous.start + Math.floor((previous.end - previous.start) / step) * step;
-  } else page = Math.min(chapter.end, Math.max(chapter.start, page + direction * step));
+    page = chapters[episode].end;
+  } else page = Math.min(chapter.end, Math.max(chapter.start, page + direction));
   renderReader();
   if (leaf && oldPage !== page) {
     readerPage.append(leaf);
