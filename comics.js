@@ -203,15 +203,6 @@ function renderReader(position = null) {
     const bundle = document.createElement('div');
     bundle.className = 'reader-side-bundle';
     bundle.setAttribute('aria-hidden', 'true');
-    const bundleTitle = document.createElement('div');
-    bundleTitle.className = 'reader-bundle-title';
-    const bundleLogo = document.createElement('img');
-    bundleLogo.src = 'assets/avatar.png';
-    bundleLogo.alt = '';
-    const bundleCaption = document.createElement('span');
-    bundleCaption.textContent = 'VOLUME I';
-    bundleTitle.append(bundleLogo, bundleCaption);
-    bundle.append(bundleTitle);
     currentSheet.append(image);
     stack.append(bundle, layer3, layer2, layer1, currentSheet);
     readerPage.append(stack);
