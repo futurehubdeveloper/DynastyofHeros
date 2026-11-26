@@ -42,11 +42,12 @@ function pageDimensions(n) {
   return [713, 1008];
 }
 function pageImage(n, thumbnail = false) {
+  const imageChapter = chapters.find(chapter => n >= chapter.start && n <= chapter.end);
   const image = document.createElement('img');
   [image.width, image.height] = pageDimensions(n);
   image.src = comicSrc(n);
   image.loading = !thumbnail && n === page ? 'eager' : 'lazy';
-  image.alt = thumbnail ? '' : chapters[episode].name + ' — page ' + (n - chapters[episode].start + 1) + ' of ' + (chapters[episode].end - chapters[episode].start + 1);
+  image.alt = thumbnail ? '' : imageChapter.name + ' — page ' + (n - imageChapter.start + 1) + ' of ' + (imageChapter.end - imageChapter.start + 1);
   if (!thumbnail) image.dataset.comicPage = String(n);
   return image;
 }
@@ -149,7 +150,7 @@ function renderReader(position = null) {
     const image = pageImage(n);
     if (readerMode !== 'scroll') {
       const slot = document.createElement('div');
-      slot.className = 'page-slot';
+      slot.className = 'page-slot page-slot-right';
       slot.style.setProperty('--page-image', 'url("' + comicSrc(n) + '")');
       const cover = document.createElement('div');
       cover.className = 'reader-endpaper';
@@ -158,7 +159,15 @@ function renderReader(position = null) {
       spread.className = 'reader-bound-spread';
       spread.style.setProperty('--sheet-ratio', image.width / image.height);
       slot.append(image);
-      spread.append(cover, slot);
+      spread.append(cover);
+      if (n > 1) {
+        const previous = document.createElement('div');
+        previous.className = 'page-slot page-slot-left';
+        previous.style.setProperty('--page-image', 'url("' + comicSrc(n - 1) + '")');
+        previous.append(pageImage(n - 1));
+        spread.append(previous);
+      }
+      spread.append(slot);
       readerPage.append(spread);
     } else readerPage.append(image);
   }
@@ -181,7 +190,7 @@ function movePage(direction) {
   } else page = Math.min(chapter.end, Math.max(chapter.start, page + direction));
   renderReader();
   if (oldPage !== page && readerMode !== 'scroll' && !comicMotion.matches) {
-    const image = readerPage.querySelector('.page-slot img');
+    const image = readerPage.querySelector('.page-slot-right img');
     const reveal = () => {
       if (!image?.isConnected || !image.animate) return;
       image.animate([
