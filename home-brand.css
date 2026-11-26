@@ -144,3 +144,19 @@ html:lang(en) .home-page :is(.button, .coming) {
   letter-spacing: .06em;
   word-spacing: normal;
 }
+
+/* Let each illustration fade into the surrounding experience section. */
+.home-page .experience {
+  background: transparent;
+  border: 0;
+}
+
+.home-page .experience img {
+  mask-image: linear-gradient(to bottom, #000 62%, transparent 100%),
+              linear-gradient(to right, transparent, #000 5%, #000 95%, transparent);
+  mask-composite: intersect;
+}
+
+.home-page .experience::after {
+  background: linear-gradient(to bottom, transparent 12%, rgba(25,25,25,.72) 62%, #191919);
+}
