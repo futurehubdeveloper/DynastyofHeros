@@ -16,7 +16,8 @@ button.tactics-motion { position:absolute; right:1.5rem; bottom:1.5rem; border:0
 .tactics-hero a { display:inline-block; padding:.6em .15em; color:#ffe2a0; font:bold 1.15rem Georgia,serif; text-decoration:underline; text-underline-offset:.3em; }
 .tactics-invite h1 { margin:0; line-height:1.05; font-size:clamp(42px,4.4vw,80px); color:#f5d490; }
 .tactics-invite h1 small { display:block; font-size:.32em; letter-spacing:.045em; }
-.tactics-invite>a { font-size:1.6rem; }
+.mission-links { display:grid; justify-items:center; margin:.5rem 0; }
+.mission-links a { font-size:clamp(1.05rem,1.45vw,1.6rem); line-height:1.15; }
 .tactics-invite>small { display:block; font:12px/1.4 Inter,sans-serif; }
 .tactics-spread {
   position:relative; display:grid; grid-template-columns:1fr 2.8fr 1.4fr; gap:1rem;
