@@ -48,7 +48,8 @@
 .comic-entrance[hidden]{display:none}
 .comic-entrance{position:fixed;inset:0;z-index:2147483647;display:grid;place-items:center;overflow:hidden;background:radial-gradient(ellipse,#5e3723,#110c09 70%);perspective:1500px}
 .comic-entrance-book{position:relative;width:min(48vw,310px,46vh);transform-origin:50% 50%;transform-style:preserve-3d}
-.comic-entrance-book>img{display:block;width:100%;height:auto;box-shadow:0 15px 60px #000}
+.comic-entrance-book{aspect-ratio:1200 / 1304}
+.comic-entrance-book>img{position:absolute;inset:5% 9% 14% 13%;width:78%;height:81%;object-fit:cover;object-position:top;opacity:0}
 .comic-entrance-cover{position:absolute;inset:0;display:grid;place-items:center;padding:12%;border:2px solid #a56d39;border-radius:3px 9px 9px 3px;background:radial-gradient(ellipse at 50% 35%,#773936,#290f12 80%);transform-origin:left center;backface-visibility:hidden;}
 .comic-entrance-cover img{width:100%;height:auto}
  .comic-entrance-room{position:absolute;inset:0;background:linear-gradient(#150b041a,#14080436),url("assets/scenes/comic-monastery.webp") center/cover;transform-origin:50% 72%}
