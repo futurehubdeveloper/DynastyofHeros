@@ -173,14 +173,14 @@ html:lang(en) .home-page :is(.button, .coming) {
   text-underline-offset: .25em;
 }
 
-.home-page :is(.hero-copy, .story-copy) .button {
+.home-page :is(.hero-copy, .story-copy, .closing) .button {
   background: transparent;
   border: 0;
   box-shadow: none;
   padding-inline: 0;
   text-shadow: 0 1px 4px #130d08;
 }
-.home-page :is(.hero-copy, .story-copy) .button:is(:hover, :focus-visible) {
+.home-page :is(.hero-copy, .story-copy, .closing) .button:is(:hover, :focus-visible) {
   text-decoration: underline;
   text-underline-offset: .25em;
 }
