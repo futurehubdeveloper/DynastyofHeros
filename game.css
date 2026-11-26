@@ -30,6 +30,8 @@ button.tactics-motion { position:absolute; right:1.5rem; bottom:1.5rem; border:0
 .tactics-spread img { display:block; width:100%; height:100%; object-fit:cover; }
 .tactics-battle { display:block; min-width:0; align-self:center; }
 .tactics-battle img { height:auto; }
+.tactics-spread.tactics-village { grid-template-columns:minmax(12rem,1fr) minmax(0,2fr); gap:clamp(1rem,4vw,4rem); align-items:center; padding-block:clamp(2rem,4vw,4rem); }
+.tactics-spread a:not(.tactics-battle) { display:inline-block; color:#681e14; font-weight:bold; padding-block:.5rem; }
 .tactics-scenes { display:grid; grid-template-rows:1fr 1fr; gap:5px; min-height:0; }
 .tactics-scenes img { min-height:0; }
 .tactics-field { display:grid; grid-template-columns:repeat(5,1fr); gap:2vw; padding:3rem 6vw clamp(100px,10vw,190px); background:linear-gradient(#241616 12%,#261811d9 44%,transparent 72%),url("assets/game/procession.webp") bottom center / 100% auto no-repeat; }
@@ -42,6 +44,7 @@ button.tactics-motion { position:absolute; right:1.5rem; bottom:1.5rem; border:0
   button.tactics-motion{top:.5rem;right:.5rem;bottom:auto}
   .tactics-origin{display:none}.tactics-invite{position:relative;width:100%}
   .tactics-spread{grid-template-columns:1fr;gap:.7rem;padding:2rem 5vw;clip-path:polygon(0 1%,25% 0,60% 1%,85% 0,100% 1%,100% 99%,70% 100%,43% 99%,0 100%)}
+  .tactics-spread.tactics-village{grid-template-columns:1fr;}
   .tactics-scenes{grid-template-columns:1fr 1fr;grid-template-rows:auto}
   .tactics-field{grid-template-columns:1fr 1fr;gap:1rem;padding:2.2rem 5vw 5rem}
 }
