@@ -7,7 +7,7 @@
   <meta name="description" content="Play the first escape in Dynasty of Heroes: Tactics.">
   <title>Game — Dynasty of Heroes</title>
   <link rel="stylesheet" href="style.css?v=20261126-menu-inter">
-  <link rel="stylesheet" href="game.css">
+  <link rel="stylesheet" href="game.css?v=council">
 </head>
 <body class="game-page">
   <div id="progress"></div>
@@ -21,6 +21,8 @@
   </header>
   <main class="tactics">
     <section class="tactics-hero" aria-labelledby="tactics-title">
+      <video class="tactics-film cs-title-banner__video" muted loop playsinline preload="metadata" poster="assets/game/council.webp" aria-hidden="true" src="assets/game/council.mp4"></video>
+      <button type="button" class="tactics-motion cs-title-banner__toggle" hidden>Play background</button>
       <div class="tactics-origin">
         <p>A historical fantasy of brotherhood, exile, and the rise of a king.</p>
         <a href="comics.html">Read the comic</a>
@@ -48,6 +50,7 @@
     </section>
   </main>
   <footer><a class="brand" href="index.html" aria-label="Dynasty of Heroes homepage"><img class="brand-logo" src="assets/avatar.png" alt="Dynasty of Heroes"></a><span>Historical fantasy inspired by Myanmar's Pagan era.</span><span>© 2026 Dynasty of Heroes</span></footer>
+  <script src="characters-banner.js"></script>
   <script src="main.js"></script>
 </body>
 </html>
