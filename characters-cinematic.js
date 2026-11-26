@@ -15,7 +15,7 @@
   };
   const categoryDefs = [
     {id:'all',name:'ALL CHARACTERS',label:'THE PEOPLE OF PAGAN'},
-    {id:'family',name:'Family',label:'Family'},
+    {id:'family',name:'FAMILY',label:'Family'},
     {id:'allies',name:'ALLIES & MENTORS',label:'CLOSEST ALLIES & MENTORS'},
     {id:'paladins',name:'THE THREE PALADINS',label:'HEROES OF PAGAN'},
     {id:'military',name:'MILITARY FORCES',label:'MILITARY FORCES'}
