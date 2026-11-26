@@ -6,9 +6,9 @@
   <meta name="theme-color" content="#1a120e">
   <title>Comics | Dynasty of Heroes</title>
   <link rel="stylesheet" href="style.css?v=comic-cinzel">
-  <link rel="stylesheet" href="comics.css?v=royal-reading-1">
-  <link rel="preload" as="image" href="assets/scenes/royal-reading-poster.webp">
-  <script src="comics.js?v=royal-reading-1" defer></script>
+  <link rel="stylesheet" href="comics.css?v=pile-cover-fit-1">
+  <link rel="preload" as="image" href="assets/scenes/comic-monastery-desk.webp">
+  <script src="comics.js?v=page-image-clarity-1" defer></script>
 </head>
 <body class="comic-site">
 <header class="site-header"><a class="brand" href="index.html" aria-label="Dynasty of Heroes homepage"><img class="brand-logo" src="assets/avatar.png" alt="Dynasty of Heroes"></a><button class="menu-toggle" aria-expanded="false" aria-label="Toggle menu">☰</button><nav class="site-menu"><a  href="index.html">Home</a><a href="story.html">Story</a><a href="characters.html">Characters</a><a class="active" href="comics.html" aria-current="page">Comics</a><a href="game.html">Game</a></nav><span class="language">EN ▾</span></header>
@@ -16,10 +16,6 @@
 <section id="comics" class="section comics" aria-labelledby="comicTitle">
   <div class="section-inner comic-edition">
     <div class="comic-feature">
-      <div class="comic-film">
-        <video id="readingFilm" muted loop playsinline preload="none" poster="assets/scenes/royal-reading-poster.webp" data-src="assets/scenes/royal-reading-loop.mp4" aria-label="The king reading Dynasty of Heroes by lamplight"></video>
-        <button id="readingFilmToggle" type="button" aria-controls="readingFilm" hidden>Play scene</button>
-      </div>
       <div class="comic-intro">
         <p class="eyebrow">The original comic</p>
         <h1 class="heading" id="comicTitle">It began<br>with a comic.</h1>
@@ -30,10 +26,13 @@
           <button id="comicMM" type="button" lang="my" aria-pressed="false">မြန်မာ</button>
         </div>
         <div class="comic-actions">
-          <button id="comicOpen" type="button"><img src="assets/scenes/royal-chronicle.webp" alt="" width="41" height="45">Read from the beginning</button>
+          <button id="comicOpen" type="button">Read from the beginning</button>
           <button class="comic-resume" data-reader="open" type="button" hidden>Continue reading</button>
         </div>
       </div>
+      <button class="comic-sample" type="button" aria-label="Open the Dynasty of Heroes chronicle">
+        <img src="assets/scenes/royal-chronicle.webp" alt="" fetchpriority="high">
+      </button>
     </div>
     <h3 class="comic-list-title">Chapters</h3>
     <div class="comic-chapters" id="episodeLibrary" aria-label="Volume 1 chapters">
@@ -82,17 +81,15 @@
   <div class="comic-entrance-room" aria-hidden="true"></div>
   <button id="comicSkip" class="comic-entrance-skip" type="button">Skip intro</button>
   <div class="comic-entrance-book" aria-hidden="true">
-    <div class="comic-entrance-cover">
-      <div class="cover-outside"><img src="assets/scenes/royal-chronicle.webp" alt=""></div>
-      <div class="cover-inside book-endpaper"></div>
-    </div>
+    <img id="comicEntrancePage" src="assets/comic/en/01.webp" alt="">
+    <div class="comic-entrance-cover"><img src="assets/scenes/royal-chronicle.webp" alt=""></div>
   </div>
 </div>
 <div id="reader" class="reader-modal" role="dialog" aria-modal="true" aria-label="Volume 1 episode comic reader"><div class="reader-shell">
 <div class="reader-toolbar"><div class="lefttools"><strong>DYNASTY OF HEROES · VOL. 1</strong><select id="readerEpisode" aria-label="Select chapter"><option value="0">Prologue</option><option value="1">Episode 1 · The Prophecy</option><option value="2">Episode 2 · The First Escape</option><option value="3">Episode 3 · Shadows Over the Village</option><option value="4">Episode 4 · The Price of Escape</option><option value="5">Episode 5 · The Mountain Monastery</option></select><button class="iconbtn" id="readerLang">EN ⇄ MM</button><div class="reader-modes" role="group" aria-label="Comic reading layout"><button class="iconbtn selected" data-reading-mode="single">Single</button><button class="iconbtn" data-reading-mode="double">Double</button><button class="iconbtn" data-reading-mode="scroll">Scroll</button></div><button class="iconbtn" id="readerZoomOut" title="Zoom out">−</button><button class="iconbtn" id="readerZoomIn" title="Zoom in">+</button><button class="iconbtn" id="readerFullscreen" title="Fullscreen">⛶</button></div><div class="righttools"><span id="readerCounter">1 / 1</span><button class="modalclose" id="closeReader">✕ Close</button></div><div class="reader-chapter-title" id="readerChapterTitle">Prologue</div></div>
 <div class="reader-page mode-single" id="readerPage"><img id="readerImg" src="assets/comic/en/01.webp" alt="Prologue page 1"></div>
 <div class="reader-thumbs" id="readerThumbs" aria-label="Pages in selected episode"></div>
-<div class="reader-bottom"><button id="prevPage">❮ Previous</button><span id="readerBottomCounter" aria-live="polite" aria-atomic="true">Page 1</span><button id="nextPage">Next ❯</button></div></div></div>
+<div class="reader-bottom"><button id="prevPage">❮ Previous</button><span id="readerBottomCounter">Page 1</span><button id="nextPage">Next ❯</button></div></div></div>
 
 </body>
 </html>
