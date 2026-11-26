@@ -160,3 +160,15 @@ html:lang(en) .home-page :is(.button, .coming) {
 .home-page .experience::after {
   background: linear-gradient(to bottom, transparent 12%, rgba(25,25,25,.72) 62%, #191919);
 }
+
+.home-page .experience-copy .coming {
+  border: 0;
+  background: transparent;
+  padding: 10px 0;
+  color: var(--gold2);
+}
+.home-page .experience-copy a.coming:hover,
+.home-page .experience-copy a.coming:focus-visible {
+  text-decoration: underline;
+  text-underline-offset: .25em;
+}
