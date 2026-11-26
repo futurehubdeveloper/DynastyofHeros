@@ -171,7 +171,7 @@ function renderReader(position = null) {
     const image = pageImage(page);
     const stack = document.createElement('div');
     stack.className = 'reader-sheet-stack';
-    const ratio = (image.width / image.height).toFixed(3);
+    const ratio = image.width / image.height;
     stack.style.setProperty('--sheet-ratio', ratio);
     stack.style.setProperty('--sheet-tilt', [-0.6, 0.4, -0.2, 0.7, -0.4][(page - 1) % 5] + 'deg');
 
@@ -203,6 +203,20 @@ function renderReader(position = null) {
     const bundle = document.createElement('div');
     bundle.className = 'reader-side-bundle';
     bundle.setAttribute('aria-hidden', 'true');
+    const topSheet = document.createElement('div');
+    topSheet.className = 'bundle-top-sheet';
+    if (page < 45) {
+      const nextPreview = document.createElement('img');
+      nextPreview.src = comicSrc(page + 1);
+      nextPreview.alt = '';
+      topSheet.append(nextPreview);
+      bundle.title = 'Next page: ' + (page + 1) + ' (click stack to draw)';
+      bundle.style.cursor = 'pointer';
+      bundle.addEventListener('click', () => movePage(1));
+    } else {
+      topSheet.classList.add('bundle-end-of-volume');
+    }
+    bundle.append(topSheet);
     currentSheet.append(image);
     stack.append(bundle, layer3, layer2, layer1, currentSheet);
     readerPage.append(stack);
