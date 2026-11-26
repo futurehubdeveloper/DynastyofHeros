@@ -143,24 +143,49 @@ function renderReader(position = null) {
   readerPage.replaceChildren();
   readerPage.className = 'reader-page mode-' + readerMode;
   readerPage.style.setProperty('--reader-zoom', String(readerZoom));
-  const pages = readerMode === 'scroll'
-    ? Array.from({ length: chapter.end - chapter.start + 1 }, (_, i) => chapter.start + i)
-    : [page];
-  for (const n of pages) {
-    const image = pageImage(n);
-    if (readerMode !== 'scroll') {
-      const slot = document.createElement('div');
-      slot.className = 'page-slot page-slot-right';
-      slot.style.setProperty('--page-image', 'url("' + comicSrc(n) + '")');
-      const spread = document.createElement('div');
-      spread.className = 'reader-bound-spread';
-      spread.style.setProperty('--sheet-ratio', image.width / image.height);
-      slot.append(image);
-      // The open-book illustration supplies the fixed inside cover on the left.
-      spread.append(slot);
-      readerPage.append(spread);
-    } else readerPage.append(image);
+
+  if (readerMode === 'scroll') {
+    for (let n = chapter.start; n <= chapter.end; n++) {
+      readerPage.append(pageImage(n));
+    }
+  } else {
+    // Single page on parchment manuscript stack (စာရွက်အပုံလိုက်)
+    const image = pageImage(page);
+    const stack = document.createElement('div');
+    stack.className = 'reader-sheet-stack';
+    const ratio = (image.width / image.height).toFixed(3);
+    stack.style.setProperty('--sheet-ratio', ratio);
+
+    const layer3 = document.createElement('div');
+    layer3.className = 'sheet-layer sheet-layer-3';
+    layer3.setAttribute('aria-hidden', 'true');
+
+    const layer2 = document.createElement('div');
+    layer2.className = 'sheet-layer sheet-layer-2';
+    layer2.setAttribute('aria-hidden', 'true');
+
+    const layer1 = document.createElement('div');
+    layer1.className = 'sheet-layer sheet-layer-1';
+    layer1.setAttribute('aria-hidden', 'true');
+
+    const currentSheet = document.createElement('div');
+    currentSheet.className = 'sheet-active';
+    currentSheet.title = chapter.name + ' — page ' + (page - chapter.start + 1) + ' (click right side for next, left side for previous)';
+
+    currentSheet.addEventListener('click', (e) => {
+      const rect = currentSheet.getBoundingClientRect();
+      if (e.clientX - rect.left > rect.width * 0.5) {
+        movePage(1);
+      } else {
+        movePage(-1);
+      }
+    });
+
+    currentSheet.append(image);
+    stack.append(layer3, layer2, layer1, currentSheet);
+    readerPage.append(stack);
   }
+
   renderThumbs();
   updateReaderStatus();
   if (readerMode === 'scroll') alignScroll(position);
@@ -178,18 +203,43 @@ function movePage(direction) {
     episode -= 1;
     page = chapters[episode].end;
   } else page = Math.min(chapter.end, Math.max(chapter.start, page + direction));
+
+  const oldActive = readerPage.querySelector('.sheet-active');
+  const oldImgSrc = oldActive?.querySelector('img')?.src;
+
   renderReader();
-  if (oldPage !== page && readerMode !== 'scroll' && !comicMotion.matches) {
-    const image = readerPage.querySelector('.page-slot-right img');
-    const reveal = () => {
-      if (!image?.isConnected || !image.animate) return;
-      image.animate([
-        { opacity: .65, transform: `perspective(1500px) rotateY(${direction > 0 ? -8 : 8}deg)` },
-        { opacity: 1, transform: 'perspective(1500px) rotateY(0deg)' }
-      ], { duration: 280, easing: 'ease-out' });
-    };
-    if (image?.complete) reveal();
-    else image?.addEventListener('load', reveal, { once: true });
+
+  if (oldPage !== page && readerMode !== 'scroll' && !comicMotion.matches && oldImgSrc) {
+    const newStack = readerPage.querySelector('.reader-sheet-stack');
+    const newSheet = readerPage.querySelector('.sheet-active');
+
+    if (newStack && newSheet) {
+      if (direction > 0) {
+        // Next: draw top sheet off the stack to the left/up (အပုံထဲကဆွဲယူပီး ဖတ်သလိုမျိုး)
+        const drawn = document.createElement('div');
+        drawn.className = 'sheet-drawn';
+        const img = document.createElement('img');
+        img.src = oldImgSrc;
+        drawn.append(img);
+        newStack.append(drawn);
+
+        drawn.animate([
+          { transform: 'translate(0, 0) rotate(0deg) scale(1)', opacity: 1 },
+          { transform: 'translate(-115%, -30px) rotate(-9deg) scale(0.96)', opacity: 0 }
+        ], { duration: 340, easing: 'cubic-bezier(.25, .1, .25, 1)' }).onfinish = () => drawn.remove();
+
+        newSheet.animate([
+          { transform: 'scale(0.97)', opacity: 0.7 },
+          { transform: 'scale(1)', opacity: 1 }
+        ], { duration: 300, easing: 'ease-out' });
+      } else {
+        // Prev: slide previous sheet back into place onto the stack
+        newSheet.animate([
+          { transform: 'translate(-105%, -25px) rotate(-8deg) scale(0.96)', opacity: 0.3 },
+          { transform: 'translate(0, 0) rotate(0deg) scale(1)', opacity: 1 }
+        ], { duration: 320, easing: 'cubic-bezier(.22, 1, .36, 1)' });
+      }
+    }
   }
 }
 
