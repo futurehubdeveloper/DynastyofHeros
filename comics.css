@@ -391,10 +391,16 @@
 /* A tall pile of loose parchment, with its title sheet at the top. */
 .reader-sheet-stack { transform: translateX(48%); }
 .reader-side-bundle {
-  left: -130%; bottom: 0; width: 128%; height: 88%;
-  transform: none; border: 0; border-radius: 0;
+  left: -140%;
+  bottom: 0;
+  width: 170%;
+  height: 90%;
+  transform: none;
+  border: 0;
+  border-radius: 0;
   background: url("assets/scenes/comic-paper-stack.webp") center bottom / contain no-repeat;
-  box-shadow: none; filter: drop-shadow(0 9px 8px #170900a0);
+  box-shadow: none;
+  filter: drop-shadow(0 9px 8px #170900a0);
 }
 .reader-side-bundle::before, .reader-side-bundle::after { display: none; }
 @media (max-width: 680px) {
