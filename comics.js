@@ -98,6 +98,7 @@ function renderThumbs() {
     button.onclick = () => {
       page = n;
       renderReader();
+      animateFromPile();
       container.querySelector('[data-page="' + n + '"]').focus({ preventScroll: true });
     };
     container.append(button);
@@ -105,6 +106,23 @@ function renderThumbs() {
   container.scrollLeft = left;
 }
 
+function animateFromPile() {
+  if (readerMode === 'scroll' || comicMotion.matches) return;
+  const sheet = readerPage.querySelector('.sheet-active');
+  const pile = readerPage.querySelector('.reader-side-bundle');
+  if (!sheet || !pile || !sheet.animate) return;
+  const sheetBox = sheet.getBoundingClientRect();
+  const pileBox = pile.getBoundingClientRect();
+  if (!sheetBox.width || !pileBox.width) return;
+  const dx = pileBox.left + pileBox.width / 2 - (sheetBox.left + sheetBox.width / 2);
+  const dy = pileBox.top + pileBox.height * .18 - (sheetBox.top + sheetBox.height / 2);
+  const size = Math.max(.2, Math.min(.55, pileBox.width * .55 / sheetBox.width));
+  sheet.animate([
+    { transform: `translate(${dx}px, ${dy}px) rotate(7deg) scale(${size})`, opacity: 0 },
+    { opacity: 1, offset: .35 },
+    { transform: 'translate(0, 0) rotate(var(--sheet-tilt, 0deg)) scale(1)', opacity: 1 }
+  ], { duration: 560, easing: 'cubic-bezier(.22, 1, .36, 1)' });
+}
 function scrollPosition() {
   if (readerMode !== 'scroll' || !reader.classList.contains('open')) return null;
   const images = Array.from(readerPage.querySelectorAll('[data-comic-page]'));
@@ -185,6 +203,15 @@ function renderReader(position = null) {
     const bundle = document.createElement('div');
     bundle.className = 'reader-side-bundle';
     bundle.setAttribute('aria-hidden', 'true');
+    const bundleTitle = document.createElement('div');
+    bundleTitle.className = 'reader-bundle-title';
+    const bundleLogo = document.createElement('img');
+    bundleLogo.src = 'assets/avatar.png';
+    bundleLogo.alt = '';
+    const bundleCaption = document.createElement('span');
+    bundleCaption.textContent = 'VOLUME I';
+    bundleTitle.append(bundleLogo, bundleCaption);
+    bundle.append(bundleTitle);
     currentSheet.append(image);
     stack.append(bundle, layer3, layer2, layer1, currentSheet);
     readerPage.append(stack);
@@ -232,17 +259,8 @@ function movePage(direction) {
           { transform: 'translate(-28%, -20px) rotate(-5deg) scale(0.96)', opacity: 0 }
         ], { duration: 340, easing: 'cubic-bezier(.25, .1, .25, 1)' }).onfinish = () => drawn.remove();
 
-        newSheet.animate([
-          { transform: 'translate(70%, 30%) rotate(8deg) scale(0.55)', opacity: 0 },
-          { transform: 'scale(1)', opacity: 1 }
-        ], { duration: 300, easing: 'ease-out' });
-      } else {
-        // Prev: slide previous sheet back into place onto the stack
-        newSheet.animate([
-          { transform: 'translate(70%, 30%) rotate(8deg) scale(0.55)', opacity: 0 },
-          { transform: 'translate(0, 0) rotate(0deg) scale(1)', opacity: 1 }
-        ], { duration: 320, easing: 'cubic-bezier(.22, 1, .36, 1)' });
       }
+      animateFromPile();
     }
   }
 }

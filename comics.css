@@ -388,6 +388,31 @@
   .reader-side-bundle { left: 94%; width: 36%; height: 14%; bottom: 6%; }
 }
 
+/* A tall pile of loose parchment, with its title sheet at the top. */
+.reader-sheet-stack { transform: translateX(-28%); }
+.reader-side-bundle {
+  left: 106%; bottom: 1%; width: 64%; height: 60%;
+  transform: none; border: 0; border-radius: 0;
+  background: url("assets/scenes/reader-paper-pile.webp") center bottom / contain no-repeat;
+  box-shadow: none; filter: drop-shadow(0 9px 8px #170900a0);
+}
+.reader-side-bundle::before, .reader-side-bundle::after { display: none; }
+.reader-bundle-title {
+  position: absolute; top: 5%; left: 23%; width: 53%; height: 18%;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  transform: rotate(-3deg) skewX(-5deg);
+  color: #542710; font: 700 clamp(7px, 1.1cqw, 13px) Georgia, serif;
+  letter-spacing: .13em; text-align: center;
+}
+.reader-page:is(.mode-single,.mode-double) .reader-bundle-title img {
+  width: 65%; height: auto; max-height: 70%; object-fit: contain;
+  border: 0; border-image: none; box-shadow: none; filter: sepia(.25) brightness(.72);
+}
+@media (max-width: 680px) {
+  .reader-sheet-stack { width: calc(min(60cqw, 76cqh * var(--sheet-ratio, .667)) * var(--reader-zoom, 1)); transform: translateX(-24%); }
+  .reader-side-bundle { left: 105%; width: 62%; height: 55%; bottom: 1%; }
+}
+
 
 /* A single comic sheet rests on a stack of aged paper. */
 .reader-page:is(.mode-single,.mode-double) .reader-bound-spread {
