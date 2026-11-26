@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="theme-color" content="#1b1817"><title>Escape from the Village · Dynasty of Heroes Tactics</title>
+  <link rel="stylesheet" href="village-escape.css">
+  <script defer src="village-battle.js"></script><script defer src="village-escape.js"></script>
+</head>
+<body>
+<main class="mission">
+  <header class="mission-head">
+    <div><a href="game.html">Dynasty of Heroes · Tactics</a><h1>Escape from the Village</h1></div>
+    <div class="mission-tools"><span id="phase"></span><button id="guide" type="button">Field guide</button><button id="restart" type="button">Restart</button></div>
+  </header>
+  <div class="battle-stage">
+    <div class="battlefield">
+      <canvas id="field" width="1200" height="675" tabindex="0" aria-label="Village battlefield. Use arrow keys to select a tile and Enter to use it."></canvas>
+    </div>
+    <aside class="hud" aria-label="Unit and commands">
+      <section class="unit-panel"><div class="unit-head"><div class="portrait"><img id="portrait" alt=""></div><div><small id="rank"></small><h2 id="unitName"></h2><p id="weapon"></p></div></div>
+      <div class="vitals"><label>HP <span id="hpValue"></span></label><meter id="hp" min="0"></meter><label>MP <span id="mpValue"></span></label><meter id="mp" min="0"></meter></div>
+      <div class="numbers"><span>STR <b id="strength"></b></span><span>DEF <b id="defense"></b></span></div></section>
+      <nav class="commands" aria-label="Battle commands"><button data-command="move">Move</button><button data-command="attack">Attack</button><button data-command="skill">Skill</button><button data-command="herb">Herb</button><button data-command="wait">Wait</button></nav>
+    </aside>
+    <div class="objective"><strong>Village gate</strong><span id="progress"></span></div>
+    <div class="outcome" id="outcome" hidden><div><small>Escape from the Village</small><h2 id="resultTitle"></h2><p id="resultBody"></p><button id="replay">Play again</button><a href="game.html">Game page</a></div></div>
+  </div>
+  <div class="battle-footer"><div class="status"><small>Battle log</small><p id="message" aria-live="polite"></p></div><div class="roster" id="roster" aria-label="Inspect units"></div><button id="endTurn">End turn</button></div>
+  <dialog id="brief"><h2>Field guide</h2><p>The road spans 16 × 10 tiles. Three guards hold the approach to the gate while three close in from behind. Use the open lanes to change formation or flank a guard. Guide all three relatives to a gold gate tile, or defeat all six royal guards. An escaped relative leaves the battlefield.</p><p>Each relative can move up to three tiles and take one action per round, in either order. Choose a portrait, then a command and a highlighted tile or target. End turn lets the guards respond.</p><p>Fists and swords reach one tile. Spears also reach two in a straight line. Skills cost 15% of maximum MP and deal 1.5× damage. Two shared herbs each restore up to 35% of the user’s HP.</p><p>Physical damage = STR × STR ÷ (STR + target DEF), rounded down with a minimum of 1. Keyboard users can focus the board, move the tile cursor with the arrow keys, and press Enter.</p><button id="closeGuide">Return to mission</button></dialog>
+</main></body></html>

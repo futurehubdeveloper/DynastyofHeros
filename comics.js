@@ -16,9 +16,20 @@ const chapters = [
   { name: 'Episode 4 · The Price of Escape', start: 25, end: 34 },
   { name: 'Episode 5 · The Mountain Monastery', start: 35, end: 45 }
 ];
-let episode = 0, page = 1, lang = 'en', readerMode = 'single', readerZoom = 1;
+let episode = 0, page = 1, lang = 'en', readerZoom = 1;
+let readerMode = matchMedia('(min-width: 820px)').matches ? 'double' : 'single';
 let scrollFrame = 0, modalSession = null, activeModal = null, closingReader = false;
 let finishEntrance = null;
+let cancelTurn = null;
+const lastPage = chapters[chapters.length - 1].end;
+
+// Page 1 faces the inside cover. Even-numbered pages are on the left.
+function firstInSpread(n) { return n - n % 2; }
+function stepTarget(direction) {
+  if (readerMode !== 'double') return page + direction;
+  const left = firstInSpread(page);
+  return direction > 0 ? left + 2 : (left === 2 ? 1 : left - 2);
+}
 
 try {
   const saved = JSON.parse(localStorage.getItem('doh_reader_v12') || '{}');
@@ -65,14 +76,18 @@ function refreshComicLanding() {
 function updateReaderStatus() {
   const chapter = chapters[episode];
   $('readerCounter').textContent = (page - chapter.start + 1) + ' / ' + (chapter.end - chapter.start + 1) + ' · ' + lang.toUpperCase();
-  $('readerBottomCounter').textContent = 'Episode page ' + (page - chapter.start + 1) + ' · Volume page ' + page + ' / 45';
+  const left = firstInSpread(page);
+  $('readerBottomCounter').textContent = readerMode === 'double' && left > 0
+    ? 'Volume pages ' + left + '–' + Math.min(left + 1, lastPage) + ' / ' + lastPage
+    : 'Episode page ' + (page - chapter.start + 1) + ' · Volume page ' + page + ' / ' + lastPage;
   $('readerLang').textContent = (lang === 'en' ? 'EN' : 'MM') + ' ⇄ ' + (lang === 'en' ? 'MM' : 'EN');
   $('readerEpisode').value = String(episode);
   $('readerChapterTitle').textContent = chapter.name;
-  $('prevPage').disabled = page === 1;
-  $('nextPage').disabled = page === 45;
+  $('prevPage').disabled = stepTarget(-1) < 1;
+  $('nextPage').disabled = stepTarget(1) > lastPage;
   document.querySelectorAll('[data-reading-mode]').forEach(button => {
     button.classList.toggle('selected', button.dataset.readingMode === readerMode);
+    button.setAttribute('aria-pressed', String(button.dataset.readingMode === readerMode));
   });
   $('readerThumbs').querySelectorAll('[data-page]').forEach(button => {
     const n = Number(button.dataset.page);
@@ -83,7 +98,10 @@ function updateReaderStatus() {
 }
 function renderThumbs() {
   const chapter = chapters[episode], container = $('readerThumbs');
-  const left = container.dataset.episode === String(episode) ? container.scrollLeft : 0;
+  const sameChapter = container.dataset.episode === String(episode);
+  if (sameChapter && container.dataset.lang === lang) return;
+  const left = sameChapter ? container.scrollLeft : 0;
+  container.dataset.lang = lang;
   container.replaceChildren();
   container.dataset.episode = String(episode);
   for (let n = chapter.start; n <= chapter.end; n++) {
@@ -96,9 +114,7 @@ function renderThumbs() {
     label.textContent = String(n - chapter.start + 1);
     button.append(pageImage(n, true), label);
     button.onclick = () => {
-      page = n;
-      renderReader();
-      animateFromPile();
+      goToPage(n);
       container.querySelector('[data-page="' + n + '"]').focus({ preventScroll: true });
     };
     container.append(button);
@@ -106,23 +122,6 @@ function renderThumbs() {
   container.scrollLeft = left;
 }
 
-function animateFromPile() {
-  if (readerMode === 'scroll' || comicMotion.matches) return;
-  const sheet = readerPage.querySelector('.sheet-active');
-  const pile = readerPage.querySelector('.reader-side-bundle');
-  if (!sheet || !pile || !sheet.animate) return;
-  const sheetBox = sheet.getBoundingClientRect();
-  const pileBox = pile.getBoundingClientRect();
-  if (!sheetBox.width || !pileBox.width) return;
-  const dx = pileBox.left + pileBox.width / 2 - (sheetBox.left + sheetBox.width / 2);
-  const dy = pileBox.top + pileBox.height * .18 - (sheetBox.top + sheetBox.height / 2);
-  const size = Math.max(.2, Math.min(.55, pileBox.width * .55 / sheetBox.width));
-  sheet.animate([
-    { transform: `translate(${dx}px, ${dy}px) rotate(7deg) scale(${size})`, opacity: 0 },
-    { opacity: 1, offset: .35 },
-    { transform: 'translate(0, 0) rotate(var(--sheet-tilt, 0deg)) scale(1)', opacity: 1 }
-  ], { duration: 560, easing: 'cubic-bezier(.22, 1, .36, 1)' });
-}
 function scrollPosition() {
   if (readerMode !== 'scroll' || !reader.classList.contains('open')) return null;
   const images = Array.from(readerPage.querySelectorAll('[data-comic-page]'));
@@ -152,7 +151,62 @@ readerPage.addEventListener('scroll', () => {
   if (readerMode === 'scroll' && !scrollFrame) scrollFrame = requestAnimationFrame(trackScrollPage);
 }, { passive: true });
 
+function bookPage(n) {
+  const slot = document.createElement('div');
+  slot.className = 'book-page';
+  if (n >= 1 && n <= lastPage) {
+    const image = pageImage(n);
+    image.loading = 'eager';
+    image.draggable = false;
+    slot.append(image);
+  } else {
+    slot.classList.add('book-endpaper');
+    if (n === 0) {
+      slot.classList.add('book-frontispiece');
+      slot.setAttribute('role', 'img');
+      slot.setAttribute('aria-label', 'Dynasty of Heroes illustrated title page');
+    } else slot.setAttribute('aria-hidden', 'true');
+  }
+  return slot;
+}
+
+function renderBook() {
+  const book = document.createElement('div');
+  book.className = 'reader-book';
+  book.classList.toggle('zoomed', readerZoom > 1);
+  if (readerMode === 'double') {
+    const left = firstInSpread(page);
+    book.append(bookPage(left), bookPage(left + 1));
+  } else {
+    book.append(bookPage(page));
+  }
+  // Leave vertical scrolling and pinch zoom to the browser.
+  let start = null, swiped = false;
+  book.addEventListener('pointerdown', event => {
+    swiped = false;
+    start = event.isPrimary && event.pointerType === 'touch' && readerZoom <= 1
+      ? { x: event.clientX, y: event.clientY } : null;
+  });
+  book.addEventListener('pointercancel', () => { start = null; });
+  book.addEventListener('pointerup', event => {
+    if (!start) return;
+    const dx = event.clientX - start.x, dy = event.clientY - start.y;
+    start = null;
+    if (Math.abs(dx) >= 45 && Math.abs(dx) > Math.abs(dy) * 1.4) {
+      swiped = true;
+      movePage(dx < 0 ? 1 : -1);
+    }
+  });
+  book.addEventListener('click', event => {
+    if (swiped) return;
+    const bounds = book.getBoundingClientRect();
+    movePage(event.clientX < bounds.left + bounds.width / 2 ? -1 : 1);
+  });
+  readerPage.append(book);
+}
+
 function renderReader(position = null) {
+  cancelTurn?.();
   if (scrollFrame) cancelAnimationFrame(scrollFrame);
   scrollFrame = 0;
   const chapter = chapters[episode];
@@ -163,67 +217,9 @@ function renderReader(position = null) {
   readerPage.style.setProperty('--reader-zoom', String(readerZoom));
 
   if (readerMode === 'scroll') {
-    for (let n = chapter.start; n <= chapter.end; n++) {
-      readerPage.append(pageImage(n));
-    }
+    for (let n = chapter.start; n <= chapter.end; n++) readerPage.append(pageImage(n));
   } else {
-    // Single page on parchment manuscript stack (စာရွက်အပုံလိုက်)
-    const image = pageImage(page);
-    const stack = document.createElement('div');
-    stack.className = 'reader-sheet-stack';
-    const ratio = image.width / image.height;
-    stack.style.setProperty('--sheet-ratio', ratio);
-    stack.style.setProperty('--sheet-tilt', [-0.6, 0.4, -0.2, 0.7, -0.4][(page - 1) % 5] + 'deg');
-    // Scale back the right-shift for wider-than-standard pages so the sheet
-    // doesn't overflow the reader on small screens (pages 22-24 are near-square).
-    const sheetOffset = ratio > 0.72 ? Math.min(1, 0.6 / ratio) : 1;
-    stack.style.setProperty('--sheet-offset', sheetOffset);
-
-    const layer3 = document.createElement('div');
-    layer3.className = 'sheet-layer sheet-layer-3';
-    layer3.setAttribute('aria-hidden', 'true');
-
-    const layer2 = document.createElement('div');
-    layer2.className = 'sheet-layer sheet-layer-2';
-    layer2.setAttribute('aria-hidden', 'true');
-
-    const layer1 = document.createElement('div');
-    layer1.className = 'sheet-layer sheet-layer-1';
-    layer1.setAttribute('aria-hidden', 'true');
-
-    const currentSheet = document.createElement('div');
-    currentSheet.className = 'sheet-active';
-    currentSheet.title = chapter.name + ' — page ' + (page - chapter.start + 1) + ' (click right side for next, left side for previous)';
-
-    currentSheet.addEventListener('click', (e) => {
-      const rect = currentSheet.getBoundingClientRect();
-      if (e.clientX - rect.left > rect.width * 0.5) {
-        movePage(1);
-      } else {
-        movePage(-1);
-      }
-    });
-
-    const bundle = document.createElement('div');
-    bundle.className = 'reader-side-bundle';
-    bundle.setAttribute('aria-hidden', 'true');
-    const topSheet = document.createElement('div');
-    topSheet.className = 'bundle-top-sheet';
-    if (page < 45) {
-      const nextPreview = document.createElement('img');
-      nextPreview.src = comicSrc(page + 1);
-      nextPreview.alt = '';
-      topSheet.append(nextPreview);
-      bundle.title = 'Next page: ' + (page + 1) + ' (click stack to draw)';
-      bundle.style.cursor = 'pointer';
-      bundle.addEventListener('click', () => movePage(1));
-    } else {
-      topSheet.classList.add('bundle-end-of-volume');
-    }
-    bundle.append(topSheet);
-    currentSheet.append(image);
-    stack.append(bundle, layer3, layer2, layer1, currentSheet);
-    readerPage.append(stack);
+    renderBook();
   }
 
   renderThumbs();
@@ -231,47 +227,93 @@ function renderReader(position = null) {
   if (readerMode === 'scroll') alignScroll(position);
   else readerPage.scrollTop = readerPage.scrollLeft = 0;
 }
-function movePage(direction) {
-  const oldPage = page;
-  const currentPosition = scrollPosition();
-  if (currentPosition) page = currentPosition.page;
-  const chapter = chapters[episode];
-  if (direction > 0 && page === chapter.end && episode < chapters.length - 1) {
-    episode += 1;
-    page = chapters[episode].start;
-  } else if (direction < 0 && page === chapter.start && episode > 0) {
-    episode -= 1;
-    page = chapters[episode].end;
-  } else page = Math.min(chapter.end, Math.max(chapter.start, page + direction));
 
-  const oldActive = readerPage.querySelector('.sheet-active');
-  const oldImgSrc = oldActive?.querySelector('img')?.src;
-
-  renderReader();
-
-  if (oldPage !== page && readerMode !== 'scroll' && !comicMotion.matches && oldImgSrc) {
-    const newStack = readerPage.querySelector('.reader-sheet-stack');
-    const newSheet = readerPage.querySelector('.sheet-active');
-
-    if (newStack && newSheet) {
-      if (direction > 0) {
-        // Next: draw top sheet off the stack to the left/up (အပုံထဲကဆွဲယူပီး ဖတ်သလိုမျိုး)
-        const drawn = document.createElement('div');
-        drawn.className = 'sheet-drawn';
-        const img = document.createElement('img');
-        img.src = oldImgSrc;
-        drawn.append(img);
-        newStack.append(drawn);
-
-        drawn.animate([
-          { transform: 'translate(0, 0) rotate(0deg) scale(1)', opacity: 1 },
-          { transform: 'translate(-28%, -20px) rotate(-5deg) scale(0.96)', opacity: 0 }
-        ], { duration: 340, easing: 'cubic-bezier(.25, .1, .25, 1)' }).onfinish = () => drawn.remove();
-
-      }
-      animateFromPile();
-    }
+// The stationary page and both faces use the actual leaves of the two spreads.
+function animateTurn(oldPages, forward) {
+  const book = readerPage.querySelector('.reader-book');
+  const newPages = Array.from(book.children);
+  const spread = newPages.length === 2;
+  const overlay = document.createElement('div');
+  overlay.className = 'book-transition';
+  overlay.setAttribute('aria-hidden', 'true');
+  const leaf = document.createElement('div');
+  leaf.className = 'book-leaf';
+  function face(slot, side) {
+    const element = slot.cloneNode(true);
+    element.classList.add(side);
+    return element;
   }
+  const front = face(forward ? oldPages.at(-1) : newPages.at(-1), 'leaf-front');
+  const back = spread
+    ? face(forward ? newPages[0] : oldPages[0], 'leaf-back')
+    : bookPage(-1);
+  back.classList.add('leaf-back');
+  if (spread) {
+    const stationary = face(forward ? oldPages[0] : oldPages[1], 'book-stationary');
+    stationary.classList.add(forward ? 'on-left' : 'on-right');
+    overlay.append(stationary);
+  } else if (!forward) {
+    overlay.append(face(oldPages[0], 'book-stationary'));
+  }
+  const startAngle = forward ? 0 : (spread ? -180 : -94);
+  const endAngle = forward ? (spread ? -180 : -94) : 0;
+  leaf.style.transform = 'rotateY(' + startAngle + 'deg)';
+  leaf.append(front, back);
+  overlay.append(leaf);
+  book.append(overlay);
+
+  const animations = [];
+  function cleanup() {
+    for (const animation of animations) animation.cancel();
+    overlay.remove();
+    if (cancelTurn === cleanup) cancelTurn = null;
+  }
+  cancelTurn = cleanup;
+  function play() {
+    if (!overlay.isConnected) return;
+    if (comicMotion.matches) { cleanup(); return; }
+    const timing = { duration: 590, easing: 'cubic-bezier(.42,.02,.21,1)', fill: 'both' };
+    const turn = leaf.animate([
+      { transform: 'rotateY(' + startAngle + 'deg)' },
+      { transform: 'rotateY(' + endAngle + 'deg)' }
+    ], timing);
+    animations.push(turn);
+    for (const side of [front, back]) {
+      const shade = document.createElement('div');
+      shade.className = 'leaf-shade';
+      side.append(shade);
+      animations.push(shade.animate([{ opacity: 0 }, { opacity: .6, offset: .52 }, { opacity: 0 }], timing));
+    }
+    turn.onfinish = cleanup;
+  }
+  // Keep the old spread readable while a destination image is still downloading.
+  const pending = newPages.flatMap(slot => Array.from(slot.querySelectorAll('img')))
+    .filter(image => !image.complete && typeof image.decode === 'function');
+  if (pending.length) Promise.allSettled(pending.map(image => image.decode())).then(play);
+  else play();
+}
+
+function goToPage(n) {
+  if (n < 1 || n > lastPage) return;
+  if (n === page) {
+    if (readerMode === 'scroll') alignScroll();
+    return;
+  }
+  const previous = page;
+  const oldBook = readerPage.querySelector('.reader-book');
+  const oldPages = oldBook ? Array.from(oldBook.children).filter(node => node.classList.contains('book-page')) : [];
+  episode = chapters.findIndex(chapter => n >= chapter.start && n <= chapter.end);
+  page = n;
+  renderReader();
+  const sameSpread = readerMode === 'double' && firstInSpread(previous) === firstInSpread(n);
+  if (oldPages.length && !sameSpread && !comicMotion.matches && typeof readerPage.animate === 'function') {
+    animateTurn(oldPages, n > previous);
+  }
+}
+function movePage(direction) {
+  const position = scrollPosition();
+  if (position) page = position.page;
+  goToPage(stepTarget(direction));
 }
 
 function beginModal(opener) {
@@ -303,12 +345,14 @@ function openReader(selectedEpisode = null, opener = document.activeElement) {
   }
   reader.classList.add('open');
   activateModal(reader, opener);
+  syncReadingFilm();
   renderReader();
   $('closeReader').focus({ preventScroll: true });
 }
 async function closeReader() {
   if (closingReader || !reader.classList.contains('open')) return;
   closingReader = true;
+  cancelTurn?.();
   if (document.fullscreenElement && reader.contains(document.fullscreenElement)) {
     try { await document.exitFullscreen?.(); } catch (error) {}
   }
@@ -335,91 +379,127 @@ async function closeReader() {
     document.documentElement.style.scrollBehavior = originalBehavior;
   }
   closingReader = false;
+  syncReadingFilm();
 }
 
 const comicMotion = matchMedia('(prefers-reduced-motion: reduce)');
-const sample = document.querySelector('.comic-sample');
-sample.addEventListener('pointermove', event => {
-  if (comicMotion.matches || event.pointerType !== 'mouse') return;
-  const bounds = sample.getBoundingClientRect();
-  sample.style.setProperty('--comic-tilt-x', (3 - 6 * (event.clientY - bounds.top) / bounds.height) + 'deg');
-  sample.style.setProperty('--comic-tilt-y', (6 * (event.clientX - bounds.left) / bounds.width - 3) + 'deg');
-});
-sample.addEventListener('pointerleave', () => {
-  sample.style.removeProperty('--comic-tilt-x');
-  sample.style.removeProperty('--comic-tilt-y');
-});
+const readingFilm = $('readingFilm');
+const filmToggle = $('readingFilmToggle');
+let wantsFilm = !comicMotion.matches;
+let filmVisible = true;
 
-function enterChronicle(event) {
-  const skip = $('comicSkip');
-  if (!entrance.hidden || reader.classList.contains('open')) return;
-  const opener = event.currentTarget;
-  const origin = sample.getBoundingClientRect();
-  if (comicMotion.matches || typeof entrance.animate !== 'function') {
-    openReader(0, opener);
+function syncReadingFilm() {
+  if (!wantsFilm || !filmVisible || document.hidden || activeModal) {
+    readingFilm.pause();
     return;
   }
+  if (!readingFilm.hasAttribute('src')) readingFilm.src = readingFilm.dataset.src;
+  readingFilm.play().catch(error => {
+    if (error.name !== 'AbortError') wantsFilm = false;
+  });
+}
+function labelFilmControl() {
+  filmToggle.textContent = readingFilm.paused ? 'Play scene' : 'Pause scene';
+}
+filmToggle.hidden = false;
+filmToggle.onclick = () => { wantsFilm = readingFilm.paused; syncReadingFilm(); };
+readingFilm.addEventListener('play', labelFilmControl);
+readingFilm.addEventListener('pause', labelFilmControl);
+readingFilm.addEventListener('error', () => {
+  readingFilm.hidden = true;
+  filmToggle.hidden = true;
+  wantsFilm = false;
+});
+if ('IntersectionObserver' in window) {
+  new IntersectionObserver(([entry]) => {
+    filmVisible = entry.isIntersecting;
+    syncReadingFilm();
+  }).observe(readingFilm);
+} else syncReadingFilm();
+document.addEventListener('visibilitychange', syncReadingFilm);
+comicMotion.addEventListener('change', () => {
+  wantsFilm = !comicMotion.matches;
+  syncReadingFilm();
+});
 
-  $('comicEntrancePage').src = comicSrc(1);
+function enterChronicle(event, selectedEpisode = 0) {
+  if (!entrance.hidden || reader.classList.contains('open')) return;
+  const opener = event.currentTarget;
+  const origin = document.querySelector('#comicOpen img').getBoundingClientRect();
+  openReader(selectedEpisode, opener);
+  if (comicMotion.matches || typeof entrance.animate !== 'function') return;
+
+  // Land the cover on the right-hand leaf of the actual reader underneath.
+  const target = readerPage.querySelector('.book-page:last-child') ||
+    readerPage.querySelector('[data-comic-page="' + page + '"]');
+  if (!target) return;
+  const bounds = target.getBoundingClientRect();
+  const viewport = readerPage.getBoundingClientRect();
+  const height = Math.min(bounds.height, viewport.height - 8);
+  const width = Math.min(bounds.width, height * bounds.width / bounds.height);
+  if (!(width > 0 && height > 0)) return;
+  const book = entrance.querySelector('.comic-entrance-book');
+  Object.assign(book.style, {
+    left: (bounds.left + (bounds.width - width) / 2) + 'px',
+    top: Math.max(viewport.top, bounds.top) + 'px',
+    width: width + 'px', height: height + 'px'
+  });
+  const inside = book.querySelector('.cover-inside');
+  const leftPage = readerPage.querySelector('.mode-double .reader-book > .book-page:first-child');
+  inside.classList.toggle('book-frontispiece', Boolean(leftPage?.classList.contains('book-frontispiece')));
+  const left = leftPage?.querySelector('img');
+  inside.replaceChildren(...(left ? [left.cloneNode(true)] : []));
   entrance.hidden = false;
+  const skip = $('comicSkip');
   activateModal(entrance, opener);
   skip.focus({ preventScroll: true });
-  const duration = 3400;
-  const options = { duration, fill: 'both', easing: 'cubic-bezier(.35,0,.27,1)' };
-  const room = entrance.querySelector('.comic-entrance-room').animate([
-    { transform: 'scale(1)', offset: 0 },
-    { transform: 'scale(1)', offset: .14 },
-    { transform: 'scale(1.38)', offset: .58 },
-    { transform: 'scale(2.1)', opacity: 0, offset: 1 }
-  ], options);
-  const bookElement = entrance.querySelector('.comic-entrance-book');
-  const bounds = bookElement.getBoundingClientRect();
-  const start = `translate(${origin.left + origin.width/2 - bounds.left - bounds.width/2}px,
-    ${origin.top + origin.height/2 - bounds.top - bounds.height/2}px)
-    scale(${origin.width/bounds.width}, ${origin.height/bounds.height})`;
-  const book = bookElement.animate([
-    { transform: start, offset: 0 },
-    { transform: 'translateY(12vh) scale(1) rotateX(45deg)', offset: .48 },
-    { transform: 'translateY(2vh) scale(1.16) rotateX(13deg)', offset: .76 },
-    { opacity: 1, offset: .94 },
-    { transform: 'scale(5.5) rotateX(0deg)', opacity: 0, offset: 1 }
-  ], options);
-  const cover = entrance.querySelector('.comic-entrance-cover').animate([
-    { transform: 'rotateY(0deg)', offset: 0 },
-    { transform: 'rotateY(0deg)', offset: .48 },
-    { transform: 'rotateY(-165deg)', offset: .76 },
-    { transform: 'rotateY(-165deg)', offset: 1 }
-  ], options);
-  const pageReveal = $('comicEntrancePage').animate([
-    { opacity: 0, offset: 0 },
-    { opacity: 0, offset: .49 },
-    { opacity: 1, offset: .65 },
-    { opacity: 1, offset: 1 }
-  ], options);
-  const fallback = setTimeout(finish, duration + 250);
 
+  const box = book.getBoundingClientRect();
+  const sampleVisible = origin.top >= 0 && origin.bottom <= innerHeight && origin.width > 0;
+  const from = sampleVisible
+    ? `translate(${origin.left + origin.width / 2 - box.left - width / 2}px,
+        ${origin.top + origin.height / 2 - box.top - height / 2}px) scale(${origin.width / width}, ${origin.height / height})`
+    : 'translateY(5vh) scale(.78) rotateX(14deg)';
+  const timing = { duration: 1450, fill: 'both', easing: 'ease-in-out' };
+  const travel = book.animate([
+    { transform: from }, { transform: 'none', offset: .52 }, { transform: 'none' }
+  ], timing);
+  const room = entrance.querySelector('.comic-entrance-room').animate([
+    { opacity: 1, transform: 'scale(1)' }, { opacity: 1, offset: .25 },
+    { opacity: 0, transform: 'scale(1.15)', offset: .62 }, { opacity: 0 }
+  ], timing);
+  const cover = book.querySelector('.comic-entrance-cover').animate([
+    { transform: 'rotateY(0deg)' }, { transform: 'rotateY(0deg)', offset: .34 },
+    { transform: 'rotateY(-180deg)' }
+  ], timing);
+  const dissolve = book.animate([
+    { opacity: 1 }, { opacity: 1, offset: .88 }, { opacity: 0 }
+  ], timing);
   function finish() {
-    if (entrance.hidden) return;
-    clearTimeout(fallback);
-    entrance.hidden = true;
-    for (const animation of [room, book, cover, pageReveal]) animation.cancel();
-    skip.onclick = null;
+    if (finishEntrance !== finish) return;
     finishEntrance = null;
-    openReader(0, opener);
+    clearTimeout(fallback);
+    for (const animation of [travel, room, cover, dissolve]) animation.cancel();
+    entrance.hidden = true;
+    skip.onclick = null;
+    inside.replaceChildren();
+    activateModal(reader, opener);
+    $('closeReader').focus({ preventScroll: true });
   }
+  const fallback = setTimeout(finish, timing.duration + 200);
   finishEntrance = finish;
-  book.onfinish = finish;
+  cover.onfinish = finish;
   skip.onclick = finish;
 }
-sample.onclick = enterChronicle;
 $('comicOpen').onclick = enterChronicle;
-document.querySelectorAll('[data-reader]').forEach(button => { button.onclick = () => openReader(null, button); });
-document.querySelectorAll('[data-episode]').forEach(button => { button.onclick = () => openReader(button.dataset.episode, button); });
+document.querySelectorAll('[data-reader]').forEach(button => { button.onclick = event => enterChronicle(event, null); });
+document.querySelectorAll('[data-episode]').forEach(button => { button.onclick = event => enterChronicle(event, Number(button.dataset.episode)); });
+comicMotion.addEventListener('change', () => {
+  if (comicMotion.matches) { finishEntrance?.(); cancelTurn?.(); }
+});
 $('closeReader').onclick = closeReader;
 $('readerEpisode').onchange = event => {
-  episode = Number(event.target.value);
-  page = chapters[episode].start;
-  renderReader();
+  goToPage(chapters[Number(event.target.value)].start);
 };
 $('prevPage').onclick = () => movePage(-1);
 $('nextPage').onclick = () => movePage(1);

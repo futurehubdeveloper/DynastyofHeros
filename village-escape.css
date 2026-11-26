@@ -1,0 +1,75 @@
+* { box-sizing: border-box; }
+:root { color-scheme: dark; --gold:#e8c88c; --ivory:#fff2d5; --ink:#1b1716; --line:#8f7752; }
+body { margin:0; background:radial-gradient(ellipse at 30% 0,#32271f,#171416 75%); color:var(--ivory); font:15px/1.4 Inter,system-ui,sans-serif; }
+button,a { color:inherit; font:inherit; }
+button { border:1px solid #947b54; cursor:pointer; background:#272424; border-radius:3px; padding:.55rem .85rem; }
+button:disabled { opacity:.4; cursor:default; }
+button:focus-visible,a:focus-visible,canvas:focus-visible { outline:3px solid #78d4fb; outline-offset:2px; }
+.mission { width:min(100%,1600px); margin:auto; }
+.mission-head,.battle-footer { display:flex; align-items:center; justify-content:space-between; gap:1rem; padding:.65rem clamp(.7rem,2vw,2rem); }
+.mission-head a,.status small,.unit-head small,.outcome small { color:var(--gold); font:600 .71rem/1.3 Inter,system-ui,sans-serif; letter-spacing:.11em; text-transform:uppercase; }
+.mission-head a { text-decoration:none; }
+h1,h2,p { margin:0; }
+h1 { font:500 clamp(1.3rem,2.2vw,2.2rem)/1.1 Georgia,serif; margin-top:3px; }
+.mission-tools { display:flex; align-items:center; gap:.65rem; }
+.mission-tools button { font-size:.85rem; }
+#phase { margin-right:.3rem; font-weight:600; color:#f3dba7; }
+.battle-stage { position:relative; border-block:1px solid #a47f4d; }
+.battlefield { background:#8f633a url('assets/game/village/village-road.webp') center/100% 100% no-repeat; width:100%; aspect-ratio:16/9; }
+#field { display:block; width:100%; height:100%; touch-action:manipulation; }
+.hud { position:absolute; left:1.1%; top:2.6%; width:clamp(175px,18.5%,265px); pointer-events:none; }
+.unit-panel,.commands button,.objective,.outcome>div { background:linear-gradient(110deg,#171a20f2,#292020e8); color:var(--ivory); border:1px solid #ceae6f; box-shadow:0 3px 12px #100b0980; }
+.unit-panel { padding:clamp(8px,1vw,15px); border-radius:4px; }
+.unit-head { display:flex; gap:.6rem; align-items:center; }
+.unit-head h2 { font:600 clamp(.9rem,1.25vw,1.3rem)/1.1 Georgia,serif; margin:.15rem 0; }
+.unit-head p { color:#e6d5b4; font-size:.78rem; }
+.portrait,.roster button { position:relative; overflow:hidden; background:linear-gradient(145deg,#473e2b,#201f23); }
+.portrait { flex:none; width:clamp(33px,4vw,60px); aspect-ratio:1; border-radius:50%; border:1px solid var(--gold); }
+.portrait img,.roster img { width:100%; height:auto; display:block; transform:scale(1.26); transform-origin:50% 18%; }
+.vitals { margin:.65rem 0 .4rem; }
+.vitals label,.numbers { display:flex; align-items:center; justify-content:space-between; font:600 clamp(.72rem,.94vw,.95rem)/1.2 system-ui,sans-serif; font-variant-numeric:tabular-nums; }
+.vitals meter { width:100%; height:7px; margin:.12rem 0 .3rem; background:#373535; display:block; border:0; }
+meter::-webkit-meter-bar { background:#393533; border:none; border-radius:0; }
+meter::-webkit-meter-optimum-value { background:#86c88e; }
+#mp::-webkit-meter-optimum-value { background:#71afd8; }
+meter::-moz-meter-bar { background:#86c88e; } #mp::-moz-meter-bar { background:#71afd8; }
+.numbers { color:var(--gold); } .numbers b {color:var(--ivory);}
+.commands { display:grid; gap:3px; width:76%; margin-top:.7rem; pointer-events:auto; }
+.commands button { text-align:left; padding:.42rem .85rem; font:600 clamp(.8rem,1.1vw,1.15rem) Georgia,serif; }
+.commands button[aria-pressed="true"],.commands button:enabled:hover { background:linear-gradient(90deg,#976823,#73532de6); border-color:#f6d18b; }
+.objective { position:absolute; right:1.1%; top:2.6%; padding:.4rem .7rem; text-align:right; border-radius:3px; pointer-events:none; }
+.objective strong { display:block; color:var(--gold); font-family:Georgia,serif; }
+.objective span { font-size:.78rem; }
+.status { flex:1; }
+.status p { font-size:.92rem; margin-top:3px; }
+.roster { display:flex; gap:3px; align-items:center; }
+.roster button { width:clamp(29px,3.3vw,49px); height:clamp(33px,3.6vw,54px); padding:0; border-bottom:3px solid #67acbd; }
+.roster button.enemy { border-bottom-color:#cf6561; background:#342423; }
+.roster button[aria-pressed="true"] { outline:2px solid #f4d08c; outline-offset:0; }
+.roster button.spent { opacity:.6; }
+#endTurn { white-space:nowrap; background:#56402d; }
+.outcome { position:absolute; inset:0; display:grid; place-items:center; background:#18161791; z-index:4; }
+[hidden] { display:none!important; }
+.outcome>div,dialog { max-width:min(90vw,540px); padding:1.7rem; border-radius:4px; }
+.outcome h2,dialog h2 { font:500 2rem Georgia,serif; margin:.3rem 0; }
+.outcome p,dialog p { margin:.8rem 0; }
+.outcome a { margin-left:1rem; }
+dialog { border:1px solid var(--line); background:#221d1c; color:var(--ivory); }
+dialog::backdrop { background:#080706ba; }
+@media(max-width:780px) {
+  .mission-head,.battle-footer { gap:.45rem; padding:.5rem .65rem; flex-wrap:wrap; }
+  .mission-tools { gap:.3rem; font-size:.79rem; }.mission-tools button {padding:.35rem .45rem;}
+  .battle-stage { display:flex; flex-direction:column; }
+  .hud { position:static; width:auto; display:flex; gap:.5rem; padding:.4rem; background:#211c1b; }
+  .unit-panel { flex:1; }
+  .commands { width:42%; margin:0; grid-template-columns:1fr 1fr; align-content:center; }
+  .commands button { padding:.5rem .35rem; text-align:center; }
+  .objective { top:.35rem; right:.35rem; font-size:.7rem; padding:.2rem .4rem; }
+  .objective span { font-size:.65rem; }
+  .status { flex-basis:100%; }
+  .roster { flex-wrap:wrap; }
+}
+@media(min-width:781px) and (max-height:720px) {
+  .mission { max-width:min(100%,calc((100dvh - 115px) * 1.778)); }
+  .hud { width:21%; }.commands button{padding:.28rem .55rem;}
+}
