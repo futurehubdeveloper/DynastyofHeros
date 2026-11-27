@@ -22,7 +22,7 @@ for (const model of models) {
     sprites.set(key, img);
   }
 }
-for(const key of ['general-valor','commander-warCry']){
+for(const key of ['general-valor','general-hook-left','general-hook-right','commander-warCry']){
   const img=new Image();
   img.onload=()=>{if(battle) paint();};
   img.src=art+key+'.webp';
@@ -51,15 +51,28 @@ function actorPosition(u) {
 }
 function pose(u) {
   const p=actorPosition(u);
-  let hit=false;
+  let hit=false, rotation=0;
   if (visual?.kind === 'strike') {
     const {attacker,target,t,skill}=visual, a=project(attacker.x,attacker.y), b=project(target.x,target.y);
     const dx=b.x-a.x, dy=b.y-a.y;
-    if (attacker===u) {
+    if (attacker===u && visual.hookHand) {
+      const load = Math.sin(Math.PI*Math.min(1,t/.35));
+      const swing = Math.sin(Math.PI*Math.max(0,Math.min(1,(t-.25)/.64)));
+      const side = visual.hookHand==='left' ? -1 : 1;
+      p.x += dx*(.61*swing-.09*load);
+      p.y += dy*(.61*swing-.09*load)+3*load+side*3*swing;
+      rotation = -.08*load+.12*swing;
+      hit = t>.32 && t<.82;
+    } else if (attacker===u) {
       // Wind up, extend the weapon, then settle back onto the actor's tile.
       let thrust = Math.sin(Math.PI * Math.max(0,Math.min(1,(t-.14)/.68)));
       if (u.weapon==='Fists') thrust *= .82 + .18*Math.cos(4*Math.PI*t);
-      if (skill && u.id==='pyae') thrust = Math.sin(Math.PI*t);
+      if (skill && u.weapon==='Spear') {
+        const beat = Math.sin(Math.PI*t);
+        const angles = [-.09,.08,0];
+        rotation = angles[visual.hitIndex]*beat;
+        thrust = beat*(visual.hitIndex===2 ? 1.22 : 1);
+      }
       if (skill && u.id==='tint') p.y -= 12*Math.sin(Math.PI*t);
       const advance = u.weapon==='Spear' ? .39 : .65;
       p.x+=dx*advance*thrust; p.y+=dy*advance*thrust-5*thrust;
@@ -70,13 +83,17 @@ function pose(u) {
       p.x+=Math.sign(dx || 1)*10*recoil; p.y-=4*recoil;
     }
   }
-  return {p,hit};
+  return {p,hit,rotation};
 }
 function drawUnit(u) {
-  const {p,hit}=pose(u), active=selected===u && !u.enemy;
+  const {p,hit,rotation}=pose(u), active=selected===u && !u.enemy;
   const color=u===battle.commander?'#ffce69':u.enemy?'#ee7666':active?'#a5f4ff':'#8ed7ef';
   ring(p,19,6,color,'#22130f70',active?3:1.5);
   let img=sprites.get(u.model+(hit?'-hit':''));
+  if (hit && visual.hookHand) {
+    const hook = sprites.get('general-hook-'+visual.hookHand);
+    if (hook.naturalWidth) img=hook;
+  }
   const commandPose=visual?.unit===u && (visual.kind==='valor' || visual.kind==='warCry');
   if(commandPose && visual.t>.12 && visual.t<.92){
     const alternate=sprites.get(u.model+'-'+visual.kind);
@@ -86,6 +103,7 @@ function drawUnit(u) {
   if (img.complete && img.naturalWidth) {
     const w=h*img.naturalWidth/img.naturalHeight;
     ctx.save(); ctx.translate(p.x,p.y); ctx.scale(u.facing,1);
+    if (rotation) ctx.rotate(rotation);
     if(commandPose){
       const t=visual.t, shout=Math.sin(Math.PI*t);
       if(visual.kind==='valor'){ctx.scale(1+.055*shout,1+.085*shout);}
@@ -95,8 +113,12 @@ function drawUnit(u) {
   } else { ctx.fillStyle=color; ctx.fillRect(p.x-6,p.y-25,12,23); }
   drawStatus(u,p,h);
   const barWidth=30;
+  let barHp=u.hp;
+  if (visual?.kind==='strike' && visual.target===u) {
+    barHp=Math.max(0,visual.hpBeforeHit-(visual.t>=.46?visual.damage:0));
+  }
   ctx.fillStyle='#211812cf'; ctx.fillRect(p.x-barWidth/2-1,p.y+9,barWidth+2,4);
-  ctx.fillStyle=u.enemy?'#f27864':'#79c6a0'; ctx.fillRect(p.x-barWidth/2,p.y+10,barWidth*u.hp/u.maxHp,2);
+  ctx.fillStyle=u.enemy?'#f27864':'#79c6a0'; ctx.fillRect(p.x-barWidth/2,p.y+10,barWidth*barHp/u.maxHp,2);
   if (active && !busy) {
     ctx.beginPath(); ctx.moveTo(p.x-5,p.y-h-8); ctx.lineTo(p.x+5,p.y-h-8); ctx.lineTo(p.x,p.y-h-2);
     ctx.closePath(); ctx.fillStyle='#fff1ac'; ctx.fill();
@@ -116,12 +138,17 @@ function impact() {
     ctx.lineWidth=critical?9:6;ctx.strokeStyle=critical?'#fff5d1':'#ffbb55';
     ctx.beginPath();ctx.arc(-12,-38,42,-1.55,-1.55+2.95*f);ctx.stroke();
     if(critical){ctx.lineWidth=3;ctx.beginPath();ctx.arc(-12,-38,51,-1.55,-1.55+2.95*f);ctx.stroke();}
-  } else if (skill && attacker.id==='pyae') {
-    const y=hitIndex===0?-9:8;
-    ctx.strokeStyle='#9cefff';ctx.lineWidth=4;ctx.beginPath();ctx.moveTo(-63,y);ctx.lineTo(16,y-5);ctx.stroke();
-    ring({x:15,y:y-5},3+f*12,3+f*6,'#d9faff','#b5f1ff20');
-  } else if (skill && attacker.id==='general') {
-    for (const offset of [-10,10]) ring({x:offset,y:-3},5+f*17,5+f*17,'#ffdc77','#ffb93636',3);
+  } else if (skill && attacker.weapon==='Spear') {
+    const y=[-9,8,0][hitIndex], finisher=hitIndex===2;
+    ctx.strokeStyle=attacker.enemy?'#ffd2bb':finisher?'#fff7c4':'#9cefff';
+    ctx.lineWidth=finisher?6:4;
+    ctx.beginPath();ctx.moveTo(finisher?-77:-63,y);ctx.lineTo(16,y-5);ctx.stroke();
+    ring({x:15,y:y-5},3+f*(finisher?19:12),3+f*6,ctx.strokeStyle,'#b5f1ff20');
+  } else if (visual.hookHand) {
+    const side=visual.hookHand==='left'?-1:1;
+    ctx.scale(1,side); ctx.lineCap='round'; ctx.lineWidth=4;
+    ctx.strokeStyle='#ffda92';
+    ctx.beginPath();ctx.ellipse(-13,-1,26,12,0,-2.65,-2.65+2.9*Math.min(1,f*2));ctx.stroke();
   } else if(attacker.weapon==='Sword') {
     ctx.beginPath();ctx.moveTo(-33,-31);ctx.quadraticCurveTo(18,-18,22,28);ctx.quadraticCurveTo(4,5,-33,-31);ctx.fillStyle='#fff0c8a0';ctx.fill();ctx.stroke();
   } else if(attacker.weapon==='Spear') {
@@ -198,7 +225,7 @@ function drawActionName() {
   if(!visual) return;
   const names={warCry:'War Cry',valor:'Valor',potion:'Potion',herb:'Herb',daze:'Dazed'};
   const strike=visual.kind==='strike';
-  const name=strike && visual.skill ? specialMove[visual.attacker.id] : names[visual.kind];
+  const name=strike && visual.skill ? visual.name : names[visual.kind];
   if(!name) return;
   const caster=strike ? visual.attacker : visual.unit;
   const p=project(caster.x,caster.y);
@@ -250,7 +277,8 @@ function showStatus(text) { get('message').textContent=text; }
 function display() {
   const u=inspected;
   get('portrait').src=portraitPath(u); get('rank').textContent=u.rank+' · Lv. '+u.level;
-  get('unitName').textContent=u.name; get('weapon').textContent=u.weapon;
+  get('unitName').textContent=u.name;
+  get('weapon').textContent=u.model==='guard' ? u.weapon+' · '+villageSkillName(u) : u.weapon;
   for(const [id,value,max] of [['hp',u.hp,u.maxHp],['mp',u.mp,u.maxMp]]) {
     get(id).max=max;get(id).value=value;get(id+'Value').textContent=fmt(value)+' / '+fmt(max);
   }
@@ -274,8 +302,9 @@ function display() {
     button.setAttribute('aria-pressed',String(mode===cmd));
     if(cmd==='herb') button.textContent='Herb ×'+battle.herbs;
     if(cmd==='skill') {
-      button.textContent=specialMove[selected.id];
-      button.title=specialMove[selected.id]+' · '+skillCost(selected)+' MP';
+      button.textContent=villageSkillName(selected);
+      const hook=selected.id==='general' ? (selected.nextHook==='left'?'Left hook':'Right hook')+' · ' : '';
+      button.title=hook+villageSkillName(selected)+' · '+skillCost(selected)+' MP';
     }
     if(cmd==='valor') {
       button.hidden=selected.id!=='general';
@@ -326,7 +355,7 @@ async function setMode(cmd) {
     busy=false;
   } else {
     mode=cmd;
-    const action=cmd==='skill'?specialMove[selected.id]+' · '+skillCost(selected)+' MP':cmd==='attack'?selected.weapon:'';
+    const action=cmd==='skill'?villageSkillName(selected)+' · '+skillCost(selected)+' MP':cmd==='attack'?selected.weapon:'';
     showStatus(cmd==='move'?'Choose a blue tile. Gold tiles mark the escape gate.':action+' · '+(battle.targets(selected).length?'Choose a highlighted guard.':'Move closer to a guard.'));
   }
   display();
@@ -359,15 +388,18 @@ async function walk(u,x,y,session) {
   return true;
 }
 async function hit(u,target,skill,session) {
+  let hpBeforeHit=target.hp;
   const result=battle.strike(u,target,skill);
   if(!result) return;
+  const name=skill?villageSkillName(u,result.hookHand):u.weapon;
+  const duration=skill && u.weapon==='Spear'?330:u.enemy?470:650;
   let hitIndex=0;
   for(const damage of result.hits){
-    await tween({kind:'strike',attacker:u,target,damage,skill,hitIndex,critical:result.critical},skill && u.id==='pyae'?330:u.enemy?470:650,session);
+    await tween({kind:'strike',attacker:u,target,damage,skill,name,hitIndex,hpBeforeHit,hookHand:result.hookHand,critical:result.critical},duration,session);
     if(session!==battle) return;
+    hpBeforeHit-=damage;
     hitIndex++;
   }
-  const name=skill?specialMove[u.id]:u.weapon;
   showStatus(u.name+' · '+name+(result.critical?' · Critical!':'')+' · '+result.hits.map(fmt).join(' + ')+' damage to '+target.name+
     (!target.hp?' · defeated.':result.dazed?' · dazed for one turn.':' ('+fmt(target.hp)+' HP left).'));
 
@@ -415,7 +447,10 @@ async function endTurn() {
       continue;
     }
     const target=battle.targets(guard).sort((a,b)=>distance(guard,a)-distance(guard,b)||a.hp-b.hp)[0];
-    if(target) await hit(guard,target,false,session);
+    if(target) {
+      const doubleThrust = guard.model==='guard' && guard.mp>=skillCost(guard) && target.hp>villageDamage(guard,target);
+      await hit(guard,target,doubleThrust,session);
+    }
     if(battle!==session) return;
     display();
   }
@@ -448,7 +483,8 @@ function pick(event) {
 field.addEventListener('click',e=>{keyboard=false;const p=pick(e);if(p) activate(p.x,p.y,p.unit);});
 field.addEventListener('pointermove',e=>{
   if(busy) return; const p=pick(e), u=p && battle.at(p.x,p.y);
-  field.title=u?u.name+' · Lv. '+u.level+(u.enemy && inReach(selected,u)?' · '+(mode==='skill' && selected.id==='pyae'?'2 × ':'')+fmt(villageDamage(selected,u,mode==='skill'))+' forecast damage':''):'';
+  const count=strikeCount(selected,mode==='skill');
+  field.title=u?u.name+' · Lv. '+u.level+(u.enemy && inReach(selected,u)?' · '+(count>1?count+' × ':'')+fmt(villageDamage(selected,u,mode==='skill'))+' forecast damage':''):'';
 });
 field.addEventListener('keydown',e=>{
   const dir={ArrowLeft:[-1,0],ArrowRight:[1,0],ArrowUp:[0,-1],ArrowDown:[0,1]}[e.key];

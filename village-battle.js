@@ -6,7 +6,16 @@ const commandInterval = 5;
 const soldierLevel = 45;
 const warCryChance = .5;
 const chopCriticalChance = .2;
-const specialMove = { general: 'Twin Palm', tint: 'Mighty Chop', pyae: 'Double Thrust' };
+const specialMove = { tint: 'Mighty Chop', pyae: 'Triple Thrust', guard: 'Double Thrust' };
+function villageSkillName(unit, hand = unit.nextHook) {
+  if (unit.id === 'general') return hand === 'right' ? 'Nyar Wike Let Thee' : 'Bal Wike Let Thee';
+  return specialMove[unit.model];
+}
+function strikeCount(unit, skill) {
+  if (!skill) return 1;
+  if (unit.id === 'pyae') return 3;
+  return unit.model === 'guard' ? 2 : 1;
+}
 const directions = [[1, 0], [0, -1], [0, 1], [-1, 0]];
 const squareKey = (x, y) => x + ',' + y;
 const distance = (a, b) => Math.abs(a.x - b.x) + Math.abs(a.y - b.y);
@@ -47,6 +56,7 @@ class VillageBattle {
       villageUnit('tint', 'Nga Tint', 'tint', 32, 'Epic', 'Sword', 8, 3),
       villageUnit('pyae', 'Nga Pyae Wa', 'pyae', 24, 'Master', 'Spear', 8, 6)
     ];
+    this.family[0].nextHook = 'left';
     this.commander = villageUnit('commander', 'Royal Commander', 'commander', 60, 'Legend', 'Sword', 14, 1, -1);
     const soldiers = [[12,3],[12,7],[2,3],[4,5],[2,7]].map(([x,y], i) =>
       villageUnit('guard-' + (i + 1), 'Royal Guard ' + (i + 1), 'guard', soldierLevel, 'Elite', 'Spear', x, y, i < 2 ? -1 : 1));
@@ -104,15 +114,18 @@ class VillageBattle {
     unit.facing = target.x === unit.x ? (target.y > unit.y ? 1 : -1) : Math.sign(target.x - unit.x);
     const critical = skill && unit.id === 'tint' && this.random() < chopCriticalChance;
     const damage = critical ? damageAtPower(unit, target, 5) : villageDamage(unit, target, skill);
-    const double = skill && unit.id === 'pyae';
+    const hookHand = skill && unit.id === 'general' ? unit.nextHook : null;
+    if (hookHand) unit.nextHook = hookHand === 'left' ? 'right' : 'left';
+    const count = strikeCount(unit, skill);
     const hits = [];
-    for (let i = 0; i < (double ? 2 : 1) && target.hp > 0; i++) {
+    for (let i = 0; i < count && target.hp > 0; i++) {
       hits.push(damage);
       target.hp = Math.max(0, target.hp - damage);
     }
-    if (double && standing(target)) target.dazed = true;
+    const dazed = skill && unit.id === 'pyae' && standing(target);
+    if (dazed) target.dazed = true;
     this.checkResult();
-    return { hits, critical, dazed: double && target.dazed };
+    return { hits, critical, dazed, hookHand };
   }
   castValor(unit) {
     if (unit.id !== 'general' || !this.canAct(unit) || unit.acted || this.turn < this.valorReady) return false;
