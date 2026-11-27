@@ -75,14 +75,13 @@ dialog::backdrop { background:#080706ba; }
   .hud { width:21%; }.commands button{padding:.28rem .55rem;}
 }
 
-.gate-talk { position:absolute; z-index:3; bottom:3%; left:50%; transform:translateX(-50%); width:min(94%,620px); display:flex; align-items:center; gap:.8rem; padding:.8rem; background:#211c19; border:2px solid #cbaa69; color:#fff1cf; }
-.gate-talk img { width:62px; height:68px; object-fit:cover; object-position:top; }
-.gate-talk div { position:relative; flex:1; background:#fff1bd; color:#36241a; border-radius:12px; padding:.55rem .8rem; }
-.gate-talk div::before { content:''; position:absolute; left:-9px; top:1rem; border-block:6px solid transparent; border-right:10px solid #fff1bd; }
-.gate-talk p { white-space:pre-line; }
-.gate-talk strong { color:#75491d; }
-
-.gate-talk p { max-height:4.5em; overflow-y:auto; }
+.gate-talk { position:absolute; z-index:3; bottom:3%; left:50%; transform:translateX(-50%); width:min(94%,760px); display:grid; grid-template-columns:clamp(60px,9vw,112px) 1fr; align-items:end; gap:12px; color:#39271c; }
+.gate-talk img { width:100%; height:clamp(94px,12vw,155px); object-fit:contain; object-position:bottom; }
+.gate-talk div { position:relative; min-height:155px; padding:16px 22px 48px; background:#fff0bd; border:2px solid #ab7839; border-radius:17px; box-shadow:0 3px 0 #926735; }
+.gate-talk div::before { content:''; position:absolute; left:-9px; bottom:28px; width:14px; height:14px; background:#fff0bd; border:solid #ab7839; border-width:0 0 2px 2px; transform:rotate(45deg); }
+.gate-talk strong { color:#784b21; font: bold 1.15rem Georgia,serif; }
+.gate-talk p { margin-top:6px; max-height:5.8em; overflow-y:auto; font:1.08rem/1.45 Georgia,serif; }
+#gateNext { position:absolute; right:14px; bottom:9px; padding:4px 13px; background:#f5d996; color:#47311c; border:1px solid #ad8040; border-radius:5px; }
 .gate-talk p span { display:block; animation:gate-line-in .36s ease-out both; }
 @keyframes gate-line-in { from { opacity:0; transform:translateY(.7em); } to { opacity:1; transform:translateY(0); } }
 @media (prefers-reduced-motion:reduce) { .gate-talk p span { animation:none; } }

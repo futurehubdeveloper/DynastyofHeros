@@ -6,7 +6,7 @@ const commandInterval = 5;
 const soldierLevel = 45;
 const orderChance = .5;
 const chopCriticalChance = .2;
-const specialMove = { tint: 'Mighty Chop', pyae: 'Triple Thrust', guard: 'Double Thrust' };
+const specialMove = { commander: 'Cross Slash', tint: 'Mighty Chop', pyae: 'Triple Thrust', guard: 'Double Thrust' };
 function villageSkillName(unit, hand = unit.nextHook) {
   if (unit.id === 'general') return hand === 'right' ? 'Nyar Wike Let Thee' : 'Bal Wike Let Thee';
   return specialMove[unit.model];
@@ -14,7 +14,7 @@ function villageSkillName(unit, hand = unit.nextHook) {
 function strikeCount(unit, skill) {
   if (!skill) return 1;
   if (unit.id === 'pyae') return 3;
-  return unit.model === 'guard' ? 2 : 1;
+  return unit.model === 'guard' || unit.model === 'commander' ? 2 : 1;
 }
 const directions = [[1, 0], [0, -1], [0, 1], [-1, 0]];
 const squareKey = (x, y) => x + ',' + y;
@@ -61,7 +61,8 @@ class VillageBattle {
     const soldiers = [[12,3],[12,7],[2,3],[4,5],[2,7]].map(([x,y], i) =>
       villageUnit('guard-' + (i + 1), 'Royal Guard ' + (i + 1), 'guard', soldierLevel, 'Elite', 'Spear', x, y, i < 2 ? -1 : 1));
     this.guards = [this.commander, ...soldiers];
-    this.orderReady = commandInterval;
+    this.orderReady = 1;
+    this.crossSlashNext = true;
     this.ordersGiven = 0;
     this.orderDelays = 0;
     this.potions = 3;
@@ -139,7 +140,7 @@ class VillageBattle {
     const unit = this.commander;
     if (!this.canAct(unit) || unit.acted) return null;
     const soldiers = this.guards.filter(ally => ally !== unit && standing(ally) && ally.level < unit.level);
-    if (soldiers.length && this.turn >= this.orderReady && (this.orderDelays >= 2 || this.random() < orderChance)) {
+    if (soldiers.length && this.turn >= this.orderReady && ((!this.ordersGiven && this.turn >= 3) || this.orderDelays >= 2 || this.random() < orderChance)) {
       unit.acted = true;
       this.orderReady = this.turn + commandInterval;
       this.ordersGiven++;
@@ -153,7 +154,7 @@ class VillageBattle {
       return { kind: 'order', targets: soldiers };
     }
     if (soldiers.length && this.turn >= this.orderReady) this.orderDelays++;
-    if (!this.potions) return null;
+    if (this.targets(unit).length || !this.potions) return null;
     const injured = this.guards.filter(ally => standing(ally) && ally.hp < ally.maxHp);
     injured.sort((a,b) => a.hp / a.maxHp - b.hp / b.maxHp);
     const target = injured[0];
@@ -178,7 +179,7 @@ class VillageBattle {
   guardDestination(guard) {
     if (this.targets(guard).length) return null;
     // Search for a reachable square from which a guard can threaten a remaining relative.
-    const gateDetachment = this.guards.indexOf(guard) < 3;
+    const gateDetachment = guard !== this.commander && this.guards.indexOf(guard) < 3;
     const patrolArea = x => !gateDetachment || x >= 11;
     for (const path of this.routes(guard, villageWidth * villageHeight, patrolArea).values()) {
       if (!path.length) continue;

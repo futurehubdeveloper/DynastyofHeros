@@ -14,15 +14,11 @@ for (const model of models) {
   for (const suffix of ['', '-hit']) {
     const key = model + suffix, img = new Image();
     img.onload = () => { if (battle) paint(); };
-    if (model === 'commander' && suffix) {
-      sprites.set(key, sprites.get(model));
-      continue;
-    }
     img.src = art + key + '.webp';
     sprites.set(key, img);
   }
 }
-for(const key of ['general-kneel','tint-kneel','pyae-kneel','guard-kneel','commander-kneel','general-valor','general-hook-left','general-hook-right','commander-warCry']){
+for(const key of ['commander-backhand','general-kneel','tint-kneel','pyae-kneel','guard-kneel','commander-kneel','general-valor','general-hook-left','general-hook-right','commander-warCry']){
   const img=new Image();
   img.onload=()=>{if(battle) paint();};
   img.src=art+key+'.webp';
@@ -115,6 +111,7 @@ function drawUnit(u) {
   const color=u===battle.commander?'#ffce69':u.enemy?'#ee7666':active?'#a5f4ff':'#8ed7ef';
   ring(p,19,6,color,'#22130f70',active?3:1.5);
   let img=sprites.get(u.model+(hit?'-hit':''));
+  if(hit && u.model==='commander' && visual.skill && visual.hitIndex===1) img=sprites.get('commander-backhand');
   if (hit && visual.hookHand) {
     const hook = sprites.get('general-hook-'+visual.hookHand);
     if (hook.naturalWidth) img=hook;
@@ -161,7 +158,12 @@ function impact() {
   ctx.save(); ctx.translate(p.x,p.y-38); ctx.scale(sign,1);
   ctx.globalAlpha=Math.sin(Math.PI*f);
   ctx.strokeStyle=skill?'#ffe5a1':'#fff5d0'; ctx.lineWidth=3.5; ctx.shadowColor='#fee3a0'; ctx.shadowBlur=7;
-  if (skill && attacker.id==='tint') {
+  if (skill && attacker.model==='commander') {
+    ctx.lineCap='round';ctx.lineWidth=5;ctx.strokeStyle='#ffe596';
+    const slash=(side,progress)=>{ctx.beginPath();ctx.moveTo(-25,-23*side);ctx.lineTo(-25+50*progress,(-23+46*progress)*side);ctx.stroke();};
+    if(hitIndex===1) slash(1,1);
+    slash(hitIndex===0?1:-1,Math.min(1,2*f));
+  } else if (skill && attacker.id==='tint') {
     // A descending cleaver arc with a second bright edge on a critical hit.
     ctx.lineWidth=critical?9:6;ctx.strokeStyle=critical?'#fff5d1':'#ffbb55';
     ctx.beginPath();ctx.arc(-12,-38,42,-1.55,-1.55+2.95*f);ctx.stroke();
@@ -496,7 +498,9 @@ async function endTurn() {
     const target=battle.targets(guard).sort((a,b)=>distance(guard,a)-distance(guard,b)||a.hp-b.hp)[0];
     if(target) {
       const doubleThrust = guard.model==='guard' && guard.mp>=skillCost(guard) && target.hp>villageDamage(guard,target);
-      await hit(guard,target,doubleThrust,session);
+      const crossSlash=guard===battle.commander && battle.crossSlashNext && guard.mp>=skillCost(guard);
+      if(guard===battle.commander) battle.crossSlashNext=!crossSlash;
+      await hit(guard,target,doubleThrust || crossSlash,session);
     }
     if(battle!==session) return;
     display();
