@@ -126,7 +126,8 @@ class VillageBattle {
       hits.push(damage);
       target.hp = Math.max(0, target.hp - damage);
     }
-    const dazed = skill && unit.weapon === 'Spear' && standing(target);
+    const dazed = skill && unit.weapon === 'Spear' && standing(target) &&
+      this.random() < (unit.enemy ? 0.25 : 0.50);
     if (dazed) target.dazed = true;
     this.checkResult();
     return { hits, critical, dazed, hookHand };
