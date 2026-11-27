@@ -177,7 +177,7 @@
 /* Monastery desk table behind the parchment manuscript stack. */
 .reader-shell .reader-page {
   background: linear-gradient(90deg,#170c0973,#25130b26 70%,#190d094d),
-    url("assets/scenes/comic-monastery-desk-letters.png") center / cover;
+    url("assets/scenes/comic-monastery-desk-manuscripts.png") center / cover;
 }
 
 /* Parchment manuscript paper stack reader (single page stack - စာရွက်အပုံလိုက်) */
