@@ -280,7 +280,7 @@ reduced.addEventListener('change',()=>{if(battle) paint();});
 // Put each technique over its caster. Impacts and status markers stay over the target.
 function drawActionName() {
   if(!visual) return;
-  const names={order:'Order',valor:'Valor',potion:'Potion',herb:'Herb',daze:'Dazed'};
+  const names={order:'Battle Frenzy',valor:'Valor',potion:'Potion',herb:'Herb',daze:'Dazed'};
   const strike=visual.kind==='strike';
   const name=visual.kind==='potion'?'Potion → '+visual.targets[0].name:visual.name || names[visual.kind];
   if(!name) return;
@@ -342,10 +342,10 @@ function display() {
   const effects=[];
   if(u.valor) effects.push('Valor · +10% STR / DEF · '+(battle.valorReady-battle.turn)+' rounds left');
   if(u.dazed) effects.push('Dazed · skips next enemy phase');
-  if(u.model==='guard' && battle.ordersGiven) effects.push('Order · +'+(u.level-soldierLevel)+' levels'+(u.level===battle.commander.level?' · capped':''));
+  if(u.model==='guard' && battle.ordersGiven) effects.push('Battle Frenzy · +'+(u.level-soldierLevel)+' levels'+(u.level===battle.commander.level?' · capped':''));
   if(u===battle.commander) {
     const canBoost=battle.guards.some(ally=>ally.model==='guard' && standing(ally) && ally.level<u.level);
-    effects.push('Potions ×'+battle.potions+' · Order '+(!canBoost?'no levels to grant':battle.turn>=battle.orderReady?'ready':'from turn '+battle.orderReady));
+    effects.push('Potions ×'+battle.potions+' · Battle Frenzy '+(!canBoost?'no levels to grant':battle.turn>=battle.orderReady?'ready':'from turn '+battle.orderReady));
   }
   get('effects').textContent=effects.join(' · ');
   get('phase').textContent='Turn '+battle.turn+' · '+(battle.phase==='guards'?'Royal guards':'Family');
@@ -505,7 +505,7 @@ async function endTurn() {
     if(battle!==session) return;
     const support=guard===battle.commander ? battle.commanderAction() : null;
     if(support){
-      notices.push(support.kind==='order'?'“FIGHT!” Order raised the soldiers to level '+support.targets[0].level+'.':'Commander used a potion on '+support.targets[0].name+' (+'+support.amount+' HP).');
+      notices.push(support.kind==='order'?'“FIGHT!” Battle Frenzy raised the soldiers to level '+support.targets[0].level+'.':'Commander used a potion on '+support.targets[0].name+' (+'+support.amount+' HP).');
       inspected=support.kind==='potion'?support.targets[0]:guard;
       showStatus(notices.at(-1));display();
       await tween({...support,unit:guard},support.kind==='order'?1050:700,session);
