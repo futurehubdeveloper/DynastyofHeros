@@ -381,7 +381,7 @@ function display() {
   get('outcome').hidden=!result || busy;
   if(result) {
     get('resultTitle').textContent=result==='lost'?'GAME OVER!':'Mission complete';
-    get('resultBody').textContent={escaped:'All three made it through the village gate.','defeated-guards':'The commander and all five soldiers have been defeated. The road is open.',lost:'No family member remains on the field to complete the escape.'}[result];
+    get('resultBody').textContent={escaped:'All three made it through the village entrance.','defeated-guards':'The commander and all five soldiers have been defeated. The road is open.',lost:'No family member remains on the field to complete the escape.'}[result];
   }
   paint();
 }
@@ -412,7 +412,7 @@ async function setMode(cmd) {
   } else {
     mode=cmd;
     const action=cmd==='skill'?villageSkillName(selected)+' · '+skillCost(selected)+' MP':cmd==='attack'?selected.weapon:'';
-    showStatus(cmd==='move'?'Choose a blue tile. Gold tiles mark the escape gate.':action+' · '+(battle.targets(selected).length?'Choose a highlighted guard.':'Move closer to a guard.'));
+    showStatus(cmd==='move'?'Choose a blue tile. Gold tiles mark the village entrance.':action+' · '+(battle.targets(selected).length?'Choose a highlighted guard.':'Move closer to a guard.'));
   }
   display();
 }
@@ -481,7 +481,7 @@ async function activate(x,y,unit=battle.at(x,y)) {
     busy=true;display();await walk(selected,x,y,session);
     if(session!==battle) return;
 
-    showStatus(selected.name+(selected.escaped?' reached the village gate.':' moved. Choose an action or another relative.'));
+    showStatus(selected.name+(selected.escaped?' reached the village entrance.':' moved. Choose an action or another relative.'));
     if(selected.escaped) selected=battle.family.find(standing) || selected;
     inspected=selected;mode=selected.moved?'attack':'move';
   } else {showStatus(mode==='move'?'Choose an unoccupied blue tile within three steps.':'Choose a guard highlighted in gold.');return;}
@@ -595,7 +595,7 @@ function start() {
     const img=document.createElement('img');img.src=portraitPath(unit);img.alt='';b.append(img);
     b.onclick=()=>activate(unit.x,unit.y,unit);roster.append(b);
   }
-  showStatus('The level-60 commander holds the gate. Escape with all three relatives or defeat all six enemies.');
+  showStatus('The level-60 commander holds the entrance. Escape with all three relatives or defeat all six enemies.');
   display();
 }
 function pick(event) {
