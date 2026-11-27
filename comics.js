@@ -207,6 +207,12 @@ function renderReader(position = null) {
     const bundle = document.createElement('div');
     bundle.className = 'reader-side-bundle';
     bundle.setAttribute('aria-hidden', 'true');
+    for (let layer = 0; layer < 9; layer++) {
+      const pileSheet = document.createElement('div');
+      pileSheet.className = 'bundle-paper-layer';
+      pileSheet.style.setProperty('--pile-layer', layer);
+      bundle.append(pileSheet);
+    }
     const topSheet = document.createElement('div');
     topSheet.className = 'bundle-top-sheet';
     if (page < 45) {

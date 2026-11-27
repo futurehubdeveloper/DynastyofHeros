@@ -526,7 +526,7 @@
 .sheet-active::after { display: none; }
 .reader-page:is(.mode-single,.mode-double) :is(.sheet-active,.sheet-drawn) img {
   position: absolute;
-  left: 8%; top: 18%;
+  left: 8%;
   width: 84%; height: 76%;
   max-width: none; max-height: none;
   object-fit: contain;
@@ -548,4 +548,26 @@
 .sheet-layer::before { display: none; }
 .reader-side-bundle {
   filter: sepia(.18) saturate(.78) brightness(1.04) drop-shadow(0 8px 9px #17090080);
+}
+
+/* Build the pile from the same parchment as the reading sheet. */
+.reader-side-bundle { background: none; filter: drop-shadow(0 8px 8px #17090099); perspective: 700px; }
+.bundle-paper-layer, .bundle-top-sheet {
+  position: absolute;
+  left: 9%;
+  bottom: calc(3% + var(--pile-layer, 9) * 3.2%);
+  width: 82%; height: 55%; aspect-ratio: auto;
+  background: url("assets/scenes/reader-parchment.svg") center / 100% 100% no-repeat;
+  transform: rotateX(55deg) rotateZ(-8deg);
+  transform-origin: center bottom;
+  filter: drop-shadow(0 3px 2px #29130688);
+  -webkit-mask-image: none; mask-image: none;
+  overflow: hidden;
+}
+.bundle-top-sheet { bottom: 31.8%; }
+.bundle-top-sheet::after { display: none; }
+.reader-page:is(.mode-single,.mode-double) .bundle-top-sheet img {
+  top: 18%; left: 8%; width: 84%; height: 76%;
+  object-fit: contain; object-position: center;
+  filter: sepia(.12) saturate(.8) brightness(.94);
 }
