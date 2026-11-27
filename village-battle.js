@@ -46,6 +46,7 @@ function inReach(unit, target) {
   const d = distance(unit, target);
   return d === 1 || (unit.weapon === 'Spear' && d === 2 && (unit.x === target.x || unit.y === target.y));
 }
+const moveRange = unit => unit.model === 'commander' ? 4 : unit.enemy ? 2 : 3;
 const skillCost = unit => Math.ceil(unit.maxMp * .15);
 
 class VillageBattle {
@@ -99,7 +100,7 @@ class VillageBattle {
   }
   move(unit, x, y) {
     if (!this.canAct(unit) || unit.moved) return null;
-    const path = this.routes(unit, unit.enemy ? 2 : 3).get(squareKey(x, y));
+    const path = this.routes(unit, moveRange(unit)).get(squareKey(x, y));
     if (!path?.length) return null;
     const from = { x: unit.x, y: unit.y };
     unit.facing = x === unit.x ? unit.facing : Math.sign(x - unit.x);
@@ -185,7 +186,7 @@ class VillageBattle {
       if (!path.length) continue;
       const end = path[path.length - 1];
       const probe = { ...guard, ...end };
-      if (this.family.some(target => standing(target) && inReach(probe, target))) return path[Math.min(path.length, 2) - 1];
+      if (this.family.some(target => standing(target) && inReach(probe, target))) return path[Math.min(path.length, moveRange(guard)) - 1];
     }
     return null;
   }

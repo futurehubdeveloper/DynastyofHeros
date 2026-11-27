@@ -418,7 +418,7 @@ async function setMode(cmd) {
 }
 function tween(effect, duration, session) {
   if(reduced.matches) {
-    if(effect.kind==='move' || (effect.kind==='strike' && !effect.skill)) return Promise.resolve();
+    if(effect.kind==='move' || (effect.kind==='strike' && !effect.skill && effect.attacker.model!=='commander')) return Promise.resolve();
     visual={...effect,t:.55};paint();
     return new Promise(resolve=>setTimeout(()=>{
       if(battle===session){visual=null;paint();}
@@ -517,6 +517,7 @@ async function endTurn() {
       const crossSlash=guard===battle.commander && battle.crossSlashNext && guard.mp>=skillCost(guard);
       if(guard===battle.commander) battle.crossSlashNext=!crossSlash;
       await hit(guard,target,doubleThrust || crossSlash,session);
+      if(battle===session && guard===battle.commander) notices.push(get('message').textContent);
     }
     if(battle!==session) return;
     display();
