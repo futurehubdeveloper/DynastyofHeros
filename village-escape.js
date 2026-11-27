@@ -22,7 +22,7 @@ for (const model of models) {
     sprites.set(key, img);
   }
 }
-for(const key of ['guard-kneel','commander-kneel','general-valor','general-hook-left','general-hook-right','commander-warCry']){
+for(const key of ['general-kneel','tint-kneel','pyae-kneel','guard-kneel','commander-kneel','general-valor','general-hook-left','general-hook-right','commander-warCry']){
   const img=new Image();
   img.onload=()=>{if(battle) paint();};
   img.src=art+key+'.webp';
@@ -42,6 +42,12 @@ function ring(p, rx, ry, stroke, fill, width = 2) {
 let gateScene = '';
 let advanceDialogue;
 function actorPosition(u) {
+  if (gateScene==='defeat') {
+    const center=project(8,4);
+    if (!u.enemy) return {x:center.x+(battle.family.indexOf(u)-1)*53,y:center.y};
+    const angle=battle.guards.indexOf(u)*Math.PI/3;
+    return {x:center.x+139*Math.cos(angle),y:center.y+68*Math.sin(angle)};
+  }
   if (gateScene && u.enemy) {
     const index=battle.guards.indexOf(u);
     return project(7+(index%3)*1.55,3+Math.floor(index/3)*2);
@@ -113,7 +119,7 @@ function drawUnit(u) {
     const hook = sprites.get('general-hook-'+visual.hookHand);
     if (hook.naturalWidth) img=hook;
   }
-  const kneeling=gateScene && u.enemy;
+  const kneeling=gateScene==='defeat' ? !u.enemy : gateScene && u.enemy;
   if(kneeling) img=sprites.get(u.model+'-kneel');
   const commandPose=visual?.unit===u && (visual.kind==='valor' || visual.kind==='order');
   if(commandPose && visual.t>.12 && visual.t<.92){
@@ -123,7 +129,7 @@ function drawUnit(u) {
   const h=(u.model === 'commander' ? 74 : u.model === 'general' ? 66 : 64) * (kneeling ? .75 : hit ? .91 : 1);
   if (img.complete && img.naturalWidth) {
     const w=h*img.naturalWidth/img.naturalHeight;
-    ctx.save(); ctx.translate(p.x,p.y); ctx.scale(kneeling?1:u.facing,1);
+    ctx.save(); ctx.translate(p.x,p.y); ctx.scale(gateScene==='defeat' && u.enemy ? (p.x>project(8,4).x?-1:1) : kneeling?1:u.facing,1);
     if (rotation) ctx.rotate(rotation);
     if(commandPose){
       const t=visual.t, shout=Math.sin(Math.PI*t);
@@ -298,7 +304,7 @@ function paint() {
     if(gate) {const p=project(x,y);ctx.textAlign='center';ctx.fillStyle='#fff0b1';ctx.font='bold 23px Georgia';ctx.fillText('✦',p.x,p.y+6);}
     if(keyboard && cursor.x===x && cursor.y===y) {ctx.strokeStyle='white';ctx.lineWidth=3;ctx.setLineDash([5,4]);ctx.stroke(tile);ctx.setLineDash([]);}
   }
-  const visible=battle.units.filter(u=>gateScene ? u.enemy || gateScene==='family' : standing(u) || (visual?.kind==='move' && visual.unit===u) || (visual?.kind==='strike' && visual.target===u));
+  const visible=battle.units.filter(u=>gateScene ? u.enemy || gateScene==='family' || gateScene==='defeat' : standing(u) || (visual?.kind==='move' && visual.unit===u) || (visual?.kind==='strike' && visual.target===u));
   visible.sort((a,b)=>actorPosition(a).y-actorPosition(b).y).forEach(drawUnit);
   impact();
   supportAnimation();
@@ -354,9 +360,9 @@ function display() {
     btn.title=a.name+' · '+a.rank+' Lv. '+a.level+' · '+a.hp+' HP';
   }
   const result=battle.result;
-  get('outcome').hidden=!result;
+  get('outcome').hidden=!result || busy;
   if(result) {
-    get('resultTitle').textContent=result==='lost'?'Mission failed':'Mission complete';
+    get('resultTitle').textContent=result==='lost'?'GAME OVER!':'Mission complete';
     get('resultBody').textContent={escaped:'All three made it through the village gate.','defeated-guards':'The commander and all five soldiers have been defeated. The road is open.',lost:'No family member remains on the field to complete the escape.'}[result];
   }
   paint();
@@ -496,6 +502,13 @@ async function endTurn() {
     display();
   }
   if(session!==battle) return;
+  if (battle.result==='lost') {
+    gateScene='defeat';
+    paint();
+    await gateDialogue(session.commander,'General…\nYou’re old now.\nSoldiers, let’s end it here.');
+    if (battle!==session) return;
+    get('gateTalk').hidden=true;
+  }
   battle.nextRound();busy=false;
   selected=battle.family.find(standing)||selected;inspected=selected;mode='move';
   if(!battle.result) showStatus('Turn '+battle.turn+' · '+(notices.length?notices.join(' '):'Choose a relative, then move or attack.'));
