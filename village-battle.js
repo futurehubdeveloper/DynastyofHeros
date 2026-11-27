@@ -42,11 +42,12 @@ function villageDamage(attacker, target, skill = false) {
   const power = skill && attacker.id === 'tint' ? 2 : skill && attacker.id === 'general' ? 1.5 : 1;
   return damageAtPower(attacker, target, power);
 }
-function inReach(unit, target) {
+function inReach(unit, target, skill = false) {
   const d = distance(unit, target);
+  if (skill && unit.model==='commander') return d>=1 && d<=3 && (unit.x===target.x || unit.y===target.y);
   return d === 1 || (unit.weapon === 'Spear' && d === 2 && (unit.x === target.x || unit.y === target.y));
 }
-const moveRange = unit => unit.model === 'commander' ? 4 : unit.enemy ? 2 : 3;
+const moveRange = unit => unit.enemy ? 2 : 3;
 const skillCost = unit => Math.ceil(unit.maxMp * .15);
 
 class VillageBattle {
@@ -110,7 +111,7 @@ class VillageBattle {
     return { from, path };
   }
   strike(unit, target, skill = false) {
-    if (!this.canAct(unit) || unit.acted || !standing(target) || unit.enemy === target.enemy || !inReach(unit, target)) return null;
+    if (!this.canAct(unit) || unit.acted || !standing(target) || unit.enemy === target.enemy || !inReach(unit, target, skill)) return null;
     if (skill && unit.mp < skillCost(unit)) return null;
     if (skill) unit.mp -= skillCost(unit);
     unit.acted = true;
@@ -125,7 +126,7 @@ class VillageBattle {
       hits.push(damage);
       target.hp = Math.max(0, target.hp - damage);
     }
-    const dazed = skill && unit.id === 'pyae' && standing(target);
+    const dazed = skill && unit.weapon === 'Spear' && standing(target);
     if (dazed) target.dazed = true;
     this.checkResult();
     return { hits, critical, dazed, hookHand };
@@ -174,8 +175,11 @@ class VillageBattle {
     this.herbs--;
     return amount;
   }
+  crossSlashReady(unit) {
+    return unit===this.commander && this.crossSlashNext && unit.mp>=skillCost(unit);
+  }
   targets(unit) {
-    return (unit.enemy ? this.family : this.guards).filter(target => standing(target) && inReach(unit, target));
+    return (unit.enemy ? this.family : this.guards).filter(target => standing(target) && inReach(unit, target, this.crossSlashReady(unit)));
   }
   guardDestination(guard) {
     if (this.targets(guard).length) return null;
@@ -186,12 +190,13 @@ class VillageBattle {
       if (!path.length) continue;
       const end = path[path.length - 1];
       const probe = { ...guard, ...end };
-      if (this.family.some(target => standing(target) && inReach(probe, target))) return path[Math.min(path.length, moveRange(guard)) - 1];
+      if (this.family.some(target => standing(target) && inReach(probe, target, this.crossSlashReady(guard)))) return path[Math.min(path.length, moveRange(guard)) - 1];
     }
     return null;
   }
   startGuards() {
     if (this.result || this.phase !== 'family') return false;
+    this.family.forEach(hero=>{hero.dazed=false;});
     this.phase = 'guards';
     this.guards.forEach(u => { u.moved = false; u.acted = false; });
     return true;

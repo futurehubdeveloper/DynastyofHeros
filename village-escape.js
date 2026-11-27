@@ -94,7 +94,7 @@ function pose(u) {
       let thrust = Math.sin(Math.PI * Math.max(0,Math.min(1,(t-.14)/.68)));
       if (u.weapon==='Fists') thrust *= .82 + .18*Math.cos(4*Math.PI*t);
       if (skill && u.id==='tint') p.y -= 12*Math.sin(Math.PI*t);
-      const advance = u.weapon==='Spear' ? .39 : .65;
+      const advance = skill && u.model==='commander' ? .05 : u.weapon==='Spear' ? .39 : .65;
       p.x+=dx*advance*thrust; p.y+=dy*advance*thrust-5*thrust;
       hit=t>.22 && t<.79;
     }
@@ -169,6 +169,13 @@ function impact() {
   if (visual?.kind!=='strike') return;
   const { t,attacker,target,damage,skill,critical,hitIndex }=visual;
   const p=project(target.x,target.y), sign=attacker.facing;
+  if (skill && attacker.model==='commander' && t>.12 && t<.6) {
+    const origin=project(attacker.x,attacker.y), progress=(t-.12)/.48;
+    ctx.save();ctx.translate(origin.x+(p.x-origin.x)*progress,origin.y-38+(p.y-origin.y)*progress);
+    ctx.rotate(Math.atan2(p.y-origin.y,p.x-origin.x)+(hitIndex===0?.48:-.48));
+    ctx.beginPath();ctx.moveTo(-8,-22);ctx.quadraticCurveTo(22,0,-8,22);
+    ctx.quadraticCurveTo(6,0,-8,-22);ctx.fillStyle='#fff1af';ctx.shadowColor='#ffce46';ctx.shadowBlur=9;ctx.fill();ctx.restore();
+  }
   const f=(t-.39)/.5;
   if (f<0 || f>1) return;
   ctx.save(); ctx.translate(p.x,p.y-38); ctx.scale(sign,1);
@@ -307,7 +314,7 @@ function drawActionName() {
 }
 function paint() {
   ctx.clearRect(0,0,field.width,field.height);
-  const canChoose=!busy && !battle.result && battle.phase==='family' && standing(selected);
+  const canChoose=!busy && !battle.result && battle.phase==='family' && standing(selected) && !selected.dazed;
   const routes=canChoose && mode==='move' && !selected.moved ? battle.routes(selected) : new Map();
   const targets=canChoose && (mode==='attack'||mode==='skill') ? battle.targets(selected) : [];
   for(let y=0;y<villageHeight;y++) for(let x=0;x<villageWidth;x++) {
@@ -341,7 +348,7 @@ function display() {
   get('strength').textContent=fmt(u.str);get('defense').textContent=fmt(u.def);
   const effects=[];
   if(u.valor) effects.push('Valor · +10% STR / DEF · '+(battle.valorReady-battle.turn)+' rounds left');
-  if(u.dazed) effects.push('Dazed · skips next enemy phase');
+  if(u.dazed) effects.push(u.enemy?'Dazed · skips next enemy phase':'Dazed · cannot move or act this turn');
   if(u.model==='guard' && battle.ordersGiven) effects.push('Battle Frenzy · +'+(u.level-soldierLevel)+' levels'+(u.level===battle.commander.level?' · capped':''));
   if(u===battle.commander) {
     const canBoost=battle.guards.some(ally=>ally.model==='guard' && standing(ally) && ally.level<u.level);
@@ -350,7 +357,7 @@ function display() {
   get('effects').textContent=effects.join(' · ');
   get('phase').textContent='Turn '+battle.turn+' · '+(battle.phase==='guards'?'Royal guards':'Family');
   get('progress').textContent=battle.family.filter(a=>a.escaped).length+'/3 escaped · '+battle.guards.filter(a=>a.hp<=0).length+'/6 enemies defeated';
-  const locked=busy || !!battle.result || battle.phase!=='family' || !standing(selected);
+  const locked=busy || !!battle.result || battle.phase!=='family' || !standing(selected) || selected.dazed;
   for(const button of document.querySelectorAll('[data-command]')) {
     const cmd=button.dataset.command;
     button.disabled=locked || (cmd==='move' ? selected.moved : (cmd==='wait' ? selected.acted && selected.moved : selected.acted)) ||
@@ -469,7 +476,7 @@ async function hit(u,target,skill,session) {
 async function activate(x,y,unit=battle.at(x,y)) {
   if(busy || battle.result || battle.phase!=='family') return;
   if(unit && (!unit.enemy || (mode!=='attack' && mode!=='skill'))) {selectHero(unit);return;}
-  if(!standing(selected)) return;
+  if(!standing(selected) || selected.dazed) return;
   const session=battle;
   if(unit?.enemy) {
     const skill=mode==='skill';
@@ -514,7 +521,7 @@ async function endTurn() {
     const target=battle.targets(guard).sort((a,b)=>distance(guard,a)-distance(guard,b)||a.hp-b.hp)[0];
     if(target) {
       const doubleThrust = guard.model==='guard' && guard.mp>=skillCost(guard) && target.hp>villageDamage(guard,target);
-      const crossSlash=guard===battle.commander && battle.crossSlashNext && guard.mp>=skillCost(guard);
+      const crossSlash=battle.crossSlashReady(guard);
       if(guard===battle.commander) battle.crossSlashNext=!crossSlash;
       await hit(guard,target,doubleThrust || crossSlash,session);
       if(battle===session && guard===battle.commander) notices.push(get('message').textContent);
@@ -531,7 +538,7 @@ async function endTurn() {
     get('gateTalk').hidden=true;
   }
   battle.nextRound();busy=false;
-  selected=battle.family.find(standing)||selected;inspected=selected;mode='move';
+  selected=battle.family.find(u=>standing(u) && !u.dazed)||battle.family.find(standing)||selected;inspected=selected;mode='move';
   if(!battle.result) showStatus('Turn '+battle.turn+' · '+(notices.length?notices.join(' '):'Choose a relative, then move or attack.'));
   display();
 }
