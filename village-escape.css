@@ -81,3 +81,8 @@ dialog::backdrop { background:#080706ba; }
 .gate-talk div::before { content:''; position:absolute; left:-9px; top:1rem; border-block:6px solid transparent; border-right:10px solid #fff1bd; }
 .gate-talk p { white-space:pre-line; }
 .gate-talk strong { color:#75491d; }
+
+.gate-talk p { max-height:4.5em; overflow-y:auto; }
+.gate-talk p span { display:block; animation:gate-line-in .36s ease-out both; }
+@keyframes gate-line-in { from { opacity:0; transform:translateY(.7em); } to { opacity:1; transform:translateY(0); } }
+@media (prefers-reduced-motion:reduce) { .gate-talk p span { animation:none; } }

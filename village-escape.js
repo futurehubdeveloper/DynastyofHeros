@@ -500,19 +500,26 @@ async function gateDialogue(unit,line) {
   get('gateSpeaker').textContent=unit.name;
   const lines=line.split('\n');
   let shown=1;
-  get('gateLine').textContent=lines[0];
+  const bubble=get('gateLine');
+  bubble.replaceChildren();
+  function appendLine(text) {
+    const row=document.createElement('span');
+    row.textContent=text;
+    bubble.append(row);
+    bubble.scrollTo({top:bubble.scrollHeight,behavior:reduced.matches?'instant':'smooth'});
+  }
+  appendLine(lines[0]);
   get('gateTalk').hidden=false;
   get('gateNext').focus();
   await new Promise(resolve=>{
     const timer=setInterval(()=>{
-      if (shown<lines.length) get('gateLine').textContent=lines.slice(0,++shown).join('\n');
+      if (shown<lines.length) appendLine(lines[shown++]);
       if (shown===lines.length) clearInterval(timer);
     },850);
     advanceDialogue=(finish=false)=>{
       clearInterval(timer);
       if (!finish && shown<lines.length) {
-        shown=lines.length;
-        get('gateLine').textContent=line;
+        while(shown<lines.length) appendLine(lines[shown++]);
       } else {advanceDialogue=null;resolve();}
     };
   });
@@ -530,7 +537,7 @@ async function gateEnding(session) {
   gateScene='pursuit';
   paint();
   const officer=session.guards.find(standing);
-  if (officer) await gateDialogue(officer,'We let them escape!\nMen!\nChase after them!');
+  if (officer) await gateDialogue(officer,'....\nGeneral, you’re still very strong.\nMen!\nChase after them.');
   if (battle!==session) return;
   gateScene='';
   get('gateTalk').hidden=true;
