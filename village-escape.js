@@ -22,7 +22,7 @@ for (const model of models) {
     sprites.set(key, img);
   }
 }
-for(const key of ['general-valor','general-hook-left','general-hook-right','commander-warCry']){
+for(const key of ['guard-kneel','commander-kneel','general-valor','general-hook-left','general-hook-right','commander-warCry']){
   const img=new Image();
   img.onload=()=>{if(battle) paint();};
   img.src=art+key+'.webp';
@@ -42,6 +42,10 @@ function ring(p, rx, ry, stroke, fill, width = 2) {
 let gateScene = '';
 let advanceDialogue;
 function actorPosition(u) {
+  if (gateScene && u.enemy) {
+    const index=battle.guards.indexOf(u);
+    return project(7+(index%3)*1.55,3+Math.floor(index/3)*2);
+  }
   if (gateScene && battle.family.includes(u)) {
     const i=battle.family.indexOf(u);
     const t=visual?.kind==='gateRun'?visual.t:0;
@@ -109,15 +113,17 @@ function drawUnit(u) {
     const hook = sprites.get('general-hook-'+visual.hookHand);
     if (hook.naturalWidth) img=hook;
   }
-  const commandPose=visual?.unit===u && (visual.kind==='valor' || visual.kind==='warCry');
+  const kneeling=gateScene && u.enemy;
+  if(kneeling) img=sprites.get(u.model+'-kneel');
+  const commandPose=visual?.unit===u && (visual.kind==='valor' || visual.kind==='order');
   if(commandPose && visual.t>.12 && visual.t<.92){
-    const alternate=sprites.get(u.model+'-'+visual.kind);
+    const alternate=sprites.get(visual.kind==='order'?'commander-warCry':u.model+'-'+visual.kind);
     if(alternate?.naturalWidth) img=alternate;
   }
-  const h=(u.model === 'commander' ? 74 : u.model === 'general' ? 66 : 64) * (hit ? 0.91 : 1);
+  const h=(u.model === 'commander' ? 74 : u.model === 'general' ? 66 : 64) * (kneeling ? .75 : hit ? .91 : 1);
   if (img.complete && img.naturalWidth) {
     const w=h*img.naturalWidth/img.naturalHeight;
-    ctx.save(); ctx.translate(p.x,p.y); ctx.scale(u.facing,1);
+    ctx.save(); ctx.translate(p.x,p.y); ctx.scale(kneeling?1:u.facing,1);
     if (rotation) ctx.rotate(rotation);
     if(commandPose){
       const t=visual.t, shout=Math.sin(Math.PI*t);
@@ -126,6 +132,7 @@ function drawUnit(u) {
     }
     ctx.drawImage(img,-w/2,-h+2,w,h); ctx.restore();
   } else { ctx.fillStyle=color; ctx.fillRect(p.x-6,p.y-25,12,23); }
+  if(gateScene) return;
   drawStatus(u,p,h);
   const barWidth=30;
   let barHp=u.hp;
@@ -194,7 +201,7 @@ function drawStatus(unit,p,height) {
     const pulse=(Math.sin(time)+1)/2;
     ring(p,22+pulse*2,7+pulse,'#89dcff','#56aeff22');
   }
-  if (unit.model==='guard' && battle.warCries) {
+  if (unit.model==='guard' && battle.ordersGiven) {
     ctx.strokeStyle='#ffb65a';ctx.lineWidth=2;
     for (let i=0;i<2;i++) {
       const y=p.y-height+12-i*5-2*Math.sin(time);
@@ -212,15 +219,15 @@ function drawStatus(unit,p,height) {
 }
 function scheduleStatusFrame() {
   if(statusFrame || reduced.matches || document.hidden || visual || battle.result) return;
-  if(!battle.units.some(u=>standing(u) && (u.valor || u.dazed || (u.model==='guard' && battle.warCries)))) return;
+  if(!battle.units.some(u=>standing(u) && (u.valor || u.dazed || (u.model==='guard' && battle.ordersGiven)))) return;
   statusFrame=requestAnimationFrame(()=>{statusFrame=0;paint();});
 }
 function supportAnimation() {
-  if(!visual || !['warCry','valor','potion','herb','daze'].includes(visual.kind)) return;
+  if(!visual || !['order','valor','potion','herb','daze'].includes(visual.kind)) return;
   const {kind,unit,targets,t,amount}=visual;
   const origin=project(unit.x,unit.y);
   ctx.save();ctx.globalAlpha=Math.max(.1,Math.sin(Math.PI*t));
-  if(kind==='warCry'){
+  if(kind==='order'){
     for(let i=0;i<3;i++){const f=(t+i/3)%1;ring(origin,20+f*110,8+f*43,'#ffc069','#e35a2420',3);}
   }
   for(const ally of targets){
@@ -229,7 +236,7 @@ function supportAnimation() {
       ctx.strokeStyle='#8edfff';ctx.fillStyle='#3eaeee44';ctx.lineWidth=3;
       ctx.beginPath();ctx.moveTo(p.x-13,y-10);ctx.lineTo(p.x,y-15);ctx.lineTo(p.x+13,y-10);
       ctx.quadraticCurveTo(p.x+13,y+6,p.x,y+14);ctx.quadraticCurveTo(p.x-13,y+6,p.x-13,y-10);ctx.fill();ctx.stroke();
-    } else if(kind==='warCry'){
+    } else if(kind==='order'){
       ctx.font='bold 15px Georgia';ctx.textAlign='center';ctx.fillStyle='#ffe3a0';ctx.fillText('Lv '+ally.level,p.x,y-12);
     } else if(kind==='daze'){
       ring({x:p.x,y:p.y-66},11+9*t,4+3*t,'#ffe077','#ffb70022',2);
@@ -249,9 +256,9 @@ reduced.addEventListener('change',()=>{if(battle) paint();});
 // Put each technique over its caster. Impacts and status markers stay over the target.
 function drawActionName() {
   if(!visual) return;
-  const names={warCry:'War Cry',valor:'Valor',potion:'Potion',herb:'Herb',daze:'Dazed'};
+  const names={order:'Order',valor:'Valor',potion:'Potion',herb:'Herb',daze:'Dazed'};
   const strike=visual.kind==='strike';
-  const name=visual.name || names[visual.kind];
+  const name=visual.kind==='potion'?'Potion → '+visual.targets[0].name:visual.name || names[visual.kind];
   if(!name) return;
   const caster=strike ? visual.attacker : visual.unit;
   const p=pose(caster).p;
@@ -267,7 +274,7 @@ function drawActionName() {
   ctx.lineTo(x+width/2-7,y-13);ctx.lineTo(x+width/2,y);ctx.lineTo(x+width/2-7,y+13);
   ctx.lineTo(x-width/2+7,y+13);ctx.closePath();ctx.fill();ctx.stroke();
   ctx.fillStyle=tint;ctx.fillText(name,x,y+1);
-  const shout=visual.kind==='valor'?'BATTLE!':visual.kind==='warCry'?'FIGHT!':'';
+  const shout=visual.kind==='valor'?'BATTLE!':visual.kind==='order'?'FIGHT!':'';
   if(shout && progress>.12){
     ctx.font='bold 23px Georgia';ctx.lineWidth=4;ctx.strokeStyle='#321b16';
     ctx.strokeText(shout,x,y-22);ctx.fillStyle='#fff1bb';ctx.fillText(shout,x,y-22);
@@ -291,7 +298,7 @@ function paint() {
     if(gate) {const p=project(x,y);ctx.textAlign='center';ctx.fillStyle='#fff0b1';ctx.font='bold 23px Georgia';ctx.fillText('✦',p.x,p.y+6);}
     if(keyboard && cursor.x===x && cursor.y===y) {ctx.strokeStyle='white';ctx.lineWidth=3;ctx.setLineDash([5,4]);ctx.stroke(tile);ctx.setLineDash([]);}
   }
-  const visible=battle.units.filter(u=>standing(u) || (gateScene==='family' && battle.family.includes(u)) || (visual?.kind==='move' && visual.unit===u) || (visual?.kind==='strike' && visual.target===u));
+  const visible=battle.units.filter(u=>gateScene ? u.enemy || gateScene==='family' : standing(u) || (visual?.kind==='move' && visual.unit===u) || (visual?.kind==='strike' && visual.target===u));
   visible.sort((a,b)=>actorPosition(a).y-actorPosition(b).y).forEach(drawUnit);
   impact();
   supportAnimation();
@@ -311,10 +318,10 @@ function display() {
   const effects=[];
   if(u.valor) effects.push('Valor · +10% STR / DEF · '+(battle.valorReady-battle.turn)+' rounds left');
   if(u.dazed) effects.push('Dazed · skips next enemy phase');
-  if(u.model==='guard' && battle.warCries) effects.push('War Cry · +'+(u.level-soldierLevel)+' levels'+(u.level===battle.commander.level?' · capped':''));
+  if(u.model==='guard' && battle.ordersGiven) effects.push('Order · +'+(u.level-soldierLevel)+' levels'+(u.level===battle.commander.level?' · capped':''));
   if(u===battle.commander) {
     const canBoost=battle.guards.some(ally=>ally.model==='guard' && standing(ally) && ally.level<u.level);
-    effects.push('Potions ×'+battle.potions+' · War Cry '+(!canBoost?'no levels to grant':battle.turn>=battle.warCryReady?'ready':'from turn '+battle.warCryReady));
+    effects.push('Potions ×'+battle.potions+' · Order '+(!canBoost?'no levels to grant':battle.turn>=battle.orderReady?'ready':'from turn '+battle.orderReady));
   }
   get('effects').textContent=effects.join(' · ');
   get('phase').textContent='Turn '+battle.turn+' · '+(battle.phase==='guards'?'Royal guards':'Family');
@@ -449,14 +456,12 @@ async function activate(x,y,unit=battle.at(x,y)) {
   } else if(mode==='move' && !selected.moved && battle.routes(selected).get(squareKey(x,y))?.length) {
     busy=true;display();await walk(selected,x,y,session);
     if(session!==battle) return;
-    if (battle.result==='escaped') {
-      await gateEnding(session);
-      if (session!==battle) return;
-    }
+
     showStatus(selected.name+(selected.escaped?' reached the village gate.':' moved. Choose an action or another relative.'));
     if(selected.escaped) selected=battle.family.find(standing) || selected;
     inspected=selected;mode=selected.moved?'attack':'move';
   } else {showStatus(mode==='move'?'Choose an unoccupied blue tile within three steps.':'Choose a guard highlighted in gold.');return;}
+  if(session===battle && ['escaped','defeated-guards'].includes(battle.result)) await gateEnding(session);
   if(session===battle){busy=false;display();}
 }
 async function endTurn() {
@@ -476,9 +481,10 @@ async function endTurn() {
     if(battle!==session) return;
     const support=guard===battle.commander ? battle.commanderAction() : null;
     if(support){
-      notices.push(support.kind==='warCry'?'“FIGHT!” War Cry raised the soldiers to level '+support.targets[0].level+'.':'Commander used a potion on '+support.targets[0].name+' (+'+support.amount+' HP).');
+      notices.push(support.kind==='order'?'“FIGHT!” Order raised the soldiers to level '+support.targets[0].level+'.':'Commander used a potion on '+support.targets[0].name+' (+'+support.amount+' HP).');
+      inspected=support.kind==='potion'?support.targets[0]:guard;
       showStatus(notices.at(-1));display();
-      await tween({...support,unit:guard},support.kind==='warCry'?1050:700,session);
+      await tween({...support,unit:guard},support.kind==='order'?1050:700,session);
       continue;
     }
     const target=battle.targets(guard).sort((a,b)=>distance(guard,a)-distance(guard,b)||a.hp-b.hp)[0];
@@ -529,6 +535,8 @@ async function gateEnding(session) {
   gateScene='family';
   session.family.forEach(u=>{u.facing=1;});
   paint();
+  await new Promise(resolve=>setTimeout(resolve,600));
+  if (battle!==session) return;
   await gateDialogue(session.family[0],"Let’s leave.\nWe’ll deal with them later.");
   if (battle!==session) return;
   get('gateTalk').hidden=true;
@@ -536,7 +544,7 @@ async function gateEnding(session) {
   if (battle!==session) return;
   gateScene='pursuit';
   paint();
-  const officer=session.guards.find(standing);
+  const officer=session.commander;
   if (officer) await gateDialogue(officer,'....\nGeneral, you’re still very strong.\nMen!\nChase after them.');
   if (battle!==session) return;
   gateScene='';

@@ -4,7 +4,7 @@ const villageHeight = 10;
 const ranks = { Legend: 9, Epic: 7, Master: 5, Elite: 4 };
 const commandInterval = 5;
 const soldierLevel = 45;
-const warCryChance = .5;
+const orderChance = .5;
 const chopCriticalChance = .2;
 const specialMove = { tint: 'Mighty Chop', pyae: 'Triple Thrust', guard: 'Double Thrust' };
 function villageSkillName(unit, hand = unit.nextHook) {
@@ -61,8 +61,9 @@ class VillageBattle {
     const soldiers = [[12,3],[12,7],[2,3],[4,5],[2,7]].map(([x,y], i) =>
       villageUnit('guard-' + (i + 1), 'Royal Guard ' + (i + 1), 'guard', soldierLevel, 'Elite', 'Spear', x, y, i < 2 ? -1 : 1));
     this.guards = [this.commander, ...soldiers];
-    this.warCryReady = commandInterval;
-    this.warCries = 0;
+    this.orderReady = commandInterval;
+    this.ordersGiven = 0;
+    this.orderDelays = 0;
     this.potions = 3;
     this.valorReady = 1;
     this.units = [...this.family, ...this.guards];
@@ -138,18 +139,20 @@ class VillageBattle {
     const unit = this.commander;
     if (!this.canAct(unit) || unit.acted) return null;
     const soldiers = this.guards.filter(ally => ally !== unit && standing(ally) && ally.level < unit.level);
-    if (soldiers.length && this.turn >= this.warCryReady && this.random() < warCryChance) {
+    if (soldiers.length && this.turn >= this.orderReady && (this.orderDelays >= 2 || this.random() < orderChance)) {
       unit.acted = true;
-      this.warCryReady = this.turn + commandInterval;
-      this.warCries++;
+      this.orderReady = this.turn + commandInterval;
+      this.ordersGiven++;
+      this.orderDelays = 0;
       soldiers.forEach(ally => {
         const hpFraction = ally.hp / ally.maxHp, mpFraction = ally.mp / ally.maxMp;
         ally.level = Math.min(ally.level + 10, unit.level);
         ally.hp = Math.max(1, Math.round(ally.maxHp * hpFraction));
         ally.mp = Math.round(ally.maxMp * mpFraction);
       });
-      return { kind: 'warCry', targets: soldiers };
+      return { kind: 'order', targets: soldiers };
     }
+    if (soldiers.length && this.turn >= this.orderReady) this.orderDelays++;
     if (!this.potions) return null;
     const injured = this.guards.filter(ally => standing(ally) && ally.hp < ally.maxHp);
     injured.sort((a,b) => a.hp / a.maxHp - b.hp / b.maxHp);
