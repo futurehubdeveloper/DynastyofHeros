@@ -23,6 +23,7 @@
       <nav class="commands" aria-label="Battle commands"><button data-command="move">Move</button><button data-command="attack">Attack</button><button data-command="skill">Skill</button><button data-command="valor" hidden>Valor</button><button data-command="herb">Herb</button><button data-command="wait">Wait</button></nav>
     </aside>
     <div class="objective"><strong>Village gate</strong><span id="progress"></span></div>
+    <section id="gateTalk" class="gate-talk" hidden aria-label="Gate dialogue"><img id="gateFace" alt=""><div aria-live="polite"><strong id="gateSpeaker"></strong><p id="gateLine"></p></div><button id="gateNext" type="button">Continue</button></section>
     <div class="outcome" id="outcome" hidden><div><small>Escape from the Village</small><h2 id="resultTitle"></h2><p id="resultBody"></p><button id="replay">Play again</button><a href="game.html">Game page</a></div></div>
   </div>
   <div class="battle-footer"><div class="status"><small>Battle log</small><p id="message" aria-live="polite"></p></div><div class="roster" id="roster" aria-label="Inspect units"></div><button id="endTurn">End turn</button></div>

@@ -74,3 +74,10 @@ dialog::backdrop { background:#080706ba; }
   .mission { max-width:min(100%,calc((100dvh - 115px) * 1.778)); }
   .hud { width:21%; }.commands button{padding:.28rem .55rem;}
 }
+
+.gate-talk { position:absolute; z-index:3; bottom:3%; left:50%; transform:translateX(-50%); width:min(94%,620px); display:flex; align-items:center; gap:.8rem; padding:.8rem; background:#211c19; border:2px solid #cbaa69; color:#fff1cf; }
+.gate-talk img { width:62px; height:68px; object-fit:cover; object-position:top; }
+.gate-talk div { position:relative; flex:1; background:#fff1bd; color:#36241a; border-radius:12px; padding:.55rem .8rem; }
+.gate-talk div::before { content:''; position:absolute; left:-9px; top:1rem; border-block:6px solid transparent; border-right:10px solid #fff1bd; }
+.gate-talk p { white-space:pre-line; }
+.gate-talk strong { color:#75491d; }

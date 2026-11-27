@@ -39,7 +39,17 @@ function ring(p, rx, ry, stroke, fill, width = 2) {
   ctx.beginPath(); ctx.ellipse(p.x,p.y,rx,ry,0,0,Math.PI*2);
   ctx.fillStyle=fill; ctx.fill(); ctx.lineWidth=width; ctx.strokeStyle=stroke; ctx.stroke();
 }
+let gateScene = '';
+let advanceDialogue;
 function actorPosition(u) {
+  if (gateScene && battle.family.includes(u)) {
+    const i=battle.family.indexOf(u);
+    const t=visual?.kind==='gateRun'?visual.t:0;
+    const travel=Math.max(0,Math.min(1,(t-i*.07)/.86));
+    const p=project(14.8+i*.22+5*travel, .15+i*.55);
+    p.y-=Math.abs(Math.sin(travel*18))*5;
+    return p;
+  }
   if (visual?.kind === 'move' && visual.unit === u) {
     const {points, t} = visual, travel = Math.min(t * (points.length-1), points.length-1);
     const i=Math.min(Math.floor(travel),points.length-2), f=travel-i;
@@ -281,7 +291,7 @@ function paint() {
     if(gate) {const p=project(x,y);ctx.textAlign='center';ctx.fillStyle='#fff0b1';ctx.font='bold 23px Georgia';ctx.fillText('✦',p.x,p.y+6);}
     if(keyboard && cursor.x===x && cursor.y===y) {ctx.strokeStyle='white';ctx.lineWidth=3;ctx.setLineDash([5,4]);ctx.stroke(tile);ctx.setLineDash([]);}
   }
-  const visible=battle.units.filter(u=>standing(u) || (visual?.kind==='move' && visual.unit===u) || (visual?.kind==='strike' && visual.target===u));
+  const visible=battle.units.filter(u=>standing(u) || (gateScene==='family' && battle.family.includes(u)) || (visual?.kind==='move' && visual.unit===u) || (visual?.kind==='strike' && visual.target===u));
   visible.sort((a,b)=>actorPosition(a).y-actorPosition(b).y).forEach(drawUnit);
   impact();
   supportAnimation();
@@ -439,6 +449,10 @@ async function activate(x,y,unit=battle.at(x,y)) {
   } else if(mode==='move' && !selected.moved && battle.routes(selected).get(squareKey(x,y))?.length) {
     busy=true;display();await walk(selected,x,y,session);
     if(session!==battle) return;
+    if (battle.result==='escaped') {
+      await gateEnding(session);
+      if (session!==battle) return;
+    }
     showStatus(selected.name+(selected.escaped?' reached the village gate.':' moved. Choose an action or another relative.'));
     if(selected.escaped) selected=battle.family.find(standing) || selected;
     inspected=selected;mode=selected.moved?'attack':'move';
@@ -481,7 +495,49 @@ async function endTurn() {
   if(!battle.result) showStatus('Turn '+battle.turn+' · '+(notices.length?notices.join(' '):'Choose a relative, then move or attack.'));
   display();
 }
+async function gateDialogue(unit,line) {
+  get('gateFace').src=portraitPath(unit);
+  get('gateSpeaker').textContent=unit.name;
+  const lines=line.split('\n');
+  let shown=1;
+  get('gateLine').textContent=lines[0];
+  get('gateTalk').hidden=false;
+  get('gateNext').focus();
+  await new Promise(resolve=>{
+    const timer=setInterval(()=>{
+      if (shown<lines.length) get('gateLine').textContent=lines.slice(0,++shown).join('\n');
+      if (shown===lines.length) clearInterval(timer);
+    },850);
+    advanceDialogue=(finish=false)=>{
+      clearInterval(timer);
+      if (!finish && shown<lines.length) {
+        shown=lines.length;
+        get('gateLine').textContent=line;
+      } else {advanceDialogue=null;resolve();}
+    };
+  });
+}
+get('gateNext').onclick=()=>advanceDialogue?.();
+async function gateEnding(session) {
+  gateScene='family';
+  session.family.forEach(u=>{u.facing=1;});
+  paint();
+  await gateDialogue(session.family[0],"Let’s leave.\nWe’ll deal with them later.");
+  if (battle!==session) return;
+  get('gateTalk').hidden=true;
+  if (!reduced.matches) await tween({kind:'gateRun'},1100,session);
+  if (battle!==session) return;
+  gateScene='pursuit';
+  paint();
+  const officer=session.guards.find(standing);
+  if (officer) await gateDialogue(officer,'We let them escape!\nMen!\nChase after them!');
+  if (battle!==session) return;
+  gateScene='';
+  get('gateTalk').hidden=true;
+}
 function start() {
+  advanceDialogue?.(true); advanceDialogue=null; gateScene='';
+  get('gateTalk').hidden=true;
   battle=new VillageBattle();busy=false;visual=null;selected=battle.family[0];inspected=selected;
   cursor={x:selected.x,y:selected.y};mode='move';keyboard=false;
   const roster=get('roster');roster.replaceChildren();
