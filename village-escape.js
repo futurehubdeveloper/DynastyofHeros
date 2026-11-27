@@ -63,16 +63,20 @@ function pose(u) {
       p.y += dy*(.61*swing-.09*load)+3*load+side*3*swing;
       rotation = -.08*load+.12*swing;
       hit = t>.32 && t<.82;
+    } else if (attacker===u && skill && u.weapon==='Spear') {
+      const beat=visual.hitIndex, master=u.id==='pyae';
+      const reach=master?[.31,.42,.72][beat]:.29;
+      const lift=master?[-6,4,-2][beat]:0;
+      const angle=master?[-.16,.13,-.04][beat]:0;
+      const extend=Math.sin(Math.PI*t);
+      p.x+=dx*reach*extend;
+      p.y+=(dy*reach+lift)*extend;
+      rotation=angle*extend;
+      hit=t>.18 && t<.82;
     } else if (attacker===u) {
       // Wind up, extend the weapon, then settle back onto the actor's tile.
       let thrust = Math.sin(Math.PI * Math.max(0,Math.min(1,(t-.14)/.68)));
       if (u.weapon==='Fists') thrust *= .82 + .18*Math.cos(4*Math.PI*t);
-      if (skill && u.weapon==='Spear') {
-        const beat = Math.sin(Math.PI*t);
-        const angles = [-.09,.08,0];
-        rotation = angles[visual.hitIndex]*beat;
-        thrust = beat*(visual.hitIndex===2 ? 1.22 : 1);
-      }
       if (skill && u.id==='tint') p.y -= 12*Math.sin(Math.PI*t);
       const advance = u.weapon==='Spear' ? .39 : .65;
       p.x+=dx*advance*thrust; p.y+=dy*advance*thrust-5*thrust;
@@ -80,7 +84,8 @@ function pose(u) {
     }
     if (target===u && t>.46) {
       const recoil=Math.sin(Math.PI*(t-.46)/.54);
-      p.x+=Math.sign(dx || 1)*10*recoil; p.y-=4*recoil;
+      const finisher=skill && attacker.id==='pyae' && visual.hitIndex===2;
+      p.x+=Math.sign(dx || 1)*(finisher?16:10)*recoil; p.y-=(finisher?7:4)*recoil;
     }
   }
   return {p,hit,rotation};
@@ -139,11 +144,22 @@ function impact() {
     ctx.beginPath();ctx.arc(-12,-38,42,-1.55,-1.55+2.95*f);ctx.stroke();
     if(critical){ctx.lineWidth=3;ctx.beginPath();ctx.arc(-12,-38,51,-1.55,-1.55+2.95*f);ctx.stroke();}
   } else if (skill && attacker.weapon==='Spear') {
-    const y=[-9,8,0][hitIndex], finisher=hitIndex===2;
-    ctx.strokeStyle=attacker.enemy?'#ffd2bb':finisher?'#fff7c4':'#9cefff';
-    ctx.lineWidth=finisher?6:4;
-    ctx.beginPath();ctx.moveTo(finisher?-77:-63,y);ctx.lineTo(16,y-5);ctx.stroke();
-    ring({x:15,y:y-5},3+f*(finisher?19:12),3+f*6,ctx.strokeStyle,'#b5f1ff20');
+    if (attacker.model==='guard') {
+      ctx.strokeStyle='#ffc6a1';ctx.lineWidth=3;
+      ctx.beginPath();ctx.moveTo(-32,-1);ctx.lineTo(7,-1);ctx.stroke();
+    } else {
+      const startY=[3,-5,0][hitIndex],endY=[-17,13,-2][hitIndex],finisher=hitIndex===2;
+      const endX=finisher?24:12;
+      ctx.strokeStyle=finisher?'#fff0aa':'#9cefff';ctx.lineWidth=finisher?6:4;
+      ctx.beginPath();ctx.moveTo(finisher?-73:-43,startY);ctx.lineTo(endX,endY);ctx.stroke();
+      if(finisher) {
+        ctx.lineWidth=2;
+        for(const offset of [-6,6]) {
+          ctx.beginPath();ctx.moveTo(-55,offset);ctx.lineTo(8,endY+offset/2);ctx.stroke();
+        }
+        ring({x:endX,y:endY},4+f*20,4+f*11,'#fff1ac','#fff1ac22');
+      }
+    }
   } else if (visual.hookHand) {
     const side=visual.hookHand==='left'?-1:1;
     ctx.scale(1,side); ctx.lineCap='round'; ctx.lineWidth=4;
@@ -225,18 +241,17 @@ function drawActionName() {
   if(!visual) return;
   const names={warCry:'War Cry',valor:'Valor',potion:'Potion',herb:'Herb',daze:'Dazed'};
   const strike=visual.kind==='strike';
-  const name=strike && visual.skill ? visual.name : names[visual.kind];
+  const name=visual.name || names[visual.kind];
   if(!name) return;
   const caster=strike ? visual.attacker : visual.unit;
-  const p=project(caster.x,caster.y);
+  const p=pose(caster).p;
   const progress=visual.t;
   const tint=visual.critical?'#ffbe75':caster.enemy?'#ffdad0':'#fff0b8';
   ctx.save();
-  ctx.font='bold 18px Georgia';ctx.textAlign='center';ctx.textBaseline='middle';
+  ctx.font='bold 21px Georgia';ctx.textAlign='center';ctx.textBaseline='middle';
   const width=ctx.measureText(name).width+26;
   const x=Math.max(width/2+5,Math.min(field.width-width/2-5,p.x));
-  const y=Math.max(18,p.y-90-(reduced.matches?0:7*progress));
-  ctx.globalAlpha=Math.min(1,(1-progress)*6);
+  const y=Math.max(18,p.y-(caster.model==='commander'?99:89));
   ctx.fillStyle='#201b22ed';ctx.strokeStyle=tint;ctx.lineWidth=1.5;
   ctx.beginPath();ctx.moveTo(x-width/2,y);ctx.lineTo(x-width/2+7,y-13);
   ctx.lineTo(x+width/2-7,y-13);ctx.lineTo(x+width/2,y);ctx.lineTo(x+width/2-7,y+13);
@@ -388,14 +403,20 @@ async function walk(u,x,y,session) {
   return true;
 }
 async function hit(u,target,skill,session) {
+  const name=skill?villageSkillName(u):u.weapon;
+  if(skill) {
+    showStatus(u.name+' · '+name);
+    await tween({kind:'announce',unit:u,name},320,session);
+    if(battle!==session) return;
+  }
   let hpBeforeHit=target.hp;
   const result=battle.strike(u,target,skill);
   if(!result) return;
-  const name=skill?villageSkillName(u,result.hookHand):u.weapon;
-  const duration=skill && u.weapon==='Spear'?330:u.enemy?470:650;
   let hitIndex=0;
   for(const damage of result.hits){
-    await tween({kind:'strike',attacker:u,target,damage,skill,name,hitIndex,hpBeforeHit,hookHand:result.hookHand,critical:result.critical},duration,session);
+    let duration=u.enemy?470:650;
+    if (skill && u.weapon==='Spear') duration=u.id==='pyae'?[265,300,465][hitIndex]:245;
+    await tween({kind:'strike',attacker:u,target,damage,skill,name:skill?name:null,hitIndex,hpBeforeHit,hookHand:result.hookHand,critical:result.critical},duration,session);
     if(session!==battle) return;
     hpBeforeHit-=damage;
     hitIndex++;
