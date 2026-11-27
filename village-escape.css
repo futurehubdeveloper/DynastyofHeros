@@ -75,7 +75,7 @@ dialog::backdrop { background:#080706ba; }
   .hud { width:21%; }.commands button{padding:.28rem .55rem;}
 }
 
-.gate-talk { position:absolute; z-index:3; bottom:3%; left:50%; transform:translateX(-50%); width:min(94%,760px); display:grid; grid-template-columns:clamp(60px,9vw,112px) 1fr; align-items:end; gap:12px; color:#39271c; }
+.gate-talk { background:transparent; border:0; box-shadow:none; padding:0; position:absolute; z-index:3; bottom:3%; left:50%; transform:translateX(-50%); width:min(94%,760px); display:grid; grid-template-columns:clamp(60px,9vw,112px) 1fr; align-items:end; gap:12px; color:#39271c; }
 .gate-talk img { width:100%; height:clamp(94px,12vw,155px); object-fit:contain; object-position:bottom; }
 .gate-talk div { position:relative; min-height:155px; padding:16px 22px 48px; background:#fff0bd; border:2px solid #ab7839; border-radius:17px; box-shadow:0 3px 0 #926735; }
 .gate-talk div::before { content:''; position:absolute; left:-9px; bottom:28px; width:14px; height:14px; background:#fff0bd; border:solid #ab7839; border-width:0 0 2px 2px; transform:rotate(45deg); }
