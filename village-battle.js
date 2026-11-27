@@ -2,6 +2,11 @@
 const villageWidth = 16;
 const villageHeight = 10;
 const ranks = { Legend: 9, Epic: 7, Master: 5, Elite: 4 };
+const commandInterval = 5;
+const soldierLevel = 45;
+const warCryChance = .5;
+const chopCriticalChance = .2;
+const specialMove = { general: 'Twin Palm', tint: 'Mighty Chop', pyae: 'Double Thrust' };
 const directions = [[1, 0], [0, -1], [0, 1], [-1, 0]];
 const squareKey = (x, y) => x + ',' + y;
 const distance = (a, b) => Math.abs(a.x - b.x) + Math.abs(a.y - b.y);
@@ -11,14 +16,22 @@ const standing = unit => unit.hp > 0 && !unit.escaped;
 
 function villageUnit(id, name, model, level, rank, weapon, x, y, facing = 1) {
   const factor = level * ranks[rank];
-  const maxHp = 10 * factor, maxMp = 10 * factor;
-  return { id, name, model, level, rank, weapon, x, y, facing, maxHp, maxMp,
-    hp: maxHp, mp: maxMp, str: 5 * factor, def: 5 * factor, enemy: model === 'guard',
-    moved: false, acted: false, escaped: false };
+  return { id, name, model, level, rank, weapon, x, y, facing,
+    hp: 10 * factor, mp: 10 * factor,
+    get maxHp() { return 10 * this.level * ranks[this.rank]; },
+    get maxMp() { return 10 * this.level * ranks[this.rank]; },
+    get str() { return Math.round(5 * this.level * ranks[this.rank] * (this.valor ? 1.1 : 1)); },
+    get def() { return this.str; },
+    enemy: model === 'guard' || model === 'commander',
+    moved: false, acted: false, escaped: false, valor: false, dazed: false };
+}
+function damageAtPower(attacker, target, multiplier) {
+  const strength = attacker.str;
+  return Math.max(1, Math.floor(multiplier * strength * strength / (strength + target.def)));
 }
 function villageDamage(attacker, target, skill = false) {
-  const physical = attacker.str * attacker.str / (attacker.str + target.def);
-  return Math.max(1, Math.floor(physical * (skill ? 1.5 : 1)));
+  const power = skill && attacker.id === 'tint' ? 2 : skill && attacker.id === 'general' ? 1.5 : 1;
+  return damageAtPower(attacker, target, power);
 }
 function inReach(unit, target) {
   const d = distance(unit, target);
@@ -27,14 +40,21 @@ function inReach(unit, target) {
 const skillCost = unit => Math.ceil(unit.maxMp * .15);
 
 class VillageBattle {
-  constructor() {
+  constructor(random = Math.random) {
+    this.random = random;
     this.family = [
       villageUnit('general', 'General Min Sithu', 'general', 54, 'Legend', 'Fists', 7, 4),
       villageUnit('tint', 'Nga Tint', 'tint', 32, 'Epic', 'Sword', 8, 3),
       villageUnit('pyae', 'Nga Pyae Wa', 'pyae', 24, 'Master', 'Spear', 8, 6)
     ];
-    this.guards = [[12,3],[14,1],[12,7],[2,3],[4,5],[2,7]].map(([x,y], index) =>
-      villageUnit('guard-' + (index + 1), 'Royal Guard ' + (index + 1), 'guard', 20, 'Elite', 'Spear', x, y, index < 3 ? -1 : 1));
+    this.commander = villageUnit('commander', 'Royal Commander', 'commander', 60, 'Legend', 'Sword', 14, 1, -1);
+    const soldiers = [[12,3],[12,7],[2,3],[4,5],[2,7]].map(([x,y], i) =>
+      villageUnit('guard-' + (i + 1), 'Royal Guard ' + (i + 1), 'guard', soldierLevel, 'Elite', 'Spear', x, y, i < 2 ? -1 : 1));
+    this.guards = [this.commander, ...soldiers];
+    this.warCryReady = commandInterval;
+    this.warCries = 0;
+    this.potions = 3;
+    this.valorReady = 1;
     this.units = [...this.family, ...this.guards];
     this.turn = 1;
     this.phase = 'family';
@@ -58,7 +78,7 @@ class VillageBattle {
     }
     return paths;
   }
-  canAct(unit) { return !this.result && standing(unit) && unit.enemy === (this.phase === 'guards'); }
+  canAct(unit) { return !this.result && standing(unit) && !unit.dazed && unit.enemy === (this.phase === 'guards'); }
   checkResult() {
     if (this.family.every(u => u.escaped)) this.result = 'escaped';
     else if (this.guards.every(u => u.hp <= 0)) this.result = 'defeated-guards';
@@ -82,10 +102,51 @@ class VillageBattle {
     if (skill) unit.mp -= skillCost(unit);
     unit.acted = true;
     unit.facing = target.x === unit.x ? (target.y > unit.y ? 1 : -1) : Math.sign(target.x - unit.x);
-    const damage = villageDamage(unit, target, skill);
-    target.hp = Math.max(0, target.hp - damage);
+    const critical = skill && unit.id === 'tint' && this.random() < chopCriticalChance;
+    const damage = critical ? damageAtPower(unit, target, 5) : villageDamage(unit, target, skill);
+    const double = skill && unit.id === 'pyae';
+    const hits = [];
+    for (let i = 0; i < (double ? 2 : 1) && target.hp > 0; i++) {
+      hits.push(damage);
+      target.hp = Math.max(0, target.hp - damage);
+    }
+    if (double && standing(target)) target.dazed = true;
     this.checkResult();
-    return damage;
+    return { hits, critical, dazed: double && target.dazed };
+  }
+  castValor(unit) {
+    if (unit.id !== 'general' || !this.canAct(unit) || unit.acted || this.turn < this.valorReady) return false;
+    unit.acted = true;
+    this.valorReady = this.turn + commandInterval;
+    this.family.filter(standing).forEach(ally => { ally.valor = true; });
+    return true;
+  }
+  commanderAction() {
+    const unit = this.commander;
+    if (!this.canAct(unit) || unit.acted) return null;
+    const soldiers = this.guards.filter(ally => ally !== unit && standing(ally) && ally.level < unit.level);
+    if (soldiers.length && this.turn >= this.warCryReady && this.random() < warCryChance) {
+      unit.acted = true;
+      this.warCryReady = this.turn + commandInterval;
+      this.warCries++;
+      soldiers.forEach(ally => {
+        const hpFraction = ally.hp / ally.maxHp, mpFraction = ally.mp / ally.maxMp;
+        ally.level = Math.min(ally.level + 10, unit.level);
+        ally.hp = Math.max(1, Math.round(ally.maxHp * hpFraction));
+        ally.mp = Math.round(ally.maxMp * mpFraction);
+      });
+      return { kind: 'warCry', targets: soldiers };
+    }
+    if (!this.potions) return null;
+    const injured = this.guards.filter(ally => standing(ally) && ally.hp < ally.maxHp);
+    injured.sort((a,b) => a.hp / a.maxHp - b.hp / b.maxHp);
+    const target = injured[0];
+    if (!target) return null;
+    const amount = Math.min(100, target.maxHp - target.hp);
+    target.hp += amount;
+    unit.acted = true;
+    this.potions--;
+    return { kind: 'potion', targets: [target], amount };
   }
   heal(unit) {
     if (!this.canAct(unit) || unit.enemy || unit.acted || !this.herbs || unit.hp === unit.maxHp) return 0;
@@ -120,6 +181,8 @@ class VillageBattle {
   nextRound() {
     if (this.result || this.phase !== 'guards') return;
     this.turn++;
+    this.guards.forEach(guard => { guard.dazed = false; });
+    if (this.turn >= this.valorReady) this.family.forEach(ally => { ally.valor = false; });
     this.phase = 'family';
     this.family.forEach(u => { u.moved = false; u.acted = false; });
   }

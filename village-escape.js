@@ -2,10 +2,11 @@
 const get = id => document.getElementById(id);
 const field = get('field'), ctx = field.getContext('2d');
 const art = 'assets/game/village/';
-const models = ['general','tint','pyae','guard'];
+const models = ['general','tint','pyae','guard','commander'];
+const portraitPath = unit => unit.model === 'commander' ? 'assets/portraits/royal-commander.webp' : art+unit.model+'.webp';
 const sprites = new Map();
 const reduced = matchMedia('(prefers-reduced-motion: reduce)');
-const techniques = { Fists:'Twin Palm', Sword:'Crescent Cut', Spear:'Driving Thrust' };
+let statusFrame = 0;
 const fmt = n => n.toLocaleString('en-US');
 let battle, selected, inspected, mode, busy, cursor, keyboard = false;
 let visual = null;
@@ -13,9 +14,19 @@ for (const model of models) {
   for (const suffix of ['', '-hit']) {
     const key = model + suffix, img = new Image();
     img.onload = () => { if (battle) paint(); };
+    if (model === 'commander' && suffix) {
+      sprites.set(key, sprites.get(model));
+      continue;
+    }
     img.src = art + key + '.webp';
     sprites.set(key, img);
   }
+}
+for(const key of ['general-valor','commander-warCry']){
+  const img=new Image();
+  img.onload=()=>{if(battle) paint();};
+  img.src=art+key+'.webp';
+  sprites.set(key,img);
 }
 function project(x, y) { return { x: 200 + 52*x + 18*y, y: 391 - 9.7*x + 25.4*y }; }
 function tilePath(x,y) {
@@ -42,12 +53,14 @@ function pose(u) {
   const p=actorPosition(u);
   let hit=false;
   if (visual?.kind === 'strike') {
-    const {attacker,target,t}=visual, a=project(attacker.x,attacker.y), b=project(target.x,target.y);
+    const {attacker,target,t,skill}=visual, a=project(attacker.x,attacker.y), b=project(target.x,target.y);
     const dx=b.x-a.x, dy=b.y-a.y;
     if (attacker===u) {
       // Wind up, extend the weapon, then settle back onto the actor's tile.
       let thrust = Math.sin(Math.PI * Math.max(0,Math.min(1,(t-.14)/.68)));
       if (u.weapon==='Fists') thrust *= .82 + .18*Math.cos(4*Math.PI*t);
+      if (skill && u.id==='pyae') thrust = Math.sin(Math.PI*t);
+      if (skill && u.id==='tint') p.y -= 12*Math.sin(Math.PI*t);
       const advance = u.weapon==='Spear' ? .39 : .65;
       p.x+=dx*advance*thrust; p.y+=dy*advance*thrust-5*thrust;
       hit=t>.22 && t<.79;
@@ -61,15 +74,26 @@ function pose(u) {
 }
 function drawUnit(u) {
   const {p,hit}=pose(u), active=selected===u && !u.enemy;
-  const color=u.enemy?'#ee7666':active?'#a5f4ff':'#8ed7ef';
+  const color=u===battle.commander?'#ffce69':u.enemy?'#ee7666':active?'#a5f4ff':'#8ed7ef';
   ring(p,19,6,color,'#22130f70',active?3:1.5);
-  const img=sprites.get(u.model+(hit?'-hit':''));
-  const h=(u.model === 'general' ? 66 : 64) * (hit ? 0.91 : 1);
+  let img=sprites.get(u.model+(hit?'-hit':''));
+  const commandPose=visual?.unit===u && (visual.kind==='valor' || visual.kind==='warCry');
+  if(commandPose && visual.t>.12 && visual.t<.92){
+    const alternate=sprites.get(u.model+'-'+visual.kind);
+    if(alternate?.naturalWidth) img=alternate;
+  }
+  const h=(u.model === 'commander' ? 74 : u.model === 'general' ? 66 : 64) * (hit ? 0.91 : 1);
   if (img.complete && img.naturalWidth) {
     const w=h*img.naturalWidth/img.naturalHeight;
     ctx.save(); ctx.translate(p.x,p.y); ctx.scale(u.facing,1);
+    if(commandPose){
+      const t=visual.t, shout=Math.sin(Math.PI*t);
+      if(visual.kind==='valor'){ctx.scale(1+.055*shout,1+.085*shout);}
+      else {ctx.translate(3*shout,0);ctx.rotate(.045*shout);}
+    }
     ctx.drawImage(img,-w/2,-h+2,w,h); ctx.restore();
   } else { ctx.fillStyle=color; ctx.fillRect(p.x-6,p.y-25,12,23); }
+  drawStatus(u,p,h);
   const barWidth=30;
   ctx.fillStyle='#211812cf'; ctx.fillRect(p.x-barWidth/2-1,p.y+9,barWidth+2,4);
   ctx.fillStyle=u.enemy?'#f27864':'#79c6a0'; ctx.fillRect(p.x-barWidth/2,p.y+10,barWidth*u.hp/u.maxHp,2);
@@ -80,14 +104,25 @@ function drawUnit(u) {
 }
 function impact() {
   if (visual?.kind!=='strike') return;
-  const { t,attacker,target,damage,skill }=visual;
+  const { t,attacker,target,damage,skill,critical,hitIndex }=visual;
   const p=project(target.x,target.y), sign=attacker.facing;
   const f=(t-.39)/.5;
   if (f<0 || f>1) return;
   ctx.save(); ctx.translate(p.x,p.y-38); ctx.scale(sign,1);
   ctx.globalAlpha=Math.sin(Math.PI*f);
   ctx.strokeStyle=skill?'#ffe5a1':'#fff5d0'; ctx.lineWidth=3.5; ctx.shadowColor='#fee3a0'; ctx.shadowBlur=7;
-  if(attacker.weapon==='Sword') {
+  if (skill && attacker.id==='tint') {
+    // A descending cleaver arc with a second bright edge on a critical hit.
+    ctx.lineWidth=critical?9:6;ctx.strokeStyle=critical?'#fff5d1':'#ffbb55';
+    ctx.beginPath();ctx.arc(-12,-38,42,-1.55,-1.55+2.95*f);ctx.stroke();
+    if(critical){ctx.lineWidth=3;ctx.beginPath();ctx.arc(-12,-38,51,-1.55,-1.55+2.95*f);ctx.stroke();}
+  } else if (skill && attacker.id==='pyae') {
+    const y=hitIndex===0?-9:8;
+    ctx.strokeStyle='#9cefff';ctx.lineWidth=4;ctx.beginPath();ctx.moveTo(-63,y);ctx.lineTo(16,y-5);ctx.stroke();
+    ring({x:15,y:y-5},3+f*12,3+f*6,'#d9faff','#b5f1ff20');
+  } else if (skill && attacker.id==='general') {
+    for (const offset of [-10,10]) ring({x:offset,y:-3},5+f*17,5+f*17,'#ffdc77','#ffb93636',3);
+  } else if(attacker.weapon==='Sword') {
     ctx.beginPath();ctx.moveTo(-33,-31);ctx.quadraticCurveTo(18,-18,22,28);ctx.quadraticCurveTo(4,5,-33,-31);ctx.fillStyle='#fff0c8a0';ctx.fill();ctx.stroke();
   } else if(attacker.weapon==='Spear') {
     for(let i=0;i<3;i++) { ctx.beginPath();ctx.moveTo(-55,-3+i*4);ctx.lineTo(17-i*9,-9+i*3);ctx.stroke(); }
@@ -96,8 +131,96 @@ function impact() {
   }
   ctx.restore();
   ctx.save(); ctx.globalAlpha=Math.min(1,2*(1-f)); ctx.font='bold 24px Georgia';ctx.textAlign='center';ctx.lineWidth=4;
-  ctx.strokeStyle='#45251b';ctx.fillStyle='#fff1bd';const label='−'+fmt(damage);
+  ctx.strokeStyle='#45251b';ctx.fillStyle='#fff1bd';const label=(critical?'CRIT ':'')+'−'+fmt(damage);
   ctx.strokeText(label,p.x,p.y-67-f*24);ctx.fillText(label,p.x,p.y-67-f*24);ctx.restore();
+}
+function drawStatus(unit,p,height) {
+  const time=reduced.matches ? 0 : performance.now()/450;
+  ctx.save();
+  if (unit.valor) {
+    const pulse=(Math.sin(time)+1)/2;
+    ring(p,22+pulse*2,7+pulse,'#89dcff','#56aeff22');
+  }
+  if (unit.model==='guard' && battle.warCries) {
+    ctx.strokeStyle='#ffb65a';ctx.lineWidth=2;
+    for (let i=0;i<2;i++) {
+      const y=p.y-height+12-i*5-2*Math.sin(time);
+      ctx.beginPath();ctx.moveTo(p.x+12,y+3);ctx.lineTo(p.x+16,y);ctx.lineTo(p.x+20,y+3);ctx.stroke();
+    }
+  }
+  if (unit.dazed) {
+    ctx.fillStyle='#ffdf64';ctx.font='bold 14px Georgia';ctx.textAlign='center';
+    for(let i=0;i<3;i++){
+      const angle=time*1.8+i*Math.PI*2/3;
+      ctx.fillText('✦',p.x+13*Math.cos(angle),p.y-height-4+4*Math.sin(angle));
+    }
+  }
+  ctx.restore();
+}
+function scheduleStatusFrame() {
+  if(statusFrame || reduced.matches || document.hidden || visual || battle.result) return;
+  if(!battle.units.some(u=>standing(u) && (u.valor || u.dazed || (u.model==='guard' && battle.warCries)))) return;
+  statusFrame=requestAnimationFrame(()=>{statusFrame=0;paint();});
+}
+function supportAnimation() {
+  if(!visual || !['warCry','valor','potion','herb','daze'].includes(visual.kind)) return;
+  const {kind,unit,targets,t,amount}=visual;
+  const origin=project(unit.x,unit.y);
+  ctx.save();ctx.globalAlpha=Math.max(.1,Math.sin(Math.PI*t));
+  if(kind==='warCry'){
+    for(let i=0;i<3;i++){const f=(t+i/3)%1;ring(origin,20+f*110,8+f*43,'#ffc069','#e35a2420',3);}
+  }
+  for(const ally of targets){
+    const p=project(ally.x,ally.y), y=p.y-28-t*19;
+    if(kind==='valor'){
+      ctx.strokeStyle='#8edfff';ctx.fillStyle='#3eaeee44';ctx.lineWidth=3;
+      ctx.beginPath();ctx.moveTo(p.x-13,y-10);ctx.lineTo(p.x,y-15);ctx.lineTo(p.x+13,y-10);
+      ctx.quadraticCurveTo(p.x+13,y+6,p.x,y+14);ctx.quadraticCurveTo(p.x-13,y+6,p.x-13,y-10);ctx.fill();ctx.stroke();
+    } else if(kind==='warCry'){
+      ctx.font='bold 15px Georgia';ctx.textAlign='center';ctx.fillStyle='#ffe3a0';ctx.fillText('Lv '+ally.level,p.x,y-12);
+    } else if(kind==='daze'){
+      ring({x:p.x,y:p.y-66},11+9*t,4+3*t,'#ffe077','#ffb70022',2);
+    } else {
+      ctx.textAlign='center';ctx.fillStyle=kind==='potion'?'#acffcf':'#cbef88';ctx.font='bold 18px Georgia';
+      ctx.fillText('+'+amount,p.x,y-12);
+      for(let i=0;i<3;i++){const x=p.x+(i-1)*14,dy=y+6+(i%2)*5;
+        if(kind==='potion'){ctx.fillRect(x-4,dy-1,9,3);ctx.fillRect(x-1,dy-4,3,9);}
+        else{ctx.beginPath();ctx.ellipse(x,dy,3,6,-.6,0,2*Math.PI);ctx.fill();}
+      }
+    }
+  }
+  ctx.restore();
+}
+document.addEventListener('visibilitychange',()=>{if(battle && !document.hidden) paint();});
+reduced.addEventListener('change',()=>{if(battle) paint();});
+// Put each technique over its caster. Impacts and status markers stay over the target.
+function drawActionName() {
+  if(!visual) return;
+  const names={warCry:'War Cry',valor:'Valor',potion:'Potion',herb:'Herb',daze:'Dazed'};
+  const strike=visual.kind==='strike';
+  const name=strike && visual.skill ? specialMove[visual.attacker.id] : names[visual.kind];
+  if(!name) return;
+  const caster=strike ? visual.attacker : visual.unit;
+  const p=project(caster.x,caster.y);
+  const progress=visual.t;
+  const tint=visual.critical?'#ffbe75':caster.enemy?'#ffdad0':'#fff0b8';
+  ctx.save();
+  ctx.font='bold 18px Georgia';ctx.textAlign='center';ctx.textBaseline='middle';
+  const width=ctx.measureText(name).width+26;
+  const x=Math.max(width/2+5,Math.min(field.width-width/2-5,p.x));
+  const y=Math.max(18,p.y-90-(reduced.matches?0:7*progress));
+  ctx.globalAlpha=Math.min(1,(1-progress)*6);
+  ctx.fillStyle='#201b22ed';ctx.strokeStyle=tint;ctx.lineWidth=1.5;
+  ctx.beginPath();ctx.moveTo(x-width/2,y);ctx.lineTo(x-width/2+7,y-13);
+  ctx.lineTo(x+width/2-7,y-13);ctx.lineTo(x+width/2,y);ctx.lineTo(x+width/2-7,y+13);
+  ctx.lineTo(x-width/2+7,y+13);ctx.closePath();ctx.fill();ctx.stroke();
+  ctx.fillStyle=tint;ctx.fillText(name,x,y+1);
+  const shout=visual.kind==='valor'?'BATTLE!':visual.kind==='warCry'?'FIGHT!':'';
+  if(shout && progress>.12){
+    ctx.font='bold 23px Georgia';ctx.lineWidth=4;ctx.strokeStyle='#321b16';
+    ctx.strokeText(shout,x,y-22);ctx.fillStyle='#fff1bb';ctx.fillText(shout,x,y-22);
+  }
+  ctx.restore();
 }
 function paint() {
   ctx.clearRect(0,0,field.width,field.height);
@@ -116,21 +239,33 @@ function paint() {
     if(gate) {const p=project(x,y);ctx.textAlign='center';ctx.fillStyle='#fff0b1';ctx.font='bold 23px Georgia';ctx.fillText('✦',p.x,p.y+6);}
     if(keyboard && cursor.x===x && cursor.y===y) {ctx.strokeStyle='white';ctx.lineWidth=3;ctx.setLineDash([5,4]);ctx.stroke(tile);ctx.setLineDash([]);}
   }
-  const visible=battle.units.filter(u=>standing(u) || (visual?.kind==='move' && visual.unit===u));
+  const visible=battle.units.filter(u=>standing(u) || (visual?.kind==='move' && visual.unit===u) || (visual?.kind==='strike' && visual.target===u));
   visible.sort((a,b)=>actorPosition(a).y-actorPosition(b).y).forEach(drawUnit);
   impact();
+  supportAnimation();
+  drawActionName();
+  scheduleStatusFrame();
 }
 function showStatus(text) { get('message').textContent=text; }
 function display() {
   const u=inspected;
-  get('portrait').src=art+u.model+'.webp'; get('rank').textContent=u.rank+' · Lv. '+u.level;
+  get('portrait').src=portraitPath(u); get('rank').textContent=u.rank+' · Lv. '+u.level;
   get('unitName').textContent=u.name; get('weapon').textContent=u.weapon;
   for(const [id,value,max] of [['hp',u.hp,u.maxHp],['mp',u.mp,u.maxMp]]) {
     get(id).max=max;get(id).value=value;get(id+'Value').textContent=fmt(value)+' / '+fmt(max);
   }
   get('strength').textContent=fmt(u.str);get('defense').textContent=fmt(u.def);
+  const effects=[];
+  if(u.valor) effects.push('Valor · +10% STR / DEF · '+(battle.valorReady-battle.turn)+' rounds left');
+  if(u.dazed) effects.push('Dazed · skips next enemy phase');
+  if(u.model==='guard' && battle.warCries) effects.push('War Cry · +'+(u.level-soldierLevel)+' levels'+(u.level===battle.commander.level?' · capped':''));
+  if(u===battle.commander) {
+    const canBoost=battle.guards.some(ally=>ally.model==='guard' && standing(ally) && ally.level<u.level);
+    effects.push('Potions ×'+battle.potions+' · War Cry '+(!canBoost?'no levels to grant':battle.turn>=battle.warCryReady?'ready':'from turn '+battle.warCryReady));
+  }
+  get('effects').textContent=effects.join(' · ');
   get('phase').textContent='Turn '+battle.turn+' · '+(battle.phase==='guards'?'Royal guards':'Family');
-  get('progress').textContent=battle.family.filter(a=>a.escaped).length+'/3 escaped · '+battle.guards.filter(a=>a.hp<=0).length+'/6 guards defeated';
+  get('progress').textContent=battle.family.filter(a=>a.escaped).length+'/3 escaped · '+battle.guards.filter(a=>a.hp<=0).length+'/6 enemies defeated';
   const locked=busy || !!battle.result || battle.phase!=='family' || !standing(selected);
   for(const button of document.querySelectorAll('[data-command]')) {
     const cmd=button.dataset.command;
@@ -138,7 +273,16 @@ function display() {
       (cmd==='herb' && (!battle.herbs || selected.hp===selected.maxHp)) || (cmd==='skill' && selected.mp<skillCost(selected));
     button.setAttribute('aria-pressed',String(mode===cmd));
     if(cmd==='herb') button.textContent='Herb ×'+battle.herbs;
-    if(cmd==='skill') button.title=techniques[selected.weapon]+' · '+skillCost(selected)+' MP';
+    if(cmd==='skill') {
+      button.textContent=specialMove[selected.id];
+      button.title=specialMove[selected.id]+' · '+skillCost(selected)+' MP';
+    }
+    if(cmd==='valor') {
+      button.hidden=selected.id!=='general';
+      button.disabled=button.disabled || button.hidden || battle.turn<battle.valorReady;
+      button.textContent=battle.turn<battle.valorReady?'Valor · T'+battle.valorReady:'Valor';
+      button.title='Team STR and DEF +10% for five rounds. Uses one action.';
+    }
   }
   get('endTurn').disabled=busy || Boolean(battle.result) || battle.phase !== 'family';
   for(const btn of get('roster').children) {
@@ -152,7 +296,7 @@ function display() {
   get('outcome').hidden=!result;
   if(result) {
     get('resultTitle').textContent=result==='lost'?'Mission failed':'Mission complete';
-    get('resultBody').textContent={escaped:'All three made it through the village gate.','defeated-guards':'All six royal guards have been defeated. The road is open.',lost:'No family member remains on the field to complete the escape.'}[result];
+    get('resultBody').textContent={escaped:'All three made it through the village gate.','defeated-guards':'The commander and all five soldiers have been defeated. The road is open.',lost:'No family member remains on the field to complete the escape.'}[result];
   }
   paint();
 }
@@ -165,22 +309,37 @@ function selectHero(u) {
   } else showStatus(u.name+' · '+u.rank+' Lv. '+u.level+' · '+u.weapon+' · '+fmt(u.hp)+' HP.');
   display();
 }
-function setMode(cmd) {
+async function setMode(cmd) {
   if(busy || battle.result || !standing(selected)) return;
   inspected=selected;
   if(cmd==='wait') {
     selected.moved=selected.acted=true;showStatus(selected.name+' waits. Choose another relative or end the turn.');
-  } else if(cmd==='herb') {
-    const healed=battle.heal(selected);showStatus(selected.name+' recovered '+fmt(healed)+' HP.');
+  } else if(cmd==='valor' || cmd==='herb') {
+    const session=battle, unit=selected;
+    const amount=cmd==='herb' ? battle.heal(unit) : 0;
+    if(cmd==='valor' ? !battle.castValor(unit) : !amount) return;
+    const targets=cmd==='valor' ? battle.family.filter(standing) : [unit];
+    showStatus(cmd==='valor'?'“BATTLE!” Valor grants +10% STR and DEF through turn '+(battle.valorReady-1)+'.':unit.name+' recovered '+fmt(amount)+' HP.');
+    busy=true;mode=unit.moved?'attack':'move';display();
+    await tween({kind:cmd,unit,targets,amount},cmd==='valor'?1050:650,session);
+    if(battle!==session) return;
+    busy=false;
   } else {
     mode=cmd;
-    const action=cmd==='skill'?techniques[selected.weapon]+' · '+skillCost(selected)+' MP':cmd==='attack'?selected.weapon:'';
+    const action=cmd==='skill'?specialMove[selected.id]+' · '+skillCost(selected)+' MP':cmd==='attack'?selected.weapon:'';
     showStatus(cmd==='move'?'Choose a blue tile. Gold tiles mark the escape gate.':action+' · '+(battle.targets(selected).length?'Choose a highlighted guard.':'Move closer to a guard.'));
   }
   display();
 }
 function tween(effect, duration, session) {
-  if(reduced.matches) return Promise.resolve();
+  if(reduced.matches) {
+    if(effect.kind==='move' || (effect.kind==='strike' && !effect.skill)) return Promise.resolve();
+    visual={...effect,t:.55};paint();
+    return new Promise(resolve=>setTimeout(()=>{
+      if(battle===session){visual=null;paint();}
+      resolve();
+    },400));
+  }
   return new Promise(resolve=>{
     const start=performance.now();
     function frame(time) {
@@ -200,14 +359,18 @@ async function walk(u,x,y,session) {
   return true;
 }
 async function hit(u,target,skill,session) {
-  const amount=villageDamage(u,target,skill);
-  if(u.x!==target.x) u.facing=Math.sign(target.x-u.x);
-  else u.facing=target.y>u.y?1:-1;
-  await tween({kind:'strike',attacker:u,target,damage:amount,skill},u.enemy?470:650,session);
-  if(session!==battle) return;
-  const damage=battle.strike(u,target,skill);
-  if(damage===null) return;
-  showStatus(u.name+' · '+(skill?techniques[u.weapon]:u.weapon)+' · '+fmt(damage)+' damage to '+target.name+(target.hp?' (remaining HP '+fmt(target.hp)+').':' · defeated.'));
+  const result=battle.strike(u,target,skill);
+  if(!result) return;
+  let hitIndex=0;
+  for(const damage of result.hits){
+    await tween({kind:'strike',attacker:u,target,damage,skill,hitIndex,critical:result.critical},skill && u.id==='pyae'?330:u.enemy?470:650,session);
+    if(session!==battle) return;
+    hitIndex++;
+  }
+  const name=skill?specialMove[u.id]:u.weapon;
+  showStatus(u.name+' · '+name+(result.critical?' · Critical!':'')+' · '+result.hits.map(fmt).join(' + ')+' damage to '+target.name+
+    (!target.hp?' · defeated.':result.dazed?' · dazed for one turn.':' ('+fmt(target.hp)+' HP left).'));
+
 }
 async function activate(x,y,unit=battle.at(x,y)) {
   if(busy || battle.result || battle.phase!=='family') return;
@@ -232,11 +395,25 @@ async function activate(x,y,unit=battle.at(x,y)) {
 async function endTurn() {
   if(busy || !battle.startGuards()) return;
   const session=battle;busy=true;showStatus('The royal guards advance.');display();
+  const notices=[];
   for(const guard of battle.guards.filter(standing)) {
     if(battle!==session || battle.result) break;
+    if(guard.dazed){
+      notices.push(guard.name+' missed its turn (dazed).');
+      showStatus(notices.at(-1));
+      await tween({kind:'daze',unit:guard,targets:[guard]},500,session);
+      continue;
+    }
     const dest=battle.guardDestination(guard);
     if(dest) await walk(guard,dest.x,dest.y,session);
     if(battle!==session) return;
+    const support=guard===battle.commander ? battle.commanderAction() : null;
+    if(support){
+      notices.push(support.kind==='warCry'?'“FIGHT!” War Cry raised the soldiers to level '+support.targets[0].level+'.':'Commander used a potion on '+support.targets[0].name+' (+'+support.amount+' HP).');
+      showStatus(notices.at(-1));display();
+      await tween({...support,unit:guard},support.kind==='warCry'?1050:700,session);
+      continue;
+    }
     const target=battle.targets(guard).sort((a,b)=>distance(guard,a)-distance(guard,b)||a.hp-b.hp)[0];
     if(target) await hit(guard,target,false,session);
     if(battle!==session) return;
@@ -245,7 +422,7 @@ async function endTurn() {
   if(session!==battle) return;
   battle.nextRound();busy=false;
   selected=battle.family.find(standing)||selected;inspected=selected;mode='move';
-  if(!battle.result) showStatus('Turn '+battle.turn+' · Choose a relative, then move or attack.');
+  if(!battle.result) showStatus('Turn '+battle.turn+' · '+(notices.length?notices.join(' '):'Choose a relative, then move or attack.'));
   display();
 }
 function start() {
@@ -255,10 +432,10 @@ function start() {
   for(const unit of battle.units) {
     const b=document.createElement('button');b.type='button';b.dataset.unit=unit.id;b.setAttribute('aria-label',unit.name);
     if(unit.enemy) b.className='enemy';
-    const img=document.createElement('img');img.src=art+unit.model+'.webp';img.alt='';b.append(img);
+    const img=document.createElement('img');img.src=portraitPath(unit);img.alt='';b.append(img);
     b.onclick=()=>activate(unit.x,unit.y,unit);roster.append(b);
   }
-  showStatus('Three guards ahead. Three behind. Get everyone to the gold gate or defeat all six.');
+  showStatus('The level-60 commander holds the gate. Escape with all three relatives or defeat all six enemies.');
   display();
 }
 function pick(event) {
@@ -271,7 +448,7 @@ function pick(event) {
 field.addEventListener('click',e=>{keyboard=false;const p=pick(e);if(p) activate(p.x,p.y,p.unit);});
 field.addEventListener('pointermove',e=>{
   if(busy) return; const p=pick(e), u=p && battle.at(p.x,p.y);
-  field.title=u?u.name+' · Lv. '+u.level+(u.enemy && inReach(selected,u)?' · '+fmt(villageDamage(selected,u,mode==='skill'))+' forecast damage':''):'';
+  field.title=u?u.name+' · Lv. '+u.level+(u.enemy && inReach(selected,u)?' · '+(mode==='skill' && selected.id==='pyae'?'2 × ':'')+fmt(villageDamage(selected,u,mode==='skill'))+' forecast damage':''):'';
 });
 field.addEventListener('keydown',e=>{
   const dir={ArrowLeft:[-1,0],ArrowRight:[1,0],ArrowUp:[0,-1],ArrowDown:[0,1]}[e.key];

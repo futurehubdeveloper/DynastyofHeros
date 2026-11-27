@@ -34,6 +34,7 @@ meter::-webkit-meter-optimum-value { background:#86c88e; }
 #mp::-webkit-meter-optimum-value { background:#71afd8; }
 meter::-moz-meter-bar { background:#86c88e; } #mp::-moz-meter-bar { background:#71afd8; }
 .numbers { color:var(--gold); } .numbers b {color:var(--ivory);}
+#effects:not(:empty) { margin-top:.4rem; color:#ffdda4; font-size:.78rem; }
 .commands { display:grid; gap:3px; width:76%; margin-top:.7rem; pointer-events:auto; }
 .commands button { text-align:left; padding:.42rem .85rem; font:600 clamp(.8rem,1.1vw,1.15rem) Georgia,serif; }
 .commands button[aria-pressed="true"],.commands button:enabled:hover { background:linear-gradient(90deg,#976823,#73532de6); border-color:#f6d18b; }
