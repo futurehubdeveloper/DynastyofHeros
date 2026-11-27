@@ -552,7 +552,7 @@
 
 /* Build the pile from the same parchment as the reading sheet. */
 .reader-side-bundle {
-  left: -112%; width: 122%; height: 100%;
+  width: 122%; height: 100%;
   background: none; filter: drop-shadow(0 8px 8px #17090099); perspective: 700px;
 }
 .bundle-paper-layer, .bundle-top-sheet {
@@ -575,5 +575,5 @@
   filter: sepia(.12) saturate(.8) brightness(.94);
 }
 @media (max-width: 680px) {
-  .reader-side-bundle { left: -112%; width: 122%; height: 100%; }
+  .reader-side-bundle { width: 122%; height: 100%; }
 }
