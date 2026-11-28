@@ -542,7 +542,32 @@ async function endTurn() {
   if(!battle.result) showStatus('Turn '+battle.turn+' · '+(notices.length?notices.join(' '):'Choose a relative, then move or attack.'));
   display();
 }
+function placeSpeakerBubble(panel,canvas,headX,headY){
+ const width=canvas.clientWidth,height=canvas.clientHeight;
+ const x=headX*width/canvas.width,y=headY*height/canvas.height;
+ const gap=10,margin=4;
+ const left=Math.max(margin,Math.min(x-panel.offsetWidth/2,width-panel.offsetWidth-margin));
+ const below=y<panel.offsetHeight+gap+margin;
+ const top=below?y+gap:y-panel.offsetHeight-gap;
+ panel.style.left=left+'px';
+ panel.style.top=Math.max(margin,Math.min(top,height-panel.offsetHeight-margin))+'px';
+ panel.style.setProperty('--pointer-x',Math.min(panel.offsetWidth-12,Math.max(12,x-left))+'px');
+ panel.classList.toggle('below-speaker',below);
+}
+let villageSpeaker;
+function positionVillageDialogue(){
+ const panel=get('gateTalk');
+ if(panel.hidden||!villageSpeaker) return;
+ const p=actorPosition(villageSpeaker);
+ const height=villageSpeaker.model==='commander'?74:villageSpeaker.model==='general'?66:64;
+ const kneeling=gateScene==='defeat'?!villageSpeaker.enemy:gateScene&&villageSpeaker.enemy;
+ placeSpeakerBubble(panel,field,p.x,p.y+2-height*(kneeling ? .75 : 1));
+}
+const villageLayout=new ResizeObserver(positionVillageDialogue);
+villageLayout.observe(field);
+villageLayout.observe(get('gateTalk'));
 async function gateDialogue(unit,line) {
+  villageSpeaker=unit;
   get('gateFace').src=portraitPath(unit);
   get('gateSpeaker').textContent=unit.name;
   const lines=line.split('\n');
@@ -557,7 +582,8 @@ async function gateDialogue(unit,line) {
   }
   appendLine(lines[0]);
   get('gateTalk').hidden=false;
-  get('gateNext').focus();
+  positionVillageDialogue();
+  get('gateNext').focus({preventScroll:true});
   await new Promise(resolve=>{
     const timer=setInterval(()=>{
       if (shown<lines.length) appendLine(lines[shown++]);

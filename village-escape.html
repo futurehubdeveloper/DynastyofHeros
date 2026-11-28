@@ -3,8 +3,8 @@
 <head>
   <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
   <meta name="theme-color" content="#1b1817"><title>Escape from the Village · Dynasty of Heroes Tactics</title>
-  <link rel="stylesheet" href="village-escape.css?v=mission-briefing">
-  <script defer src="village-battle.js?v=spear-daze-chance"></script><script defer src="village-escape.js?v=opening-dialogue"></script>
+  <link rel="stylesheet" href="village-escape.css?v=speaker-bubbles">
+  <script defer src="village-battle.js?v=spear-daze-chance"></script><script defer src="village-escape.js?v=speaker-bubbles"></script>
 </head>
 <body>
 <main class="mission">
@@ -15,6 +15,7 @@
   <div class="battle-stage">
     <div class="battlefield">
       <canvas id="field" width="1200" height="675" tabindex="0" aria-label="Village battlefield. Use arrow keys to select a tile and Enter to use it."></canvas>
+    <section id="gateTalk" class="gate-talk" hidden aria-label="Mission dialogue"><img id="gateFace" alt=""><div aria-live="polite"><strong id="gateSpeaker"></strong><p id="gateLine"></p></div><button id="gateNext" type="button">Continue</button></section>
     </div>
     <aside class="hud" aria-label="Unit and commands">
       <section class="unit-panel"><div class="unit-head"><div class="portrait"><img id="portrait" alt=""></div><div><small id="rank"></small><h2 id="unitName"></h2><p id="weapon"></p></div></div>
@@ -23,7 +24,6 @@
       <nav class="commands" aria-label="Battle commands"><button data-command="move">Move</button><button data-command="attack">Attack</button><button data-command="skill">Skill</button><button data-command="valor" hidden>Valor</button><button data-command="herb">Herb</button><button data-command="wait">Wait</button></nav>
     </aside>
     <div class="objective"><strong>Village entrance</strong><span id="progress"></span></div>
-    <section id="gateTalk" class="gate-talk" hidden aria-label="Mission dialogue"><img id="gateFace" alt=""><div aria-live="polite"><strong id="gateSpeaker"></strong><p id="gateLine"></p></div><button id="gateNext" type="button">Continue</button></section>
     <div class="outcome" id="outcome" hidden><div><small>Escape from the Village</small><h2 id="resultTitle"></h2><p id="resultBody"></p><button id="replay">Play again</button><a href="game.html">Game page</a></div></div>
   </div>
   <div class="battle-footer"><div class="status"><small>Battle log</small><p id="message" aria-live="polite"></p></div><div class="roster" id="roster" aria-label="Inspect units"></div><button id="endTurn">End turn</button></div>

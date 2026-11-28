@@ -103,3 +103,27 @@ dialog::backdrop { background:#080706ba; }
 .briefing-rules p { margin:.2rem 0 0; font-size:.92rem; }
 #beginVillage { margin-top:1rem; padding:.65rem 1.4rem; background:linear-gradient(#203e53,#081623); color:#fbe4b7; border:2px solid #bd954c; border-radius:7px; font:bold 1rem Georgia,serif; }
 @media(max-width:520px) { #missionBriefing {width:94vw;} .briefing-rules {grid-template-columns:1fr;} }
+
+.battlefield { position:relative; }
+.battle-stage:has(#gateTalk:not([hidden])) .hud,.battle-stage:has(#gateTalk:not([hidden])) .objective {visibility:hidden;}
+
+#gateTalk {
+ bottom:auto; transform:none; width:max-content; max-width:min(94%,440px); left:0; top:0; z-index:7;
+ display:grid; grid-template-columns:54px minmax(0,1fr); gap:8px;
+ align-items:center; padding:10px 14px 34px; background:#fff0bd; border:2px solid #ab7839;
+ border-radius:17px; box-shadow:0 3px 0 #926735;
+}
+#gateTalk img { height:60px; }
+#gateTalk div { position:static; padding:0; min-height:0; border:0; background:none; box-shadow:none; }
+#gateTalk div::before { display:none; }
+#gateTalk::after {
+ content:''; position:absolute; left:calc(var(--pointer-x) - 9px); bottom:-9px; width:14px; height:14px;
+ background:#fff0bd; border:solid #ab7839; border-width:0 2px 2px 0; transform:rotate(45deg);
+}
+#gateTalk.below-speaker::after { bottom:auto; top:-9px; transform:rotate(225deg); }
+#gateTalk p { margin:3px 0; }
+@media(max-width:600px),(max-height:500px) {
+ #gateTalk {gap:6px;padding:5px 9px 27px;grid-template-columns:44px minmax(0,1fr);}
+ #gateTalk img {height:48px;}
+ #gateTalk p,#gateTalk strong {font-size:.88rem;line-height:1.25;}
+}

@@ -115,6 +115,27 @@
  #gameOver > div { padding:1rem; }
  #resultTitle { font-size:1.45rem; }
 }
+
+#endingTalk {
+ bottom:auto; transform:none; width:max-content; max-width:min(94%,440px); left:0; top:0; z-index:7;
+ display:grid; grid-template-columns:54px minmax(0,1fr); gap:8px;
+ align-items:center; padding:10px 14px 34px; background:#fff0bd; border:2px solid #ab7839;
+ border-radius:17px; box-shadow:0 3px 0 #926735;
+}
+#endingTalk img { height:60px; }
+#endingTalk #endingBubble { position:static; padding:0; min-height:0; border:0; background:none; box-shadow:none; }
+#endingTalk #endingBubble::before { display:none; }
+#endingTalk::after {
+ content:''; position:absolute; left:calc(var(--pointer-x) - 9px); bottom:-9px; width:14px; height:14px;
+ background:#fff0bd; border:solid #ab7839; border-width:0 2px 2px 0; transform:rotate(45deg);
+}
+#endingTalk.below-speaker::after { bottom:auto; top:-9px; transform:rotate(225deg); }
+#endingTalk p { margin:3px 0; }
+@media(max-width:600px),(max-height:500px) {
+ #endingTalk {gap:6px;padding:5px 9px 27px;grid-template-columns:44px minmax(0,1fr);}
+ #endingTalk img {height:48px;}
+ #endingTalk p,#endingTalk strong {font-size:.88rem;line-height:1.25;}
+}
 </style></head><body><div class="rotate-device" role="status"><span aria-hidden="true">↻</span><strong>Rotate your phone</strong><p>Turn your phone sideways to play Dynasty of Heroes: Tactics.</p><a href="game.html" style="color:#f9dfac">← Back to game page</a></div><a href="game.html" style="display:inline-block;padding:12px;color:#f9dfac;font:14px Georgia,serif">← Back to game page</a><div id="app"><div id="frame"><canvas id="board" width="1600" height="900"></canvas><div class="hud gold-panel title"><h1>DYNASTY<br>OF HEROES</h1><small>✦ TACTICS ✦</small></div><div class="hud gold-panel mission"><b>Episode 1: The First Escape</b><div>◆ Reach the carriage in 20 turns.</div><div>◆ Protect Pyin Sa, A May Mya + the prince, and Mg Kan.</div><div>◆ Throw stones to lure patrols away.</div></div><div class="hud gold-panel turn" id="turn">⌛ Turn 1 / 20</div><div class="hud gold-panel menu"><button onclick="setMode('move')" id="moveBtn" class="active">✥ Move</button><button onclick="waitUnit()">⌛ Wait</button><button id="hideBtn" onclick="hideUnit()">◉ Hide</button><button onclick="distract()" id="distractBtn">🪨 Throw Stone</button><button onclick="endTurn()">↻ End Turn</button><button onclick="restart()">⟲ Restart</button></div><div class="hud gold-panel stat"><img id="statImg"><div><h3 id="statName">Mg Kan</h3><p id="statInfo">HP: 1 • Move: 5</p><p id="statAbility">Keep the family safe</p></div></div><div id="partybar" class="hud"></div><div class="hud gold-panel notice" id="message">Select a character, then a blue tile to move.</div><div class="hud gold-panel mini"><b>✦ Carriage Exit ★</b><div>🔵 Friendly party</div><div>🔴 Royal searchers</div><div>🟦 Reachable tiles</div><div>🟥 Guard danger</div></div><section id="intro" class="overlay"><div class="stone"><div class="eyebrow">✦ Dynasty of Heroes — Tactics ✦</div><h1>THE FIRST ESCAPE</h1><h2>Chapter I · Night at the Palace</h2><div class="eyebrow">ကျောက်စာတိုင် · Bagan</div><p>By royal decree, soldiers search the palace for newborn princes. Princess Pyin Sa can barely walk. A May Mya holds baby King Kyan, while little Mg Kan follows the loyal guards through the shadows.</p><div class="rules"><div><strong>◆ VICTORY</strong><br>Guide Princess Pyin Sa, A May Mya carrying King Kyan, and Mg Kan to the carriage exit in 20 turns.</div><div><strong>◆ DEFEAT</strong><br>Any protected character is captured, or the turn limit expires. Loyal guards may sacrifice themselves to save the family.</div><div><strong>◆ STEALTH</strong><br>Royal searchers threaten tiles within two steps. Hide behind pillars, wait for patrols, or throw a stone to lure patrols.</div><div><strong>◆ CONTROLS</strong><br>Tap a party member, then a blue tile to move. Mg Kan and each escort can move once and throw one stone per turn, in either order. Choose Throw Stone, then a gold tile. End Turn moves the guards.</div></div><button onclick="begin()">⚔ BEGIN MISSION</button></div></section><section id="endingTalk" hidden aria-label="Mission dialogue">
  <img id="endingPortrait" alt="">
  <div id="endingBubble">
@@ -297,7 +318,7 @@ function endTurn(){
  for(const unit of team){
   if(unit.escaped||unit.hp<=0||!unit.protect||unit.hidden) continue;
   if(danger(unit)&&!defend(unit)){
-   finish(false,unit.name+' was discovered by royal searchers.');
+   finish(false,unit.name+' was discovered by royal searchers.',unit);
    return;
   }
  }
@@ -313,9 +334,13 @@ function checkWin(){
   finish(true,'The royal family reaches the carriage. The loyal guards hold the gate as the wheels roll into the moonlit night.');
  }
 }
-function finish(win,reason){
+const carriagePlaces={mother:{x:11,y:1},maya:{x:12,y:1},kan:{x:12,y:0}};
+function finish(win,reason,captured){
+ const family=captured?[captured]:team.filter(unit=>unit.protect&&!unit.escaped);
+ const distanceToFamily=guard=>Math.min(...family.map(unit=>dist(guard,unit)));
+ const arrestingGuard=foes.filter(guard=>guard.alive).sort((a,b)=>distanceToFamily(a)-distanceToFamily(b))[0];
  state='ending';
- ending={win,index:-1,lines:win?[
+ ending={win,arrestingGuard,index:-1,lines:win?[
   {name:'A May Mya',portrait:'maya',text:"Let’s go.\nThey should be waiting.\nWe need to be first."},
   {name:'Mg Kan',portrait:'kan',text:'Yes, Grandma.'}
  ]:[
@@ -352,8 +377,33 @@ function advanceDialogue(){
  byId('endingSpeaker').textContent=line.name;
  byId('endingLine').textContent=line.text;
  byId('endingTalk').hidden=false;
- byId('endingNext').focus();
+ positionPalaceDialogue();
+ byId('endingNext').focus({preventScroll:true});
 }
+function placeSpeakerBubble(panel,canvas,headX,headY){
+ const width=canvas.clientWidth,height=canvas.clientHeight;
+ const x=headX*width/canvas.width,y=headY*height/canvas.height;
+ const gap=10,margin=4;
+ const left=Math.max(margin,Math.min(x-panel.offsetWidth/2,width-panel.offsetWidth-margin));
+ const below=y<panel.offsetHeight+gap+margin;
+ const top=below?y+gap:y-panel.offsetHeight-gap;
+ panel.style.left=left+'px';
+ panel.style.top=Math.max(margin,Math.min(top,height-panel.offsetHeight-margin))+'px';
+ panel.style.setProperty('--pointer-x',Math.min(panel.offsetWidth-12,Math.max(12,x-left))+'px');
+ panel.classList.toggle('below-speaker',below);
+}
+function positionPalaceDialogue(){
+ const panel=byId('endingTalk');
+ if(panel.hidden||!ending) return;
+ const {portrait}=ending.lines[ending.index];
+ const actor=ending.arrestingGuard&&state==='ending'&&!ending.win?ending.arrestingGuard:team.find(unit=>unit.id===portrait);
+ const tile=ending.win?carriagePlaces[portrait]:actor;
+ const p=point(tile.x,tile.y);
+ placeSpeakerBubble(panel,c,p.x+48,p.y+31-(portrait==='kan'?73:96));
+}
+const palaceLayout=new ResizeObserver(positionPalaceDialogue);
+palaceLayout.observe(c);
+palaceLayout.observe(byId('endingTalk'));
 // Project a logical tile coordinate onto the actual angled paving in the painted scene.
 function point(x,y){return{x:260+x*70+y*27,y:545-x*19+y*31}}
 function polygon(x,y){const p=point(x,y),a={x:70,y:-19},b={x:27,y:31};return [[p.x,p.y],[p.x+a.x,p.y+a.y],[p.x+a.x+b.x,p.y+a.y+b.y],[p.x+b.x,p.y+b.y]]}
@@ -518,8 +568,7 @@ function render(){
  const successScene=scene&&ending.win;
  if(!successScene) for(const guard of foes.filter(guard=>guard.alive)) drawActor(guard,true,scene);
  if(successScene){
-  const positions=[{x:11,y:1},{x:12,y:1},{x:12,y:0}];
-  team.filter(actor=>actor.protect).forEach((actor,i)=>drawActor({...actor,...positions[i]},false,true));
+  team.filter(actor=>actor.protect).forEach(actor=>drawActor({...actor,...carriagePlaces[actor.id]},false,true));
  }else{
   for(const actor of team.filter(actor=>!actor.escaped&&actor.hp>0).sort((a,b)=>a.y-b.y)){
    drawActor(actor,false,scene);
