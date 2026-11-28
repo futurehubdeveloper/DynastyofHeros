@@ -260,7 +260,9 @@ function occupied(x,y,self){
  return team.some(t=>t!==self&&t.hp>0&&!t.escaped&&t.x===x&&t.y===y)||
   foes.some(e=>e!==self&&e.alive&&e.x===x&&e.y===y);
 }
-function danger(t){return foes.some(f=>f.alive&&dist(t,f)<=2)}
+const CAPTURE_RANGE=2;
+function threatens(guard,unit){return guard.alive&&dist(guard,unit)<=CAPTURE_RANGE}
+function danger(unit){return foes.some(guard=>threatens(guard,unit))}
 function canAct(){return state==='playing'&&!activeThrow}
 function paths(unit){let out=new Map([[unit.x+','+unit.y,0]]),q=[[unit.x,unit.y]];while(q.length){let [x,y]=q.shift(),n=out.get(x+','+y);for(const [dx,dy] of directions){let a=x+dx,b=y+dy,k=a+','+b;if(!blocked(a,b)&&!occupied(a,b,unit)&&!out.has(k)&&n+1<=unit.move){out.set(k,n+1);q.push([a,b])}}}return out}
 function setMode(next,repaint=true){
@@ -272,7 +274,7 @@ function setMode(next,repaint=true){
 }
 function select(i){if(!canAct()||!team[i]||team[i].escaped||team[i].hp<=0)return;selected=i;setMode('move');note('Selected '+team[i].name+'. Tap a blue tile.');update()}
 function stoneUser(unit){return unit.id==='kan'||!unit.protect}
-function tryMove(x,y){if(!canAct())return;const u=team[selected];if(u.done||u.moved||u.escaped||u.hp<=0){note('This unit cannot move again this turn.');return}if(foes.some(e=>e.alive&&e.x===x&&e.y===y)){note('A royal searcher blocks that tile.');return}if(!paths(u).has(x+','+y)){note('Outside movement range or blocked.');return}if(u.protect&&foes.some(f=>f.alive&&dist({x,y},f)<=2)){note('Too close to searchers! Choose a blue safe tile.');return}u.x=x;u.y=y;u.hidden=false;u.moved=true;u.done=u.threw||!stoneUser(u);if(x===goal.x&&y===goal.y || (x>=11&&y<=1)){u.escaped=true;note(u.name+' reached the carriage!')}else note(u.name+(u.done?' moved safely.':' moved. Throw Stone is available.'));checkWin();update()}
+function tryMove(x,y){if(!canAct())return;const u=team[selected];if(u.done||u.moved||u.escaped||u.hp<=0){note('This unit cannot move again this turn.');return}if(foes.some(e=>e.alive&&e.x===x&&e.y===y)){note('A royal searcher blocks that tile.');return}if(!paths(u).has(x+','+y)){note('Outside movement range or blocked.');return}if(u.protect&&danger({x,y})){note('Too close to searchers! Choose a blue safe tile.');return}u.x=x;u.y=y;u.hidden=false;u.moved=true;u.done=u.threw||!stoneUser(u);if(x===goal.x&&y===goal.y || (x>=11&&y<=1)){u.escaped=true;note(u.name+' reached the carriage!')}else note(u.name+(u.done?' moved safely.':' moved. Throw Stone is available.'));checkWin();update()}
 function waitUnit(){const u=team[selected];if(!canAct()||u.done||u.escaped||u.hp<=0)return;setMode('move',false);u.done=true;note(u.name+' waits for the patrol.');update()}
 function hideUnit(){const u=team[selected];if(!canAct()||u.done||u.moved||u.threw||u.escaped||u.hp<=0)return;setMode('move',false);u.hidden=true;u.done=true;note(u.name+' hides behind the palace shadows this turn.');update()}
 function distract(){
@@ -382,8 +384,10 @@ function endTurn(){
  foes.forEach(advancePatrol);
  for(const unit of team){
   if(unit.escaped||unit.hp<=0||!unit.protect||unit.hidden) continue;
-  if(danger(unit)&&!defend(unit)){
-   finish(false,unit.name+' was discovered by royal searchers.',unit);
+  const guard=foes.filter(guard=>threatens(guard,unit)).sort((a,b)=>dist(a,unit)-dist(b,unit))[0];
+  if(guard&&!defend(unit)){
+   const steps=dist(guard,unit);
+   finish(false,unit.name+' was spotted from '+steps+(steps===1?' square.':' squares.'),unit,guard);
    return;
   }
  }
@@ -400,17 +404,14 @@ function checkWin(){
  }
 }
 const carriagePlaces={mother:{x:11,y:1},maya:{x:12,y:1},kan:{x:12,y:0}};
-function finish(win,reason,captured){
- const family=captured?[captured]:team.filter(unit=>unit.protect&&!unit.escaped);
- const distanceToFamily=guard=>Math.min(...family.map(unit=>dist(guard,unit)));
- const arrestingGuard=foes.filter(guard=>guard.alive).sort((a,b)=>distanceToFamily(a)-distanceToFamily(b))[0];
+function finish(win,reason,captured,arrestingGuard){
  state='ending';
- ending={win,arrestingGuard,index:-1,lines:win?[
+ ending={win,captured,arrestingGuard,index:-1,lines:win?[
   {name:'A May Mya',portrait:'maya',text:"Let’s go.\nThey should be waiting.\nWe need to be first."},
   {name:'Mg Kan',portrait:'kan',text:'Yes, Grandma.'}
- ]:[
-  {name:'Palace Guard',portrait:'escort',text:'My lady, where are you going?\nPlease come back with us.'}
- ]};
+ ]:captured?[
+  {name:'Palace Guard',portrait:'escort',text:(captured.id==='kan'?'Young man':'My lady')+', where are you going?\nPlease come back with us.'}
+ ]:[]};
  byId('resultTitle').textContent=win?'Mission complete':'Mission failed';
  byId('resultText').textContent=reason;
  byId('frame').classList.add('ending');
@@ -627,6 +628,10 @@ function render(){
   for(const target of targets.values()){
    drawTile(target.x,target.y,'#e9ae352e','#fbd77b',2);
   }
+ }
+ if(scene&&ending.captured){
+  drawTile(ending.arrestingGuard.x,ending.arrestingGuard.y,'#e43c5755','#ff6878',3);
+  drawTile(ending.captured.x,ending.captured.y,'#e9ae3555','#ffe084',3);
  }
  const successScene=scene&&ending.win;
  if(!successScene) for(const guard of foes.filter(guard=>guard.alive)) drawActor(guard,true,scene);
