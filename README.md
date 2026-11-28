@@ -86,3 +86,7 @@ To add another full-body cutout later, upload a transparent WebP under `assets/f
 - `assets/fullbody/nga-lone.webp` retains the previously approved, heavily muscled full-body version.
 - **Artwork QA:** the independently rendered main heroes, allies and Sayadaws are sharp; figures extracted from older full-character lineup references are concept drafts at lower native resolution, including some military characters and two Paladins. Do not label all 22 as final-quality native high-resolution illustrations; replace those particular draft WebPs with future approved single-character renders without changing the HTML/CSS/JS.
 - Backup of the cinematic site before this full-body rollout: `backup/before-fullbody-all22-2026-11-25`. The previously approved classic layout remains in `characters-classic.html`.
+
+## Tactics mechanics for future missions
+
+**Stone distraction.** Selecting an open landing tile plays the thrower's wind-up, release, and visible stone arc. At impact, guards within hearing range face the landing tile and show an alert. On their next two turns they investigate the landing tile, then rejoin their patrol. Use the landing tile as the source of the sound and keep each responding guard's investigation state independent. Palace Escape uses a four-tile throw range and a four-tile hearing radius.
