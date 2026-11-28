@@ -404,6 +404,7 @@ function checkWin(){
  }
 }
 const carriagePlaces={mother:{x:11,y:1},maya:{x:12,y:1},kan:{x:12,y:0}};
+const SHOCK_DURATION=540;
 function finish(win,reason,captured,arrestingGuard){
  state='ending';
  ending={win,captured,arrestingGuard,index:-1,lines:win?[
@@ -417,6 +418,17 @@ function finish(win,reason,captured,arrestingGuard){
  byId('frame').classList.add('ending');
  note('');
  advanceDialogue();
+ if(captured&&!reducedMotion.matches){
+  const scene=ending;
+  scene.shockStart=performance.now();
+  function animateShock(){
+   if(ending!==scene||state!=='ending') return;
+   render();
+   if(performance.now()-scene.shockStart<SHOCK_DURATION) requestAnimationFrame(animateShock);
+   else {scene.shockStart=undefined;render();}
+  }
+  requestAnimationFrame(animateShock);
+ }
  render();
 }
 function advanceDialogue(){
@@ -474,6 +486,24 @@ palaceLayout.observe(byId('endingTalk'));
 function point(x,y){return{x:260+x*70+y*27,y:545-x*19+y*31}}
 function polygon(x,y){const p=point(x,y),a={x:70,y:-19},b={x:27,y:31};return [[p.x,p.y],[p.x+a.x,p.y+a.y],[p.x+a.x+b.x,p.y+a.y+b.y],[p.x+b.x,p.y+b.y]]}
 function drawTile(x,y,fill,stroke,width=1.5){let pts=polygon(x,y);ctx.beginPath();ctx.moveTo(...pts[0]);for(let i=1;i<4;i++)ctx.lineTo(...pts[i]);ctx.closePath();ctx.fillStyle=fill;ctx.fill();ctx.strokeStyle=stroke;ctx.lineWidth=width;ctx.stroke()}
+const graySprites=new WeakMap();
+function graySprite(image){
+ if(graySprites.has(image)) return graySprites.get(image);
+ const sprite=document.createElement('canvas');
+ sprite.width=image.naturalWidth;
+ sprite.height=image.naturalHeight;
+ const brush=sprite.getContext('2d');
+ brush.drawImage(image,0,0);
+ const pixels=brush.getImageData(0,0,sprite.width,sprite.height);
+ const data=pixels.data;
+ for(let i=0;i<data.length;i+=4){
+  const gray=.2126*data[i]+.7152*data[i+1]+.0722*data[i+2];
+  data[i]=data[i+1]=data[i+2]=gray;
+ }
+ brush.putImageData(pixels,0,0);
+ graySprites.set(image,sprite);
+ return sprite;
+}
 function drawActor(unit,enemy=false,scene=false){
  const tile=point(unit.x,unit.y);
  const cx=tile.x+48,cy=tile.y+18;
@@ -492,9 +522,17 @@ function drawActor(unit,enemy=false,scene=false){
 
  const kind=enemy||unit.id==='escort2'?'escort':unit.id;
  const image=loaded[kind];
+ const captured=scene&&ending?.captured===unit;
+ const height=kind==='kan'?73:kind==='mother'?118:96;
  const throwing=activeThrow?.unit===unit?activeThrow:null;
  ctx.save();
  ctx.translate(cx,cy+13);
+ if(captured&&state==='ending'&&ending.shockStart!==undefined){
+  const progress=Math.min(1,(performance.now()-ending.shockStart)/SHOCK_DURATION);
+  const recoil=Math.sin(progress*Math.PI*6)*(1-progress);
+  ctx.translate(5*recoil,-9*Math.sin(Math.min(1,progress*2)*Math.PI));
+  ctx.rotate(.06*recoil);
+ }
  if(enemy) ctx.scale(unit.facing,1);
  if(throwing){
   const {progress,facing}=throwing;
@@ -502,16 +540,26 @@ function drawActor(unit,enemy=false,scene=false){
   ctx.rotate(lean*facing);
  }
  if(image?.complete&&image.naturalWidth){
-  const height=kind==='kan'?73:kind==='mother'?118:96;
   const width=height*image.naturalWidth/image.naturalHeight;
-  ctx.drawImage(image,-width/2,-height,width,height);
+  ctx.drawImage(captured?graySprite(image):image,-width/2,-height,width,height);
  }else{
-  ctx.fillStyle=enemy?'#e55055':'#a3cbdf';
+  ctx.fillStyle=captured?'#a2a2a2':enemy?'#e55055':'#a3cbdf';
   ctx.fillRect(-12,-53,24,35);
  }
  if(throwing) drawThrowingArm(kind,throwing);
  ctx.restore();
 
+ if(captured){
+  ctx.save();
+  ctx.textAlign='center';
+  ctx.font='bold 25px Georgia';
+  ctx.lineWidth=4;
+  ctx.strokeStyle='#313136';
+  ctx.fillStyle='#f4f4f4';
+  ctx.strokeText('!',cx,cy-height+8);
+  ctx.fillText('!',cx,cy-height+8);
+  ctx.restore();
+ }
  if(scene) return;
  if(enemy&&unit.investigation){
   ctx.textAlign='center';
@@ -631,7 +679,7 @@ function render(){
  }
  if(scene&&ending.captured){
   drawTile(ending.arrestingGuard.x,ending.arrestingGuard.y,'#e43c5755','#ff6878',3);
-  drawTile(ending.captured.x,ending.captured.y,'#e9ae3555','#ffe084',3);
+  drawTile(ending.captured.x,ending.captured.y,'#88888860','#cecece',3);
  }
  const successScene=scene&&ending.win;
  if(!successScene) for(const guard of foes.filter(guard=>guard.alive)) drawActor(guard,true,scene);
