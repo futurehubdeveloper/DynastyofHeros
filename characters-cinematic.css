@@ -171,7 +171,7 @@ background-size:340px 280px,510px 390px}
  background:
   linear-gradient(180deg,rgba(8,9,13,.50) 0%,rgba(10,10,15,.22) 42%,rgba(8,9,13,.79) 100%),
   url("assets/characters-top-cinematic.webp") center center/cover no-repeat;
- border-bottom:1px solid rgba(214,167,90,.40);
+ border-bottom:0;
 }
 .cs-title-banner__content{position:relative;z-index:2;width:min(100%,1200px);text-shadow:0 3px 22px #09090d}
 .cs-title-banner__eyebrow{display:block;font:600 10px Inter,sans-serif;letter-spacing:.42em;color:#e9c997;margin-bottom:13px}
@@ -249,13 +249,26 @@ background-size:340px 280px,510px 390px}
 .cs-title-banner__video,.cs-title-banner::before{position:absolute;inset:0;width:100%;height:100%}
 .cs-title-banner__video{object-fit:cover;object-position:center;pointer-events:none}
 .cs-title-banner::before{content:"";z-index:1;background:linear-gradient(180deg,#09070979,#0d090963 45%,#090709cd);pointer-events:none}
-.cs-title-banner__toggle{position:absolute;z-index:3;bottom:.45rem;right:.75rem;background:#170f0dcc;border:1px solid #ae8a60;color:#fff0d5;padding:.3rem .5rem;font:inherit;font-size:.75rem;cursor:pointer}
+.cs-title-banner__toggle {
+  position: absolute; right: 6.5vw; bottom: 24px; z-index: 2;
+  min-height: 44px; padding: 10px 15px;
+  border: 1px solid #d4bd8a70; background: #0b1116b3; color: #f0e6d2;
+  font: 500 14px/1.4 Inter, sans-serif;
+ cursor:pointer;
+}
+.cs-title-banner__toggle:hover { border-color: #ead3a4; background: #0b1116e6; }
 
 /* Frame the temple skyline above the brothers on the forest lane. */
 .cs-title-banner{min-height:clamp(470px,43vw,800px);min-height:clamp(470px,43vw,min(800px,88svh));padding:96px 24px 56px}
 .cs-title-banner__video{object-position:70% 39%}
-.cs-title-banner::before{background:radial-gradient(ellipse at 50% 42%,#100b086b,transparent 76%),linear-gradient(180deg,#09070966,transparent 35%,#09070973)}
+.cs-title-banner::before{background:linear-gradient(90deg, #0b111605 18%, #0b111615 39%, #0b11166e 69%, #0b1116ad),
+              linear-gradient(0deg, #0b1116, #0b111618 28%, #0b111600 65%)}
 @media(max-width:700px){
  .cs-title-banner{min-height:clamp(340px,69svh,505px);padding:86px 16px 44px}
  .cs-title-banner__video{object-position:85% 39%}
+}
+
+@media (max-width: 600px) {
+ .cs-title-banner::before {background:linear-gradient(0deg, #0b1116 0%, #0b1116b3 29%, #0b11161a 68%, #0b11161a);}
+ .cs-title-banner__toggle {right:22px;bottom:20px;}
 }
