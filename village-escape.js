@@ -594,7 +594,7 @@ async function gateEnding(session) {
 function start() {
   advanceDialogue?.(true); advanceDialogue=null; gateScene='';
   get('gateTalk').hidden=true;
-  battle=new VillageBattle();busy=false;visual=null;selected=battle.family[0];inspected=selected;
+  battle=new VillageBattle();busy=true;visual=null;selected=battle.family[0];inspected=selected;
   cursor={x:selected.x,y:selected.y};mode='move';keyboard=false;
   const roster=get('roster');roster.replaceChildren();
   for(const unit of battle.units) {
@@ -605,7 +605,27 @@ function start() {
   }
   showStatus('The level-60 commander holds the entrance. Escape with all three relatives or defeat all six enemies.');
   display();
+  if(!get('missionBriefing').open) get('missionBriefing').showModal();
 }
+get('missionBriefing').addEventListener('cancel',event=>event.preventDefault());
+get('beginVillage').onclick=async ()=>{
+  const session=battle;
+  get('missionBriefing').close();
+  const [general,tint,pyae]=session.family;
+  for(const [unit,line] of [
+    [general,'Sons, we must break through them quickly.'],
+    [tint,'Yes, we can’t let them surround us.'],
+    [pyae,'Sure! Lead the way, Father!'],
+    [session.commander,'Surround them!\nDo not let them escape!']
+  ]){
+    await gateDialogue(unit,line);
+    if(battle!==session) return;
+  }
+  get('gateTalk').hidden=true;
+  busy=false;
+  display();
+  field.focus({preventScroll:true});
+};
 function pick(event) {
   const r=field.getBoundingClientRect(),x=(event.clientX-r.left)*1200/r.width,y=(event.clientY-r.top)*675/r.height;
   const bodies=battle.units.filter(standing).sort((a,b)=>project(b.x,b.y).y-project(a.x,a.y).y);

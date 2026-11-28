@@ -115,11 +115,11 @@
  #gameOver > div { padding:1rem; }
  #resultTitle { font-size:1.45rem; }
 }
-</style></head><body><div class="rotate-device" role="status"><span aria-hidden="true">↻</span><strong>Rotate your phone</strong><p>Turn your phone sideways to play Dynasty of Heroes: Tactics.</p><a href="game.html" style="color:#f9dfac">← Back to game page</a></div><a href="game.html" style="display:inline-block;padding:12px;color:#f9dfac;font:14px Georgia,serif">← Back to game page</a><div id="app"><div id="frame"><canvas id="board" width="1600" height="900"></canvas><div class="hud gold-panel title"><h1>DYNASTY<br>OF HEROES</h1><small>✦ TACTICS ✦</small></div><div class="hud gold-panel mission"><b>Episode 1: The First Escape</b><div>◆ Reach the carriage in 20 turns.</div><div>◆ Protect Pyin Sa, A May Mya + the prince, and Mg Kan.</div><div>◆ Throw stones to lure patrols away.</div></div><div class="hud gold-panel turn" id="turn">⌛ Turn 1 / 20</div><div class="hud gold-panel menu"><button onclick="setMode('move')" id="moveBtn" class="active">✥ Move</button><button onclick="waitUnit()">⌛ Wait</button><button onclick="hideUnit()">◉ Hide</button><button onclick="distract()" id="distractBtn">🪨 Throw Stone</button><button onclick="endTurn()">↻ End Turn</button><button onclick="restart()">⟲ Restart</button></div><div class="hud gold-panel stat"><img id="statImg"><div><h3 id="statName">Mg Kan</h3><p id="statInfo">HP: 1 • Move: 5</p><p id="statAbility">Keep the family safe</p></div></div><div id="partybar" class="hud"></div><div class="hud gold-panel notice" id="message">Select a character, then a blue tile to move.</div><div class="hud gold-panel mini"><b>✦ Carriage Exit ★</b><div>🔵 Friendly party</div><div>🔴 Royal searchers</div><div>🟦 Reachable tiles</div><div>🟥 Guard danger</div></div><section id="intro" class="overlay"><div class="stone"><div class="eyebrow">✦ Dynasty of Heroes — Tactics ✦</div><h1>THE FIRST ESCAPE</h1><h2>Chapter I · Night at the Palace</h2><div class="eyebrow">ကျောက်စာတိုင် · Bagan</div><p>By royal decree, soldiers search the palace for newborn princes. Princess Pyin Sa can barely walk. A May Mya holds baby King Kyan, while little Mg Kan follows the loyal guards through the shadows.</p><div class="rules"><div><strong>◆ VICTORY</strong><br>Guide Princess Pyin Sa, A May Mya carrying King Kyan, and Mg Kan to the carriage exit in 20 turns.</div><div><strong>◆ DEFEAT</strong><br>Any protected character is captured, or the turn limit expires. Loyal guards may sacrifice themselves to save the family.</div><div><strong>◆ STEALTH</strong><br>Royal searchers threaten tiles within two steps. Hide behind pillars, wait for patrols, or throw a stone to lure patrols.</div><div><strong>◆ CONTROLS</strong><br>Tap a party member, tap a blue tile. For Throw Stone, select Mg Kan or an escort, tap the stone button, then a GOLD tile. End Turn moves guards. Guards move after your turn.</div></div><button onclick="begin()">⚔ BEGIN MISSION</button></div></section><section id="endingTalk" hidden aria-label="Ending dialogue">
+</style></head><body><div class="rotate-device" role="status"><span aria-hidden="true">↻</span><strong>Rotate your phone</strong><p>Turn your phone sideways to play Dynasty of Heroes: Tactics.</p><a href="game.html" style="color:#f9dfac">← Back to game page</a></div><a href="game.html" style="display:inline-block;padding:12px;color:#f9dfac;font:14px Georgia,serif">← Back to game page</a><div id="app"><div id="frame"><canvas id="board" width="1600" height="900"></canvas><div class="hud gold-panel title"><h1>DYNASTY<br>OF HEROES</h1><small>✦ TACTICS ✦</small></div><div class="hud gold-panel mission"><b>Episode 1: The First Escape</b><div>◆ Reach the carriage in 20 turns.</div><div>◆ Protect Pyin Sa, A May Mya + the prince, and Mg Kan.</div><div>◆ Throw stones to lure patrols away.</div></div><div class="hud gold-panel turn" id="turn">⌛ Turn 1 / 20</div><div class="hud gold-panel menu"><button onclick="setMode('move')" id="moveBtn" class="active">✥ Move</button><button onclick="waitUnit()">⌛ Wait</button><button id="hideBtn" onclick="hideUnit()">◉ Hide</button><button onclick="distract()" id="distractBtn">🪨 Throw Stone</button><button onclick="endTurn()">↻ End Turn</button><button onclick="restart()">⟲ Restart</button></div><div class="hud gold-panel stat"><img id="statImg"><div><h3 id="statName">Mg Kan</h3><p id="statInfo">HP: 1 • Move: 5</p><p id="statAbility">Keep the family safe</p></div></div><div id="partybar" class="hud"></div><div class="hud gold-panel notice" id="message">Select a character, then a blue tile to move.</div><div class="hud gold-panel mini"><b>✦ Carriage Exit ★</b><div>🔵 Friendly party</div><div>🔴 Royal searchers</div><div>🟦 Reachable tiles</div><div>🟥 Guard danger</div></div><section id="intro" class="overlay"><div class="stone"><div class="eyebrow">✦ Dynasty of Heroes — Tactics ✦</div><h1>THE FIRST ESCAPE</h1><h2>Chapter I · Night at the Palace</h2><div class="eyebrow">ကျောက်စာတိုင် · Bagan</div><p>By royal decree, soldiers search the palace for newborn princes. Princess Pyin Sa can barely walk. A May Mya holds baby King Kyan, while little Mg Kan follows the loyal guards through the shadows.</p><div class="rules"><div><strong>◆ VICTORY</strong><br>Guide Princess Pyin Sa, A May Mya carrying King Kyan, and Mg Kan to the carriage exit in 20 turns.</div><div><strong>◆ DEFEAT</strong><br>Any protected character is captured, or the turn limit expires. Loyal guards may sacrifice themselves to save the family.</div><div><strong>◆ STEALTH</strong><br>Royal searchers threaten tiles within two steps. Hide behind pillars, wait for patrols, or throw a stone to lure patrols.</div><div><strong>◆ CONTROLS</strong><br>Tap a party member, then a blue tile to move. Mg Kan and each escort can move once and throw one stone per turn, in either order. Choose Throw Stone, then a gold tile. End Turn moves the guards.</div></div><button onclick="begin()">⚔ BEGIN MISSION</button></div></section><section id="endingTalk" hidden aria-label="Mission dialogue">
  <img id="endingPortrait" alt="">
  <div id="endingBubble">
   <div aria-live="polite"><strong id="endingSpeaker"></strong><p id="endingLine"></p></div>
-  <button id="endingNext" type="button" onclick="advanceEnding()">Continue</button>
+  <button id="endingNext" type="button" onclick="advanceDialogue()">Continue</button>
  </div>
 </section>
 <section id="gameOver" hidden aria-labelledby="resultTitle">
@@ -141,7 +141,7 @@ function init(){
  byId('frame').classList.remove('ending');
  byId('endingTalk').hidden=true;
  byId('gameOver').hidden=true;
- team=initial.map(unit=>({...unit,done:false,escaped:false,hidden:false}));
+ team=initial.map(unit=>({...unit,done:false,moved:false,threw:false,escaped:false,hidden:false}));
  foes=patrols.map((guard,i)=>({...guard,idx:0,alive:true,id:i,facing:1,investigation:null}));
  turn=1;
  selected=2;
@@ -150,7 +150,19 @@ function init(){
  note('Move the family toward the ★ carriage.');
  update();
 }
-function begin(){byId('intro').style.display='none';init()}
+function begin(){
+ byId('intro').style.display='none';
+ init();
+ state='opening';
+ ending={index:-1,lines:[
+  {name:'A May Mya',portrait:'maya',text:'Let’s move quickly.\nWe need to escape before they know we’re leaving.'},
+  {name:'Royal Guard',portrait:'escort',text:'Yes, we must.\nMy lady, please follow me.'}
+ ]};
+ byId('frame').classList.add('ending');
+ note('');
+ advanceDialogue();
+ render();
+}
 function restart(){begin()}
 function note(message){
  byId('message').textContent=message;
@@ -173,14 +185,15 @@ function setMode(next,repaint=true){
  if(repaint) render();
 }
 function select(i){if(!canAct()||!team[i]||team[i].escaped||team[i].hp<=0)return;selected=i;setMode('move');note('Selected '+team[i].name+'. Tap a blue tile.');update()}
-function tryMove(x,y){if(!canAct())return;const u=team[selected];if(u.done||u.escaped||u.hp<=0){note('This unit has finished its action.');return}if(foes.some(e=>e.alive&&e.x===x&&e.y===y)){note('A royal searcher blocks that tile.');return}if(!paths(u).has(x+','+y)){note('Outside movement range or blocked.');return}if(u.protect&&foes.some(f=>f.alive&&dist({x,y},f)<=2)){note('Too close to searchers! Choose a blue safe tile.');return}u.x=x;u.y=y;u.hidden=false;u.done=true;if(x===goal.x&&y===goal.y || (x>=11&&y<=1)){u.escaped=true;note(u.name+' reached the carriage!')}else note(u.name+' moved safely.');checkWin();update()}
+function stoneUser(unit){return unit.id==='kan'||!unit.protect}
+function tryMove(x,y){if(!canAct())return;const u=team[selected];if(u.done||u.moved||u.escaped||u.hp<=0){note('This unit cannot move again this turn.');return}if(foes.some(e=>e.alive&&e.x===x&&e.y===y)){note('A royal searcher blocks that tile.');return}if(!paths(u).has(x+','+y)){note('Outside movement range or blocked.');return}if(u.protect&&foes.some(f=>f.alive&&dist({x,y},f)<=2)){note('Too close to searchers! Choose a blue safe tile.');return}u.x=x;u.y=y;u.hidden=false;u.moved=true;u.done=u.threw||!stoneUser(u);if(x===goal.x&&y===goal.y || (x>=11&&y<=1)){u.escaped=true;note(u.name+' reached the carriage!')}else note(u.name+(u.done?' moved safely.':' moved. Throw Stone is available.'));checkWin();update()}
 function waitUnit(){const u=team[selected];if(!canAct()||u.done||u.escaped||u.hp<=0)return;setMode('move',false);u.done=true;note(u.name+' waits for the patrol.');update()}
-function hideUnit(){const u=team[selected];if(!canAct()||u.done||u.escaped||u.hp<=0)return;setMode('move',false);u.hidden=true;u.done=true;note(u.name+' hides behind the palace shadows this turn.');update()}
+function hideUnit(){const u=team[selected];if(!canAct()||u.done||u.moved||u.threw||u.escaped||u.hp<=0)return;setMode('move',false);u.hidden=true;u.done=true;note(u.name+' hides behind the palace shadows this turn.');update()}
 function distract(){
  if(!canAct()) return;
  const unit=team[selected];
- if(unit.done||unit.escaped||unit.hp<=0){note('Select a unit that still has an action.');return}
- if(unit.id!=='kan'&&unit.protect){note('Select Mg Kan or a loyal guard to throw a stone.');return}
+ if(unit.done||unit.threw||unit.escaped||unit.hp<=0){note('Select a unit that still has an action.');return}
+ if(!stoneUser(unit)){note('Select Mg Kan or a loyal guard to throw a stone.');return}
  setMode('stone');
  note('Tap a gold tile within 4 steps. Nearby guards will investigate the impact for 2 turns.');
 }
@@ -194,11 +207,12 @@ function faceTile(actor,target){
 function throwStone(x,y){
  if(!canAct()||mode!=='stone') return;
  const unit=team[selected];
- if(unit.done||unit.escaped||unit.hp<=0) return;
+ if(unit.done||unit.threw||unit.escaped||unit.hp<=0) return;
  if(!canLandStone(unit,x,y)){note('Choose an open gold tile within 4 steps.');return}
  const target={x,y};
  setMode('move',false);
- unit.done=true;
+ unit.threw=true;
+ unit.done=unit.moved;
  unit.hidden=false;
  const animation={unit,target,progress:0,facing:faceTile(unit,target)};
  activeThrow=animation;
@@ -289,7 +303,7 @@ function endTurn(){
  }
  if(turn>=20){finish(false,'The palace gates close before the family can escape.');return}
  turn++;
- for(const unit of team){unit.done=false;unit.hidden=false}
+ for(const unit of team){unit.done=false;unit.moved=false;unit.threw=false;unit.hidden=false}
  setMode('move',false);
  note('Turn '+turn+(foes.some(guard=>guard.investigation)?'. Guards are still investigating.':'. Patrols have moved. Choose your next action.'));
  update();
@@ -311,13 +325,23 @@ function finish(win,reason){
  byId('resultText').textContent=reason;
  byId('frame').classList.add('ending');
  note('');
- advanceEnding();
+ advanceDialogue();
  render();
 }
-function advanceEnding(){
- if(state!=='ending') return;
+function advanceDialogue(){
+ if(state!=='ending'&&state!=='opening') return;
  const line=ending.lines[++ending.index];
  if(!line){
+  if(state==='opening'){
+   state='playing';
+   ending=null;
+   byId('frame').classList.remove('ending');
+   byId('endingTalk').hidden=true;
+   note('Move the family toward the ★ carriage.');
+   update();
+   byId('moveBtn').focus();
+   return;
+  }
   state='over';
   byId('endingTalk').hidden=true;
   byId('gameOver').hidden=false;
@@ -457,8 +481,8 @@ function render(){
  ctx.clearRect(0,0,1600,900);
  const unit=team[selected];
  if(!unit||state==='intro') return;
- const scene=state==='ending'||state==='over';
- const reach=!scene&&mode==='move'&&canAct()&&!unit.done&&!unit.escaped&&unit.hp>0?paths(unit):new Map();
+ const scene=state==='opening'||state==='ending'||state==='over';
+ const reach=!scene&&mode==='move'&&canAct()&&!unit.moved&&!unit.done&&!unit.escaped&&unit.hp>0?paths(unit):new Map();
  if(!scene){
   for(let y=0;y<H;y++) for(let x=0;x<W;x++){
    if(blocked(x,y)) continue;
@@ -503,7 +527,12 @@ function render(){
  }
  drawStoneEffect();
 }
-function update(){document.getElementById('turn').textContent='⌛ Turn '+turn+' / 20';let u=team[selected];document.getElementById('statImg').src=ASSETS[u.id==='escort2'?'escort':u.id];document.getElementById('statName').textContent=u.name;document.getElementById('statInfo').textContent='HP: '+u.hp+' · Move: '+u.move+' tiles';document.getElementById('statAbility').textContent=u.done?'Action used':u.id==='kan'?'Throw Stone / Hide':u.protect?'Protected family':'Throw Stone / Intercept';document.getElementById('partybar').innerHTML=team.map((t,i)=>`<button class="person ${i===selected?'sel':''} ${t.done?'finished':''} ${t.hp<=0?'dead':''}" onclick="select(${i})" title="${t.name}"><img src="${ASSETS[t.id==='escort2'?'escort':t.id]}"><span>${t.id==='maya'?'A May Mya':t.id==='mother'?'Pyin Sa':t.id==='escort'?'Escort 1':t.id==='escort2'?'Escort 2':'Mg Kan'}</span></button>`).join('');render()}
+function update(){document.getElementById('turn').textContent='⌛ Turn '+turn+' / 20';let u=team[selected];
+ const unavailable=u.done||u.escaped||u.hp<=0;
+ byId('moveBtn').disabled=unavailable||u.moved;
+ byId('distractBtn').disabled=unavailable||u.threw||!stoneUser(u);
+ byId('hideBtn').disabled=unavailable||u.threw||u.moved;
+ document.getElementById('statImg').src=ASSETS[u.id==='escort2'?'escort':u.id];document.getElementById('statName').textContent=u.name;document.getElementById('statInfo').textContent='HP: '+u.hp+' · Move: '+u.move+' tiles';document.getElementById('statAbility').textContent=u.done||u.escaped?'Turn complete':u.moved?'Throw Stone available':u.threw?'Move available':u.id==='kan'?'Throw Stone / Hide':u.protect?'Protected family':'Throw Stone / Intercept';document.getElementById('partybar').innerHTML=team.map((t,i)=>`<button class="person ${i===selected?'sel':''} ${t.done?'finished':''} ${t.hp<=0?'dead':''}" onclick="select(${i})" title="${t.name}"><img src="${ASSETS[t.id==='escort2'?'escort':t.id]}"><span>${t.id==='maya'?'A May Mya':t.id==='mother'?'Pyin Sa':t.id==='escort'?'Escort 1':t.id==='escort2'?'Escort 2':'Mg Kan'}</span></button>`).join('');render()}
 function inside(poly,x,y){let inside=false;for(let i=0,j=poly.length-1;i<poly.length;j=i++){let xi=poly[i][0],yi=poly[i][1],xj=poly[j][0],yj=poly[j][1];if(((yi>y)!=(yj>y))&&(x<(xj-xi)*(y-yi)/(yj-yi)+xi))inside=!inside}return inside}
 function clickBoard(event){
  if(!canAct()) return;
