@@ -89,7 +89,14 @@
   position: absolute;
   z-index: -1;
   inset: 0 calc(50% - 50vw);
-  background: linear-gradient(90deg,#130c09ed, #160c0780 43%, transparent 78%),
+  background: linear-gradient(90deg,#130c09ed, #160c0780 43%, transparent 78%);
+}
+.comic-feature::after {
+  content: "";
+  position: absolute;
+  z-index: -3;
+  inset: 0 calc(50% - 50vw);
+  background:
     url("assets/scenes/comic-monastery-desk-clear.png") center / cover;
 }
 .comic-sample {
@@ -607,4 +614,29 @@
   .reader-bottom { flex-wrap:wrap; }
   .reader-bottom .reader-thumbs { flex-basis:100%; }
   .reader-bottom .reader-thumbs img { width:18px; height:24px; }
+}
+
+.comic-banner-video {
+  position: absolute;
+  top: 0;
+  left: calc(50% - 50vw);
+  width: 100vw;
+  max-width: none;
+  height: 100%;
+  object-fit: cover;
+  z-index: -2;
+  pointer-events: none;
+}
+.comic-motion {
+  position: absolute;
+  right: 0;
+  bottom: .5rem;
+  color: #ffedcc;
+  background: #20160fe6;
+  border: 1px solid #806744;
+  padding: .4rem .8rem;
+  cursor: pointer;
+}
+@media (prefers-reduced-motion: reduce) {
+  .comic-banner-video { display: none; }
 }

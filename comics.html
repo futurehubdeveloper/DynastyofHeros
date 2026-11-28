@@ -6,7 +6,7 @@
   <meta name="theme-color" content="#1a120e">
   <title>Comics | Dynasty of Heroes</title>
   <link rel="stylesheet" href="style.css?v=comic-cinzel">
-  <link rel="stylesheet" href="comics.css?v=larger-reading-desk">
+  <link rel="stylesheet" href="comics.css?v=monastery-motion">
   <link rel="preload" as="image" href="assets/scenes/comic-monastery-desk-clear.png">
   <script src="comics.js?v=parchment-pile-1" defer></script>
 </head>
@@ -16,6 +16,10 @@
 <section id="comics" class="section comics" aria-labelledby="comicTitle">
   <div class="section-inner comic-edition">
     <div class="comic-feature">
+      <video class="comic-banner-video" muted loop playsinline aria-hidden="true" preload="none">
+        <source src="assets/scenes/monastery-banner.mp4" type="video/mp4" media="(prefers-reduced-motion: no-preference)">
+      </video>
+      <button class="comic-motion" type="button" hidden>Pause motion</button>
       <div class="comic-intro">
         <p class="eyebrow">The original comic</p>
         <h1 class="heading" id="comicTitle">It began<br>with a comic.</h1>
@@ -90,5 +94,30 @@
 <div class="reader-toolbar"><div class="lefttools"><strong>DYNASTY OF HEROES · VOL. 1</strong><select id="readerEpisode" aria-label="Select chapter"><option value="0">Prologue</option><option value="1">Episode 1 · The Prophecy</option><option value="2">Episode 2 · The First Escape</option><option value="3">Episode 3 · Shadows Over the Village</option><option value="4">Episode 4 · The Price of Escape</option><option value="5">Episode 5 · The Mountain Monastery</option></select><button class="iconbtn" id="readerLang">EN ⇄ MM</button><div class="reader-modes" role="group" aria-label="Comic reading layout"><button class="iconbtn selected" data-reading-mode="single">Single</button><button class="iconbtn" data-reading-mode="double">Double</button><button class="iconbtn" data-reading-mode="scroll">Scroll</button></div><button class="iconbtn" id="readerZoomOut" title="Zoom out">−</button><button class="iconbtn" id="readerZoomIn" title="Zoom in">+</button><button class="iconbtn" id="readerFullscreen" title="Fullscreen">⛶</button></div><div class="righttools"><span id="readerCounter">1 / 1</span><button class="modalclose" id="closeReader">✕ Close</button></div><div class="reader-chapter-title" id="readerChapterTitle">Prologue</div></div>
 <div class="reader-bottom"><div class="reader-thumbs" id="readerThumbs" aria-label="Pages in selected episode"></div><button id="prevPage">❮ Previous</button><span id="readerBottomCounter">Page 1</span><button id="nextPage">Next ❯</button></div></div></div>
 
+<script>
+  const banner = document.querySelector('.comic-banner-video');
+  const motionButton = document.querySelector('.comic-motion');
+  const motionPreference = matchMedia('(prefers-reduced-motion: reduce)');
+  function syncMotion() {
+    if (motionPreference.matches) {
+      banner.pause();
+      motionButton.hidden = true;
+    } else {
+      banner.load();
+      banner.play().catch(() => {});
+    }
+  }
+  banner.addEventListener('playing', () => {
+    motionButton.hidden = false;
+    motionButton.textContent = 'Pause motion';
+  });
+  banner.addEventListener('pause', () => { motionButton.textContent = 'Play motion'; });
+  motionButton.addEventListener('click', () => {
+    if (banner.paused) banner.play().catch(() => {});
+    else banner.pause();
+  });
+  motionPreference.addEventListener('change', syncMotion);
+  syncMotion();
+</script>
 </body>
 </html>
