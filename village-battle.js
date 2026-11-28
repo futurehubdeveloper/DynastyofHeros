@@ -44,7 +44,7 @@ function villageDamage(attacker, target, skill = false) {
 }
 function inReach(unit, target, skill = false) {
   const d = distance(unit, target);
-  if (skill && unit.model==='commander') return d>=1 && d<=3 && (unit.x===target.x || unit.y===target.y);
+  if (skill && unit.model==='commander') return d>=1 && d<=2 && (unit.x===target.x || unit.y===target.y);
   return d === 1 || (unit.weapon === 'Spear' && d === 2 && (unit.x === target.x || unit.y === target.y));
 }
 const moveRange = unit => unit.enemy ? 2 : 3;
