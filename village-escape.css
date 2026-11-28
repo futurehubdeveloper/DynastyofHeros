@@ -127,3 +127,6 @@ dialog::backdrop { background:#080706ba; }
  #gateTalk img {height:48px;}
  #gateTalk p,#gateTalk strong {font-size:.88rem;line-height:1.25;}
 }
+
+#gateTalk { padding-bottom:9px; row-gap:10px; }
+#gateNext { position:static; grid-column:2; justify-self:end; }
