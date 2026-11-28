@@ -155,6 +155,7 @@ for(const [key,source] of Object.entries(ASSETS)){
  const image=new Image();
  loaded[key]=image;
  image.onload=()=>{
+  if(key==='mother') preparePrincessSprite(image);
   if(key==='maya'||key==='baby') prepareCarryingSprite();
   render();
  };
@@ -202,17 +203,32 @@ function prepareCarryingSprite(){
  brush.moveTo(81,119);brush.quadraticCurveTo(87,120,83,128);
  brush.lineTo(79,128);brush.closePath();
  brush.clip();brush.drawImage(mother,0,0);brush.restore();
- const original=ASSETS.maya;
- ASSETS.maya=sprite.toDataURL('image/png');
- const carrying=new Image();
- carrying.onload=()=>{
-  loaded.maya=carrying;
+ installSprite('maya',sprite);
+}
+function preparePrincessSprite(image){
+ const sprite=document.createElement('canvas');
+ sprite.width=image.naturalWidth;
+ sprite.height=image.naturalHeight;
+ const brush=sprite.getContext('2d');
+ brush.drawImage(image,0,0);
+ // Clear the strip of original backdrop between the cheek, sleeve and outer hem.
+ brush.globalCompositeOperation='destination-out';
+ const backdrop=new Path2D('M 276 141 Q 277 159 264 174 L 253 178 Q 252 197 250 208 Q 242 223 218 236 L 218 250 Q 226 255 232 266 Q 232 286 243 306 Q 250 334 276 356 L 273 366 Q 284 384 278 397 Q 273 408 259 403 L 251 406 Q 254 428 264 454 L 270 510 Q 288 523 306 528 L 318 532 L 318 141 Z');
+ brush.fill(backdrop);
+ installSprite('mother',sprite);
+}
+function installSprite(key,sprite){
+ const original=ASSETS[key];
+ const prepared=new Image();
+ ASSETS[key]=sprite.toDataURL('image/png');
+ prepared.onload=()=>{
+  loaded[key]=prepared;
   for(const portrait of document.images){
-   if(portrait.getAttribute('src')===original) portrait.src=ASSETS.maya;
+   if(portrait.getAttribute('src')===original) portrait.src=ASSETS[key];
   }
   render();
  };
- carrying.src=ASSETS.maya;
+ prepared.src=ASSETS[key];
 }
 const W=13,H=7,goal={x:12,y:0};let team=[],foes=[],selected=2,turn=1,state='intro',mode='move';
 let activeThrow=null, ending=null;
@@ -417,7 +433,6 @@ function finish(win,reason,captured,arrestingGuard){
  byId('resultText').textContent=reason;
  byId('frame').classList.add('ending');
  note('');
- advanceDialogue();
  if(captured&&!reducedMotion.matches){
   const scene=ending;
   scene.shockStart=performance.now();
@@ -425,10 +440,10 @@ function finish(win,reason,captured,arrestingGuard){
    if(ending!==scene||state!=='ending') return;
    render();
    if(performance.now()-scene.shockStart<SHOCK_DURATION) requestAnimationFrame(animateShock);
-   else {scene.shockStart=undefined;render();}
+   else {scene.shockStart=undefined;advanceDialogue();render();}
   }
   requestAnimationFrame(animateShock);
- }
+ }else advanceDialogue();
  render();
 }
 function advanceDialogue(){
@@ -445,10 +460,9 @@ function advanceDialogue(){
    byId('moveBtn').focus();
    return;
   }
-  state='over';
   byId('endingTalk').hidden=true;
-  byId('gameOver').hidden=false;
-  byId('replayPalace').focus();
+  if(ending.win) runToCarriage();
+  else showPalaceResult();
   return;
  }
  byId('endingPortrait').src=ASSETS[line.portrait];
@@ -457,6 +471,46 @@ function advanceDialogue(){
  byId('endingTalk').hidden=false;
  positionPalaceDialogue();
  byId('endingNext').focus({preventScroll:true});
+}
+function showPalaceResult(){
+ state='over';
+ byId('gameOver').hidden=false;
+ byId('replayPalace').focus();
+}
+function runToCarriage(){
+ const session=ending;
+ state='departing';
+ const start=performance.now();
+ function frame(now){
+  if(ending!==session||state!=='departing') return;
+  session.departure=reducedMotion.matches?1:Math.min(1,(now-start)/1750);
+  render();
+  if(session.departure<1) requestAnimationFrame(frame);
+  else showPalaceResult();
+ }
+ frame(start);
+}
+function drawDepartingFamily(){
+ // The carriage is painted into the background beyond the palace arch.
+ const gate={x:1214,y:237};
+ const family=team.filter(actor=>actor.protect);
+ family.forEach((actor,index)=>{
+  const start=carriagePlaces[actor.id];
+  const t=Math.max(0,Math.min(1,((ending.departure||0)-index*.08)/.84));
+  if(t===1) return;
+  const tile=point(start.x,start.y);
+  const feet={x:tile.x+48,y:tile.y+31};
+  const scale=1-.64*t;
+  const stride=Math.sin(t*10*Math.PI);
+  ctx.save();
+  ctx.translate(feet.x+(gate.x-feet.x)*t,feet.y+(gate.y-feet.y)*t-Math.abs(stride)*5*scale);
+  ctx.scale(scale,scale);
+  ctx.rotate(stride*.045);
+  ctx.globalAlpha=Math.min(1,(1-t)/.12);
+  ctx.translate(-feet.x,-feet.y);
+  drawActor({...actor,...start},false,true);
+  ctx.restore();
+ });
 }
 function placeSpeakerBubble(panel,canvas,headX,headY){
  const width=canvas.clientWidth,height=canvas.clientHeight;
@@ -552,12 +606,13 @@ function drawActor(unit,enemy=false,scene=false){
  if(captured){
   ctx.save();
   ctx.textAlign='center';
-  ctx.font='bold 25px Georgia';
+  ctx.font='bold 20px Georgia';
   ctx.lineWidth=4;
   ctx.strokeStyle='#313136';
   ctx.fillStyle='#f4f4f4';
-  ctx.strokeText('!',cx,cy-height+8);
-  ctx.fillText('!',cx,cy-height+8);
+  const label=ending.shockStart===undefined?'Captured':'!';
+  ctx.strokeText(label,cx,cy-height+8);
+  ctx.fillText(label,cx,cy-height+8);
   ctx.restore();
  }
  if(scene) return;
@@ -643,7 +698,7 @@ function render(){
  ctx.clearRect(0,0,1600,900);
  const unit=team[selected];
  if(!unit||state==='intro') return;
- const scene=state==='opening'||state==='ending'||state==='over';
+ const scene=state==='opening'||state==='ending'||state==='departing'||state==='over';
  const reach=!scene&&mode==='move'&&canAct()&&!unit.moved&&!unit.done&&!unit.escaped&&unit.hp>0?paths(unit):new Map();
  if(!scene){
   for(let y=0;y<H;y++) for(let x=0;x<W;x++){
@@ -684,7 +739,7 @@ function render(){
  const successScene=scene&&ending.win;
  if(!successScene) for(const guard of foes.filter(guard=>guard.alive)) drawActor(guard,true,scene);
  if(successScene){
-  team.filter(actor=>actor.protect).forEach(actor=>drawActor({...actor,...carriagePlaces[actor.id]},false,true));
+  drawDepartingFamily();
  }else{
   for(const actor of team.filter(actor=>!actor.escaped&&actor.hp>0).sort((a,b)=>a.y-b.y)){
    drawActor(actor,false,scene);
